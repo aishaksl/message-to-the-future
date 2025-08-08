@@ -4,10 +4,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ModernDatePicker } from "@/components/ui/modern-date-picker";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { CalendarIcon, Upload, Image, Video, Mic, Type, Send, Sparkles, Mail, MessageCircle, User, ArrowLeft, ArrowRight, CheckCircle, Loader2, Check, Gift } from "lucide-react";
+import {
+  CalendarIcon,
+  Upload,
+  Image,
+  Video,
+  Mic,
+  Type,
+  Send,
+  Sparkles,
+  Mail,
+  MessageCircle,
+  User,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  Loader2,
+  Check,
+  Gift,
+} from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -19,46 +41,83 @@ export const MessageCreator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [messageText, setMessageText] = useState("");
-  const [messageType, setMessageType] = useState<"text" | "image" | "video" | "audio">("text");
+  const [messageType, setMessageType] = useState<
+    "text" | "image" | "video" | "audio"
+  >("text");
   const [subject, setSubject] = useState("");
   const [recipientType, setRecipientType] = useState<"self" | "other">("self");
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState<"email" | "whatsapp" | "both">("email");
+  const [deliveryMethod, setDeliveryMethod] = useState<
+    "email" | "whatsapp" | "both"
+  >("email");
   const [isSurpriseMode, setIsSurpriseMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-  const [completedMessageId, setCompletedMessageId] = useState<string | null>(null);
+  const [completedMessageId, setCompletedMessageId] = useState<string | null>(
+    null
+  );
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  // Her message type için ayrı dosya listesi
+  const [selectedFiles, setSelectedFiles] = useState<{
+    image: File[];
+    video: File[];
+    audio: File[];
+  }>({
+    image: [],
+    video: [],
+    audio: [],
+  });
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const totalSteps = 6;
 
   const messageTypes = [
-    { type: "text" as const, icon: Type, label: "Written Words", description: "Pour your thoughts onto the page" },
-    { type: "image" as const, icon: Image, label: "Precious Moment", description: "Capture a memory that speaks volumes" },
-    { type: "video" as const, icon: Video, label: "Living Memory", description: "Record your face, your voice, your presence" },
-    { type: "audio" as const, icon: Mic, label: "Your Voice", description: "Let your future self hear your heart" },
+    {
+      type: "text" as const,
+      icon: Type,
+      label: "Written Words",
+      description: "Pour your thoughts onto the page",
+    },
+    {
+      type: "image" as const,
+      icon: Image,
+      label: "Precious Moment",
+      description: "Capture a memory that speaks volumes",
+    },
+    {
+      type: "video" as const,
+      icon: Video,
+      label: "Living Memory",
+      description: "Record your face, your voice, your presence",
+    },
+    {
+      type: "audio" as const,
+      icon: Mic,
+      label: "Your Voice",
+      description: "Let your future self hear your heart",
+    },
   ];
 
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
       // Close the date picker after selection for both mobile and desktop
       setIsDatePickerOpen(false);
-      
+
       const daysFromNow = differenceInDays(date, new Date());
       if (daysFromNow > 365) {
         // Redirect to payment page for paid delivery
@@ -83,7 +142,10 @@ export const MessageCreator = () => {
             return recipientPhone;
           }
         }
-        if (recipientType === "self" && (deliveryMethod === "whatsapp" || deliveryMethod === "both")) {
+        if (
+          recipientType === "self" &&
+          (deliveryMethod === "whatsapp" || deliveryMethod === "both")
+        ) {
           return recipientPhone;
         }
         return true;
@@ -112,7 +174,7 @@ export const MessageCreator = () => {
 
   const handleComplete = async () => {
     setIsLoading(true);
-    
+
     // Create message object
     const message = {
       id: Date.now().toString(),
@@ -128,29 +190,34 @@ export const MessageCreator = () => {
       status: "scheduled",
       createdAt: new Date(),
       isSurprise: isSurpriseMode,
-      preview: messageText ? messageText.substring(0, 100) + (messageText.length > 100 ? "..." : "") : `${messageType} message`,
+      preview: messageText
+        ? messageText.substring(0, 100) +
+          (messageText.length > 100 ? "..." : "")
+        : `${messageType} message`,
     };
 
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     // Save to localStorage
-    const existingMessages = JSON.parse(localStorage.getItem("sentMessages") || "[]");
+    const existingMessages = JSON.parse(
+      localStorage.getItem("sentMessages") || "[]"
+    );
     existingMessages.unshift(message); // Add to beginning for newest first
     localStorage.setItem("sentMessages", JSON.stringify(existingMessages));
-    
+
     // Set flag for dashboard highlighting
     localStorage.setItem("newMessageId", message.id);
-    
+
     // Clear loading state FIRST
     setIsLoading(false);
-    
+
     // Show success toast
     toast({
       title: "Message scheduled successfully!",
       description: "Taking you to dashboard...",
     });
-    
+
     // Use React Router navigation with replace to avoid adding to history
     navigate("/?view=dashboard", { replace: true });
   };
@@ -159,78 +226,94 @@ export const MessageCreator = () => {
     switch (currentStep) {
       case 1:
         return (
-           <div className="space-y-6">
-             <div className="text-center mb-6">
-               <h3 className="text-xl font-semibold mb-2">Who is this message for?</h3>
-               <p className="text-muted-foreground text-sm">Choose your recipient</p>
-             </div>
-             
-             <div className="grid grid-cols-1 gap-3">
-               <button
-                 onClick={() => setRecipientType("self")}
-                 className={cn(
-                   "p-8 rounded-lg border transition-all text-left",
-                   recipientType === "self"
-                     ? "border-primary bg-primary/5"
-                     : "border-border hover:border-primary/40"
-                 )}
-               >
-                 <div className="flex items-center gap-2">
-                   <User className="w-4 h-4" />
-                   <span className="text-sm font-medium">Future Me</span>
-                 </div>
-               </button>
-               
-               <button
-                 onClick={() => setRecipientType("other")}
-                 className={cn(
-                   "p-8 rounded-lg border transition-all text-left",
-                   recipientType === "other"
-                     ? "border-primary bg-primary/5"
-                     : "border-border hover:border-primary/40"
-                 )}
-               >
-                 <div className="flex items-center gap-2">
-                   <Send className="w-4 h-4" />
-                   <span className="text-sm font-medium">Someone Else</span>
-                 </div>
-               </button>
-             </div>
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-semibold mb-2">
+                Who is this message for?
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                Choose your recipient
+              </p>
+            </div>
 
-             {recipientType === "self" && (
-               <div className="space-y-3 animate-fade-in">
-                 <div className="p-3 border-2 border-dashed border-primary/20 rounded-xl bg-primary/5">
-                   <div className="flex items-center gap-2 mb-3">
-                     <div className="p-1.5 bg-primary/10 rounded-lg">
-                       <Gift className="w-4 h-4 text-primary" />
-                     </div>
-                     <div>
-                       <h4 className="font-medium text-primary text-sm">Surprise Mode</h4>
-                       <p className="text-xs text-muted-foreground">Keep your future self guessing!</p>
-                     </div>
-                   </div>
-                   <div className="flex items-start gap-2">
-                     <input
-                       type="checkbox"
-                       id="surpriseMode"
-                       checked={isSurpriseMode}
-                       onChange={(e) => setIsSurpriseMode(e.target.checked)}
-                       className="mt-0.5 w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
-                     />
-                     <label htmlFor="surpriseMode" className="cursor-pointer text-xs text-muted-foreground leading-relaxed">
-                       <strong className="text-foreground">Make this a surprise message</strong>
-                       <br />
-                       You won't be able to see or edit the content later - it will remain a surprise until delivery!
-                     </label>
-                   </div>
+            <div className="grid grid-cols-1 gap-3">
+              <button
+                onClick={() => setRecipientType("self")}
+                className={cn(
+                  "p-8 rounded-lg border transition-all text-left",
+                  recipientType === "self"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/40"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  <span className="text-sm font-medium">Future Me</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setRecipientType("other")}
+                className={cn(
+                  "p-8 rounded-lg border transition-all text-left",
+                  recipientType === "other"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/40"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Send className="w-4 h-4" />
+                  <span className="text-sm font-medium">Someone Else</span>
+                </div>
+              </button>
+            </div>
+
+            {recipientType === "self" && (
+              <div className="space-y-3 animate-fade-in">
+                <div className="p-3 border-2 border-dashed border-primary/20 rounded-xl bg-primary/5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-1.5 bg-primary/10 rounded-lg">
+                      <Gift className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-primary text-sm">
+                        Surprise Mode
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        Keep your future self guessing!
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      id="surpriseMode"
+                      checked={isSurpriseMode}
+                      onChange={(e) => setIsSurpriseMode(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
+                    />
+                    <label
+                      htmlFor="surpriseMode"
+                      className="cursor-pointer text-xs text-muted-foreground leading-relaxed"
+                    >
+                      <strong className="text-foreground">
+                        Make this a surprise message
+                      </strong>
+                      <br />
+                      You won't be able to see or edit the content later - it
+                      will remain a surprise until delivery!
+                    </label>
+                  </div>
                 </div>
               </div>
             )}
 
-             {recipientType === "other" && (
-               <div className="space-y-3 animate-fade-in">
+            {recipientType === "other" && (
+              <div className="space-y-3 animate-fade-in">
                 <div>
-                  <Label htmlFor="recipientName" className="text-base">Recipient Name</Label>
+                  <Label htmlFor="recipientName" className="text-base">
+                    Recipient Name
+                  </Label>
                   <Input
                     id="recipientName"
                     placeholder="Who will receive this message?"
@@ -249,10 +332,14 @@ export const MessageCreator = () => {
         return (
           <div className="space-y-6">
             <div className="text-center mb-6">
-              <h3 className="text-xl font-semibold mb-2">How should it be delivered?</h3>
-              <p className="text-muted-foreground text-sm">Choose your delivery method</p>
+              <h3 className="text-xl font-semibold mb-2">
+                How should it be delivered?
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                Choose your delivery method
+              </p>
             </div>
-            
+
             <div className="grid grid-cols-1 gap-3">
               <button
                 onClick={() => setDeliveryMethod("email")}
@@ -268,7 +355,7 @@ export const MessageCreator = () => {
                   <span className="text-sm font-medium">Email Only</span>
                 </div>
               </button>
-              
+
               <button
                 onClick={() => setDeliveryMethod("whatsapp")}
                 className={cn(
@@ -283,7 +370,7 @@ export const MessageCreator = () => {
                   <span className="text-sm font-medium">WhatsApp Only</span>
                 </div>
               </button>
-              
+
               <button
                 onClick={() => setDeliveryMethod("both")}
                 className={cn(
@@ -305,7 +392,9 @@ export const MessageCreator = () => {
               <div className="space-y-4 animate-fade-in">
                 {(deliveryMethod === "email" || deliveryMethod === "both") && (
                   <div>
-                    <Label htmlFor="recipientEmail" className="text-base">Email Address</Label>
+                    <Label htmlFor="recipientEmail" className="text-base">
+                      Email Address
+                    </Label>
                     <Input
                       id="recipientEmail"
                       type="email"
@@ -316,9 +405,12 @@ export const MessageCreator = () => {
                     />
                   </div>
                 )}
-                {(deliveryMethod === "whatsapp" || deliveryMethod === "both") && (
+                {(deliveryMethod === "whatsapp" ||
+                  deliveryMethod === "both") && (
                   <div>
-                    <Label htmlFor="recipientPhone" className="text-base">Phone Number</Label>
+                    <Label htmlFor="recipientPhone" className="text-base">
+                      Phone Number
+                    </Label>
                     <Input
                       id="recipientPhone"
                       type="tel"
@@ -336,7 +428,9 @@ export const MessageCreator = () => {
               <div className="space-y-4 animate-fade-in">
                 {(deliveryMethod === "email" || deliveryMethod === "both") && (
                   <div>
-                    <Label htmlFor="recipientEmailSelf" className="text-base">Your Email Address</Label>
+                    <Label htmlFor="recipientEmailSelf" className="text-base">
+                      Your Email Address
+                    </Label>
                     <Input
                       id="recipientEmailSelf"
                       type="email"
@@ -347,9 +441,12 @@ export const MessageCreator = () => {
                     />
                   </div>
                 )}
-                {(deliveryMethod === "whatsapp" || deliveryMethod === "both") && (
+                {(deliveryMethod === "whatsapp" ||
+                  deliveryMethod === "both") && (
                   <div>
-                    <Label htmlFor="recipientPhoneSelf" className="text-base">Your Phone Number</Label>
+                    <Label htmlFor="recipientPhoneSelf" className="text-base">
+                      Your Phone Number
+                    </Label>
                     <Input
                       id="recipientPhoneSelf"
                       type="tel"
@@ -370,10 +467,14 @@ export const MessageCreator = () => {
         return (
           <div className="space-y-8">
             <div className="text-center mb-8">
-              <h3 className="text-xl font-semibold mb-2">Choose Message Type</h3>
-              <p className="text-muted-foreground text-sm">How do you want to express yourself?</p>
+              <h3 className="text-xl font-semibold mb-2">
+                Choose Message Type
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                How do you want to express yourself?
+              </p>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               {messageTypes.map(({ type, icon: Icon, label, description }) => (
                 <button
@@ -386,18 +487,23 @@ export const MessageCreator = () => {
                       : "border-border/40 hover:border-primary/40"
                   )}
                 >
-                  <Icon className={cn(
-                    "w-6 h-6 mb-3",
-                    messageType === type ? "text-primary" : "text-muted-foreground"
-                  )} />
+                  <Icon
+                    className={cn(
+                      "w-6 h-6 mb-3",
+                      messageType === type
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                    )}
+                  />
                   <h4 className="font-medium text-sm mb-1">{label}</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {description}
+                  </p>
                 </button>
               ))}
             </div>
           </div>
         );
-
 
       case 4:
         // Message content for both mobile and desktop
@@ -405,11 +511,15 @@ export const MessageCreator = () => {
           <div className="space-y-8">
             <div className="text-center mb-8">
               <h3 className="text-xl font-semibold mb-2">Your Message</h3>
-              <p className="text-muted-foreground text-sm">Pour your heart into words</p>
+              <p className="text-muted-foreground text-sm">
+                Pour your heart into words
+              </p>
             </div>
 
             <div>
-              <Label htmlFor="subject" className="text-base">Subject</Label>
+              <Label htmlFor="subject" className="text-base">
+                Subject
+              </Label>
               <Input
                 id="subject"
                 placeholder="Give your message a title..."
@@ -420,7 +530,18 @@ export const MessageCreator = () => {
             </div>
 
             <div>
-              <Label className="text-base mb-2 block">Message Content</Label>
+              <div className="flex items-center gap-2 mb-2">
+                <Label className="text-base">Message Content</Label>
+                {/* Success indicator - yazının hemen yanında */}
+                {selectedFiles[messageType as keyof typeof selectedFiles]
+                  ?.length > 0 &&
+                  messageType !== "text" && (
+                    <div className="flex items-center justify-center w-5 h-5 bg-green-100 rounded-full">
+                      <CheckCircle className="w-3 h-3 text-green-600" />
+                    </div>
+                  )}
+              </div>
+
               {messageType === "text" ? (
                 <Textarea
                   placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
@@ -429,16 +550,135 @@ export const MessageCreator = () => {
                   className="min-h-[240px] resize-none"
                 />
               ) : (
-                <div className="border-2 border-dashed border-border/50 rounded-lg p-12 text-center bg-background/20">
-                  <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-base mb-2">Upload your {messageType}</p>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Drag and drop or click to select files
-                  </p>
-                  <Button variant="outline" size="sm">
-                    Choose File
-                  </Button>
-                </div>
+                <>
+                  {/* Hidden file input - her zaman mevcut */}
+                  <input
+                    type="file"
+                    multiple
+                    accept={
+                      messageType === "image"
+                        ? "image/*"
+                        : messageType === "video"
+                        ? "video/*"
+                        : messageType === "audio"
+                        ? "audio/*"
+                        : "*/*"
+                    }
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      if (files && files.length > 0) {
+                        setSelectedFiles((prev) => ({
+                          ...prev,
+                          [messageType]: Array.from(files),
+                        }));
+                      }
+                    }}
+                    style={{ display: "none" }}
+                    id={`fileInput-${messageType}`}
+                  />
+
+                  {/* Upload Area - Sadece dosya yokken göster */}
+                  {selectedFiles[messageType as keyof typeof selectedFiles]
+                    ?.length === 0 && (
+                    <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
+                      <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-sm mb-2">Upload your {messageType}</p>
+                      <p className="text-muted-foreground text-xs mb-4">
+                        Drag and drop or click to select files
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const input = document.getElementById(
+                            `fileInput-${messageType}`
+                          ) as HTMLInputElement;
+                          if (input) input.click();
+                        }}
+                        type="button"
+                      >
+                        Choose Files
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* İçerik Önizlemesi - Upload alanının dışında, ayrı bir bölüm */}
+                  {selectedFiles[messageType as keyof typeof selectedFiles]
+                    ?.length > 0 && (
+                    <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl">
+                      <h4 className="text-sm font-semibold text-primary mb-4 flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4" />
+                        Uploaded {messageType} files (
+                        {
+                          selectedFiles[
+                            messageType as keyof typeof selectedFiles
+                          ].length
+                        }
+                        )
+                      </h4>
+
+                      {messageType === "image" ? (
+                        // Resimler için çok daha büyük grid - desktop'ta input'a uygun
+                        <div className="grid grid-cols-1 gap-8 max-w-none">
+                          {selectedFiles[
+                            messageType as keyof typeof selectedFiles
+                          ].map((file, index) => (
+                            <div key={index} className="group">
+                              <div className="w-full h-48 sm:h-56 lg:h-64 bg-muted rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg">
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={file.name}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                              </div>
+                              <div className="mt-4 text-center">
+                                <p className="text-base font-semibold text-foreground truncate">
+                                  {file.name}
+                                </p>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {(file.size / (1024 * 1024)).toFixed(1)} MB
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        // Video/Audio için çok daha geniş ve büyük liste
+                        <div className="space-y-5">
+                          {selectedFiles[
+                            messageType as keyof typeof selectedFiles
+                          ].map((file, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-6 p-6 sm:p-8 bg-gradient-to-r from-primary/8 via-primary/5 to-primary/8 rounded-2xl border-2 border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300"
+                            >
+                              <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary/20 to-primary/30 rounded-2xl shadow-md">
+                                {messageType === "video" ? (
+                                  <Video className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                                ) : (
+                                  <Mic className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-lg sm:text-xl font-bold truncate text-foreground mb-2">
+                                  {file.name}
+                                </p>
+                                <p className="text-base text-muted-foreground font-semibold">
+                                  {(file.size / (1024 * 1024)).toFixed(1)} MB •{" "}
+                                  {messageType === "video" ? "Video" : "Audio"}{" "}
+                                  dosyası
+                                </p>
+                              </div>
+                              <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-full shadow-md">
+                                <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-700" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -450,12 +690,17 @@ export const MessageCreator = () => {
           <div className="space-y-8">
             <div className="text-center mb-8">
               <h3 className="text-xl font-semibold mb-2">When to Deliver?</h3>
-              <p className="text-muted-foreground text-sm">Choose the perfect moment in time</p>
+              <p className="text-muted-foreground text-sm">
+                Choose the perfect moment in time
+              </p>
             </div>
 
             <div>
               <Label className="text-base mb-4 block">Delivery Date</Label>
-              <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+              <Popover
+                open={isDatePickerOpen}
+                onOpenChange={setIsDatePickerOpen}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -467,12 +712,18 @@ export const MessageCreator = () => {
                   >
                     {selectedDate ? (
                       <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground mb-0.5">Delivery Date</span>
-                        <span className="font-medium">{format(selectedDate, "PPP")}</span>
+                        <span className="text-xs text-muted-foreground mb-0.5">
+                          Delivery Date
+                        </span>
+                        <span className="font-medium">
+                          {format(selectedDate, "PPP")}
+                        </span>
                       </div>
                     ) : (
                       <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground mb-0.5">Select Date</span>
+                        <span className="text-xs text-muted-foreground mb-0.5">
+                          Select Date
+                        </span>
                         <span>Choose when to deliver</span>
                       </div>
                     )}
@@ -499,32 +750,40 @@ export const MessageCreator = () => {
           <div className="space-y-8">
             <div className="text-center mb-8">
               <h3 className="text-xl font-semibold mb-2">Message Preview</h3>
-              <p className="text-muted-foreground text-sm">Review your message before sending</p>
+              <p className="text-muted-foreground text-sm">
+                Review your message before sending
+              </p>
             </div>
 
             <div className="p-6 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20">
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                  <span className="text-sm font-medium text-primary">Subject</span>
+                  <span className="text-sm font-medium text-primary">
+                    Subject
+                  </span>
                   <span className="text-sm">{subject}</span>
                 </div>
-                
+
                 <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                  <span className="text-sm font-medium text-primary">Delivery</span>
-                  <span className="text-sm">{selectedDate && format(selectedDate, "PPP")}</span>
+                  <span className="text-sm font-medium text-primary">
+                    Delivery
+                  </span>
+                  <span className="text-sm">
+                    {selectedDate && format(selectedDate, "PPP")}
+                  </span>
                 </div>
-                
+
                 <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
                   <span className="text-sm font-medium text-primary">Type</span>
                   <span className="text-sm capitalize">{messageType}</span>
                 </div>
-                
+
                 {messageText && (
                   <div className="p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                    <div className="text-sm font-medium text-primary mb-2">Content</div>
-                    <p className="text-sm leading-relaxed">
-                      {messageText}
-                    </p>
+                    <div className="text-sm font-medium text-primary mb-2">
+                      Content
+                    </div>
+                    <p className="text-sm leading-relaxed">{messageText}</p>
                   </div>
                 )}
               </div>
@@ -551,15 +810,16 @@ export const MessageCreator = () => {
                   Step {currentStep} of {totalSteps}
                 </span>
               </div>
-              <Progress value={(currentStep / totalSteps) * 100} className="h-2" />
+              <Progress
+                value={(currentStep / totalSteps) * 100}
+                className="h-2"
+              />
             </div>
 
-             {/* Step Content */}
-             <Card className="mb-3">
-               <CardContent className="p-4">
-                 {renderStepContent()}
-               </CardContent>
-             </Card>
+            {/* Step Content */}
+            <Card className="mb-3">
+              <CardContent className="p-4">{renderStepContent()}</CardContent>
+            </Card>
 
             {/* Navigation Buttons */}
             <div className="flex gap-3 pb-6">
@@ -583,7 +843,11 @@ export const MessageCreator = () => {
                 </Button>
               ) : (
                 <Button
-                  disabled={!subject || !selectedDate || (messageType === "text" && !messageText)}
+                  disabled={
+                    !subject ||
+                    !selectedDate ||
+                    (messageType === "text" && !messageText)
+                  }
                   className="flex-1"
                   onClick={handleComplete}
                 >
@@ -596,13 +860,17 @@ export const MessageCreator = () => {
         ) : (
           /* Desktop: Single column layout with all steps visible */
           <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-center mb-8">Create Your Message</h2>
-            
+            <h2 className="text-2xl font-bold text-center mb-8">
+              Create Your Message
+            </h2>
+
             {/* Step 1: Recipient */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">1</span>
+                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                    1
+                  </span>
                   Who is this message for?
                 </CardTitle>
               </CardHeader>
@@ -619,17 +887,23 @@ export const MessageCreator = () => {
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <User className={cn(
-                          "w-6 h-6",
-                          recipientType === "self" ? "text-primary" : "text-muted-foreground"
-                        )} />
+                        <User
+                          className={cn(
+                            "w-6 h-6",
+                            recipientType === "self"
+                              ? "text-primary"
+                              : "text-muted-foreground"
+                          )}
+                        />
                         <div>
                           <h4 className="font-medium">Future Me</h4>
-                          <p className="text-sm text-muted-foreground">Send a message to your future self</p>
+                          <p className="text-sm text-muted-foreground">
+                            Send a message to your future self
+                          </p>
                         </div>
                       </div>
                     </button>
-                    
+
                     <button
                       onClick={() => setRecipientType("other")}
                       className={cn(
@@ -640,52 +914,75 @@ export const MessageCreator = () => {
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <Send className={cn(
-                          "w-6 h-6",
-                          recipientType === "other" ? "text-primary" : "text-muted-foreground"
-                        )} />
+                        <Send
+                          className={cn(
+                            "w-6 h-6",
+                            recipientType === "other"
+                              ? "text-primary"
+                              : "text-muted-foreground"
+                          )}
+                        />
                         <div>
                           <h4 className="font-medium">Someone Else</h4>
-                          <p className="text-sm text-muted-foreground">Send a message to another person</p>
+                          <p className="text-sm text-muted-foreground">
+                            Send a message to another person
+                          </p>
                         </div>
                       </div>
                     </button>
-                   </div>
+                  </div>
 
-                   {recipientType === "self" && (
-                     <div className="space-y-4 animate-fade-in">
-                       <div className="p-4 border-2 border-dashed border-primary/20 rounded-xl bg-primary/5">
-                         <div className="flex items-center gap-3 mb-4">
-                           <div className="p-2 bg-primary/10 rounded-lg">
-                             <Gift className="w-5 h-5 text-primary" />
-                           </div>
-                           <div>
-                             <h4 className="font-medium text-primary">Surprise Mode</h4>
-                             <p className="text-sm text-muted-foreground">Keep your future self guessing!</p>
-                           </div>
-                         </div>
-                         <div className="flex items-start gap-3">
-                           <input
-                             type="checkbox"
-                             id="surpriseModeDesktop"
-                             checked={isSurpriseMode}
-                             onChange={(e) => setIsSurpriseMode(e.target.checked)}
-                             className="mt-1 w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
-                           />
-                           <label htmlFor="surpriseModeDesktop" className="cursor-pointer text-sm text-muted-foreground leading-relaxed">
-                             <strong className="text-foreground">Make this a surprise message</strong>
-                             <br />
-                             You won't be able to see or edit the content later - it will remain a surprise until delivery!
-                           </label>
-                         </div>
-                       </div>
-                     </div>
-                   )}
+                  {recipientType === "self" && (
+                    <div className="space-y-4 animate-fade-in">
+                      <div className="p-4 border-2 border-dashed border-primary/20 rounded-xl bg-primary/5">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="p-2 bg-primary/10 rounded-lg">
+                            <Gift className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-primary">
+                              Surprise Mode
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              Keep your future self guessing!
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            id="surpriseModeDesktop"
+                            checked={isSurpriseMode}
+                            onChange={(e) =>
+                              setIsSurpriseMode(e.target.checked)
+                            }
+                            className="mt-1 w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
+                          />
+                          <label
+                            htmlFor="surpriseModeDesktop"
+                            className="cursor-pointer text-sm text-muted-foreground leading-relaxed"
+                          >
+                            <strong className="text-foreground">
+                              Make this a surprise message
+                            </strong>
+                            <br />
+                            You won't be able to see or edit the content later -
+                            it will remain a surprise until delivery!
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {recipientType === "other" && (
                     <div className="space-y-4 animate-fade-in">
                       <div>
-                        <Label htmlFor="recipientNameDesktop" className="text-base">Recipient Name</Label>
+                        <Label
+                          htmlFor="recipientNameDesktop"
+                          className="text-base"
+                        >
+                          Recipient Name
+                        </Label>
                         <Input
                           id="recipientNameDesktop"
                           placeholder="Who will receive this message?"
@@ -704,7 +1001,9 @@ export const MessageCreator = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">2</span>
+                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                    2
+                  </span>
                   How should it be delivered?
                 </CardTitle>
               </CardHeader>
@@ -725,7 +1024,7 @@ export const MessageCreator = () => {
                         <span className="text-sm font-medium">Email Only</span>
                       </div>
                     </button>
-                    
+
                     <button
                       onClick={() => setDeliveryMethod("whatsapp")}
                       className={cn(
@@ -737,10 +1036,12 @@ export const MessageCreator = () => {
                     >
                       <div className="flex items-center gap-2">
                         <MessageCircle className="w-4 h-4" />
-                        <span className="text-sm font-medium">WhatsApp Only</span>
+                        <span className="text-sm font-medium">
+                          WhatsApp Only
+                        </span>
                       </div>
                     </button>
-                    
+
                     <button
                       onClick={() => setDeliveryMethod("both")}
                       className={cn(
@@ -753,16 +1054,24 @@ export const MessageCreator = () => {
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4" />
                         <MessageCircle className="w-4 h-4" />
-                        <span className="text-sm font-medium">Email + WhatsApp</span>
+                        <span className="text-sm font-medium">
+                          Email + WhatsApp
+                        </span>
                       </div>
                     </button>
                   </div>
 
                   {recipientType === "other" && (
                     <div className="space-y-4 animate-fade-in">
-                      {(deliveryMethod === "email" || deliveryMethod === "both") && (
+                      {(deliveryMethod === "email" ||
+                        deliveryMethod === "both") && (
                         <div>
-                          <Label htmlFor="recipientEmailDesktop" className="text-base">Email Address</Label>
+                          <Label
+                            htmlFor="recipientEmailDesktop"
+                            className="text-base"
+                          >
+                            Email Address
+                          </Label>
                           <Input
                             id="recipientEmailDesktop"
                             type="email"
@@ -773,9 +1082,15 @@ export const MessageCreator = () => {
                           />
                         </div>
                       )}
-                      {(deliveryMethod === "whatsapp" || deliveryMethod === "both") && (
+                      {(deliveryMethod === "whatsapp" ||
+                        deliveryMethod === "both") && (
                         <div>
-                          <Label htmlFor="recipientPhoneDesktop" className="text-base">Phone Number</Label>
+                          <Label
+                            htmlFor="recipientPhoneDesktop"
+                            className="text-base"
+                          >
+                            Phone Number
+                          </Label>
                           <Input
                             id="recipientPhoneDesktop"
                             type="tel"
@@ -791,9 +1106,15 @@ export const MessageCreator = () => {
 
                   {recipientType === "self" && (
                     <div className="space-y-4 animate-fade-in">
-                      {(deliveryMethod === "email" || deliveryMethod === "both") && (
+                      {(deliveryMethod === "email" ||
+                        deliveryMethod === "both") && (
                         <div>
-                          <Label htmlFor="recipientEmailSelfDesktop" className="text-base">Your Email Address</Label>
+                          <Label
+                            htmlFor="recipientEmailSelfDesktop"
+                            className="text-base"
+                          >
+                            Your Email Address
+                          </Label>
                           <Input
                             id="recipientEmailSelfDesktop"
                             type="email"
@@ -804,9 +1125,15 @@ export const MessageCreator = () => {
                           />
                         </div>
                       )}
-                      {(deliveryMethod === "whatsapp" || deliveryMethod === "both") && (
+                      {(deliveryMethod === "whatsapp" ||
+                        deliveryMethod === "both") && (
                         <div>
-                          <Label htmlFor="recipientPhoneSelfDesktop" className="text-base">Your Phone Number</Label>
+                          <Label
+                            htmlFor="recipientPhoneSelfDesktop"
+                            className="text-base"
+                          >
+                            Your Phone Number
+                          </Label>
                           <Input
                             id="recipientPhoneSelfDesktop"
                             type="tel"
@@ -827,31 +1154,41 @@ export const MessageCreator = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">3</span>
+                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                    3
+                  </span>
                   Choose Message Type
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {messageTypes.map(({ type, icon: Icon, label, description }) => (
-                    <button
-                      key={type}
-                      onClick={() => setMessageType(type)}
-                      className={cn(
-                        "p-4 rounded-xl border-2 transition-all duration-200 text-left",
-                        messageType === type
-                          ? "border-primary bg-primary/5 shadow-lg"
-                          : "border-border/40 hover:border-primary/40"
-                      )}
-                    >
-                      <Icon className={cn(
-                        "w-6 h-6 mb-3",
-                        messageType === type ? "text-primary" : "text-muted-foreground"
-                      )} />
-                      <h4 className="font-medium text-sm mb-1">{label}</h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
-                    </button>
-                  ))}
+                  {messageTypes.map(
+                    ({ type, icon: Icon, label, description }) => (
+                      <button
+                        key={type}
+                        onClick={() => setMessageType(type)}
+                        className={cn(
+                          "p-4 rounded-xl border-2 transition-all duration-200 text-left",
+                          messageType === type
+                            ? "border-primary bg-primary/5 shadow-lg"
+                            : "border-border/40 hover:border-primary/40"
+                        )}
+                      >
+                        <Icon
+                          className={cn(
+                            "w-6 h-6 mb-3",
+                            messageType === type
+                              ? "text-primary"
+                              : "text-muted-foreground"
+                          )}
+                        />
+                        <h4 className="font-medium text-sm mb-1">{label}</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {description}
+                        </p>
+                      </button>
+                    )
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -860,14 +1197,18 @@ export const MessageCreator = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">4</span>
+                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                    4
+                  </span>
                   Your Message
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   <div>
-                    <Label htmlFor="subjectDesktop" className="text-base">Subject</Label>
+                    <Label htmlFor="subjectDesktop" className="text-base">
+                      Subject
+                    </Label>
                     <Input
                       id="subjectDesktop"
                       placeholder="Give your message a title..."
@@ -878,7 +1219,17 @@ export const MessageCreator = () => {
                   </div>
 
                   <div>
-                    <Label className="text-base mb-2 block">Message Content</Label>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Label className="text-base">Message Content</Label>
+                      {/* Success indicator - yazının hemen yanında - DESKTOP */}
+                      {selectedFiles[messageType as keyof typeof selectedFiles]
+                        ?.length > 0 &&
+                        messageType !== "text" && (
+                          <div className="flex items-center justify-center w-5 h-5 bg-green-100 rounded-full">
+                            <CheckCircle className="w-3 h-3 text-green-600" />
+                          </div>
+                        )}
+                    </div>
                     {messageType === "text" ? (
                       <Textarea
                         placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
@@ -887,15 +1238,132 @@ export const MessageCreator = () => {
                         className="min-h-[200px] resize-none"
                       />
                     ) : (
-                      <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
-                        <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                        <p className="text-base mb-2">Upload your {messageType}</p>
-                        <p className="text-muted-foreground text-sm mb-4">
-                          Drag and drop or click to select files
-                        </p>
-                        <Button variant="outline" size="sm">
-                          Choose File
-                        </Button>
+                      <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20 relative">
+                        {/* Hidden file input - DESKTOP */}
+                        <input
+                          type="file"
+                          multiple
+                          accept={
+                            messageType === "image"
+                              ? "image/*"
+                              : messageType === "video"
+                              ? "video/*"
+                              : messageType === "audio"
+                              ? "audio/*"
+                              : "*/*"
+                          }
+                          onChange={(e) => {
+                            const files = e.target.files;
+                            if (files && files.length > 0) {
+                              // Her message type için ayrı dosya listesi tut - DESKTOP
+                              setSelectedFiles((prev) => ({
+                                ...prev,
+                                [messageType]: Array.from(files),
+                              }));
+                            }
+                          }}
+                          style={{ display: "none" }}
+                          id={`fileInputDesktop-${messageType}`}
+                        />
+
+                        {/* Upload UI - sadece dosya yokken göster - DESKTOP */}
+                        {selectedFiles[
+                          messageType as keyof typeof selectedFiles
+                        ]?.length === 0 && (
+                          <>
+                            <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                            <p className="text-base mb-2">
+                              Upload your {messageType}
+                            </p>
+                            <p className="text-muted-foreground text-sm mb-4">
+                              Drag and drop or click to select files
+                            </p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const input = document.getElementById(
+                                  `fileInputDesktop-${messageType}`
+                                ) as HTMLInputElement;
+                                if (input) input.click();
+                              }}
+                              type="button"
+                            >
+                              Choose File
+                            </Button>
+                          </>
+                        )}
+
+                        {/* İçerik önizlemesi - upload alanının içinde - DESKTOP - ESTETİK TASARIM */}
+                        {selectedFiles[
+                          messageType as keyof typeof selectedFiles
+                        ]?.length > 0 && (
+                          <div className="flex justify-center">
+                            {messageType === "image" ? (
+                              // Resimler için büyük önizleme - DESKTOP
+                              <div className="grid grid-cols-1 gap-3 w-full max-w-2xl">
+                                {selectedFiles[
+                                  messageType as keyof typeof selectedFiles
+                                ].map((file, index) => (
+                                  <div key={index} className="group">
+                                    <div className="w-full h-40 sm:h-48 bg-muted rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg">
+                                      <img
+                                        src={URL.createObjectURL(file)}
+                                        alt={file.name}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                      />
+                                    </div>
+                                    <div className="mt-1 text-center">
+                                      <p className="text-sm font-semibold text-foreground truncate">
+                                        {file.name}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground mt-1">
+                                        {(file.size / (1024 * 1024)).toFixed(1)}{" "}
+                                        MB
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              // Video/Audio için geniş ve güzel liste - DESKTOP
+                              <div className="space-y-3 w-full max-w-2xl">
+                                {selectedFiles[
+                                  messageType as keyof typeof selectedFiles
+                                ].map((file, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20 shadow-sm hover:shadow-md transition-shadow duration-200"
+                                  >
+                                    <div className="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-full">
+                                      {messageType === "video" ? (
+                                        <Video className="w-5 h-5 text-primary" />
+                                      ) : (
+                                        <Mic className="w-5 h-5 text-primary" />
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-semibold truncate text-foreground">
+                                        {file.name}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground font-medium">
+                                        {(file.size / (1024 * 1024)).toFixed(1)}{" "}
+                                        MB •{" "}
+                                        {messageType === "video"
+                                          ? "Video"
+                                          : "Audio"}{" "}
+                                        file
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+                                      <CheckCircle className="w-4 h-4 text-green-600" />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -907,32 +1375,46 @@ export const MessageCreator = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">5</span>
+                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                    5
+                  </span>
                   When to Deliver?
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   <div>
-                    <Label className="text-base mb-3 block">Delivery Date</Label>
-                     <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                       <PopoverTrigger asChild>
+                    <Label className="text-base mb-3 block">
+                      Delivery Date
+                    </Label>
+                    <Popover
+                      open={isDatePickerOpen}
+                      onOpenChange={setIsDatePickerOpen}
+                    >
+                      <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           className={cn(
                             "w-full justify-center text-center font-normal h-14 rounded-xl border-2 border-dashed",
-                            !selectedDate && "text-muted-foreground border-border/40",
+                            !selectedDate &&
+                              "text-muted-foreground border-border/40",
                             selectedDate && "border-primary/30 bg-primary/5"
                           )}
                         >
                           {selectedDate ? (
                             <div className="flex flex-col">
-                              <span className="text-xs text-muted-foreground mb-0.5">Delivery Date</span>
-                              <span className="font-medium">{format(selectedDate, "PPP")}</span>
+                              <span className="text-xs text-muted-foreground mb-0.5">
+                                Delivery Date
+                              </span>
+                              <span className="font-medium">
+                                {format(selectedDate, "PPP")}
+                              </span>
                             </div>
                           ) : (
                             <div className="flex flex-col">
-                              <span className="text-xs text-muted-foreground mb-0.5">Select Date</span>
+                              <span className="text-xs text-muted-foreground mb-0.5">
+                                Select Date
+                              </span>
                               <span>Choose when to deliver</span>
                             </div>
                           )}
@@ -958,7 +1440,9 @@ export const MessageCreator = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">6</span>
+                  <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                    6
+                  </span>
                   Message Preview
                 </CardTitle>
               </CardHeader>
@@ -966,26 +1450,36 @@ export const MessageCreator = () => {
                 <div className="p-6 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20">
                   <div className="space-y-4">
                     <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                      <span className="text-sm font-medium text-primary">Delivery</span>
-                      <span className="text-sm">{selectedDate ? format(selectedDate, "PPP") : "No date selected"}</span>
+                      <span className="text-sm font-medium text-primary">
+                        Delivery
+                      </span>
+                      <span className="text-sm">
+                        {selectedDate
+                          ? format(selectedDate, "PPP")
+                          : "No date selected"}
+                      </span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                      <span className="text-sm font-medium text-primary">Subject</span>
+                      <span className="text-sm font-medium text-primary">
+                        Subject
+                      </span>
                       <span className="text-sm">{subject || "No subject"}</span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                      <span className="text-sm font-medium text-primary">Type</span>
+                      <span className="text-sm font-medium text-primary">
+                        Type
+                      </span>
                       <span className="text-sm capitalize">{messageType}</span>
                     </div>
-                    
+
                     {messageText && (
                       <div className="p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                        <div className="text-sm font-medium text-primary mb-2">Content</div>
-                        <p className="text-sm leading-relaxed">
-                          {messageText}
-                        </p>
+                        <div className="text-sm font-medium text-primary mb-2">
+                          Content
+                        </div>
+                        <p className="text-sm leading-relaxed">{messageText}</p>
                       </div>
                     )}
                   </div>
@@ -997,7 +1491,11 @@ export const MessageCreator = () => {
             <div className="flex justify-center pt-4">
               <Button
                 size="lg"
-                disabled={!subject || !selectedDate || (messageType === "text" && !messageText)}
+                disabled={
+                  !subject ||
+                  !selectedDate ||
+                  (messageType === "text" && !messageText)
+                }
                 className="px-8"
                 onClick={handleComplete}
               >
@@ -1019,7 +1517,9 @@ export const MessageCreator = () => {
                   </div>
                 </div>
                 <p className="text-lg font-medium">Creating your message...</p>
-                <p className="text-sm text-muted-foreground text-center">This will just take a moment</p>
+                <p className="text-sm text-muted-foreground text-center">
+                  This will just take a moment
+                </p>
               </div>
             </div>
           </div>

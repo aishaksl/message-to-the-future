@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,9 +12,32 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
-import { Edit3, Save, X, Gift, Mail, MessageCircle, Type, Image, Video, Mic, Trash2, AlertTriangle } from "lucide-react";
+import {
+  Edit3,
+  Save,
+  X,
+  Gift,
+  Mail,
+  MessageCircle,
+  Type,
+  Image,
+  Video,
+  Mic,
+  Trash2,
+  AlertTriangle,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface MessageDetailsDialogProps {
   message: any;
@@ -19,7 +47,13 @@ interface MessageDetailsDialogProps {
   onDelete: (messageId: string) => void;
 }
 
-export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDelete }: MessageDetailsDialogProps) => {
+export const MessageDetailsDialog = ({
+  message,
+  isOpen,
+  onClose,
+  onUpdate,
+  onDelete,
+}: MessageDetailsDialogProps) => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editedSubject, setEditedSubject] = useState("");
@@ -72,12 +106,15 @@ export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDel
       ...message,
       subject: editedSubject,
       content: editedContent,
-      preview: editedContent ? editedContent.substring(0, 100) + (editedContent.length > 100 ? "..." : "") : `${message.type} message`,
+      preview: editedContent
+        ? editedContent.substring(0, 100) +
+          (editedContent.length > 100 ? "..." : "")
+        : `${message.type} message`,
     };
-    
+
     onUpdate(updatedMessage);
     setIsEditing(false);
-    
+
     toast({
       title: "Message updated",
       description: "Your message has been saved successfully.",
@@ -93,7 +130,7 @@ export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDel
   const handleDelete = () => {
     onDelete(message.id);
     onClose();
-    
+
     toast({
       title: "Message deleted",
       description: "Your message has been removed.",
@@ -120,7 +157,10 @@ export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDel
             </div>
             <div className="flex flex-col items-end gap-1 shrink-0">
               {message.isSurprise && (
-                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
+                <Badge
+                  variant="secondary"
+                  className="bg-primary/10 text-primary border-primary/20 text-xs"
+                >
                   <Gift className="h-3 w-3 mr-1" />
                   Surprise
                 </Badge>
@@ -142,14 +182,18 @@ export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDel
             <div>
               <Label className="text-muted-foreground">Delivery Date</Label>
               <p className="font-medium">
-                {message.deliveryDate ? format(new Date(message.deliveryDate), "MMM dd, yyyy") : "Not set"}
+                {message.deliveryDate
+                  ? format(new Date(message.deliveryDate), "MMM dd, yyyy")
+                  : "Not set"}
               </p>
             </div>
             <div>
               <Label className="text-muted-foreground">Delivery Method</Label>
               <div className="flex items-center gap-2">
                 {getDeliveryIcon(message.deliveryMethod)}
-                <span className="font-medium capitalize">{message.deliveryMethod}</span>
+                <span className="font-medium capitalize">
+                  {message.deliveryMethod}
+                </span>
               </div>
             </div>
             <div>
@@ -164,13 +208,18 @@ export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDel
 
           {/* Message Content */}
           <div>
-            <Label className="text-base font-medium mb-3 block">Message Content</Label>
+            <Label className="text-base font-medium mb-3 block">
+              Message Content
+            </Label>
             {message.isSurprise && !isEditing ? (
               <div className="p-6 border-2 border-dashed border-primary/20 rounded-xl bg-primary/5 text-center">
                 <Gift className="h-12 w-12 text-primary mx-auto mb-3" />
-                <p className="text-primary font-medium mb-2">Surprise Message</p>
+                <p className="text-primary font-medium mb-2">
+                  Surprise Message
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  This is a surprise message. The content is hidden to preserve the surprise!
+                  This is a surprise message. The content is hidden to preserve
+                  the surprise!
                 </p>
               </div>
             ) : isEditing ? (
@@ -192,8 +241,8 @@ export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDel
           {/* Action Buttons */}
           <div className="flex justify-between items-center pt-4">
             <div className="flex gap-2">
-              {!message.isSurprise && (
-                isEditing ? (
+              {!message.isSurprise &&
+                (isEditing ? (
                   <>
                     <Button onClick={handleSave} size="sm">
                       <Save className="h-4 w-4 mr-2" />
@@ -205,12 +254,15 @@ export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDel
                     </Button>
                   </>
                 ) : (
-                  <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
+                  <Button
+                    onClick={() => setIsEditing(true)}
+                    variant="outline"
+                    size="sm"
+                  >
                     <Edit3 className="h-4 w-4 mr-2" />
                     Edit Message
                   </Button>
-                )
-              )}
+                ))}
             </div>
 
             <AlertDialog>
@@ -227,12 +279,16 @@ export const MessageDetailsDialog = ({ message, isOpen, onClose, onUpdate, onDel
                     Delete Message
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete this message? This action cannot be undone.
+                    Are you sure you want to delete this message? This action
+                    cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
                     Delete Message
                   </AlertDialogAction>
                 </AlertDialogFooter>
