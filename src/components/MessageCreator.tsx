@@ -29,6 +29,8 @@ import {
   Loader2,
   Check,
   Gift,
+  Expand,
+  X,
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -169,6 +171,35 @@ export const MessageCreator = () => {
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+    }
+  };
+
+  // Dosya silme fonksiyonu
+  const removeFile = (fileIndex: number) => {
+    setSelectedFiles((prev) => ({
+      ...prev,
+      [messageType]: prev[messageType].filter(
+        (_, index) => index !== fileIndex
+      ),
+    }));
+  };
+
+  // Dosya büyütme fonksiyonu
+  const expandFile = (file: File) => {
+    if (messageType === "image") {
+      // Resim için yeni sekmede aç
+      const url = URL.createObjectURL(file);
+      window.open(url, "_blank");
+    } else {
+      // Video/Audio için download
+      const url = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   };
 
@@ -623,13 +654,30 @@ export const MessageCreator = () => {
                           {selectedFiles[
                             messageType as keyof typeof selectedFiles
                           ].map((file, index) => (
-                            <div key={index} className="group">
+                            <div key={index} className="group relative">
                               <div className="w-full h-48 sm:h-56 lg:h-64 bg-muted rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg">
                                 <img
                                   src={URL.createObjectURL(file)}
                                   alt={file.name}
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 />
+                                {/* Action buttons - sağ üstte */}
+                                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <button
+                                    onClick={() => expandFile(file)}
+                                    className="w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors duration-200"
+                                    title="Büyüt"
+                                  >
+                                    <Expand className="w-4 h-4 text-white" />
+                                  </button>
+                                  <button
+                                    onClick={() => removeFile(index)}
+                                    className="w-8 h-8 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors duration-200"
+                                    title="Sil"
+                                  >
+                                    <X className="w-4 h-4 text-white" />
+                                  </button>
+                                </div>
                               </div>
                               <div className="mt-4 text-center">
                                 <p className="text-base font-semibold text-foreground truncate">
@@ -650,7 +698,7 @@ export const MessageCreator = () => {
                           ].map((file, index) => (
                             <div
                               key={index}
-                              className="flex items-center gap-6 p-6 sm:p-8 bg-gradient-to-r from-primary/8 via-primary/5 to-primary/8 rounded-2xl border-2 border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300"
+                              className="group relative flex items-center gap-6 p-6 sm:p-8 bg-gradient-to-r from-primary/8 via-primary/5 to-primary/8 rounded-2xl border-2 border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300"
                             >
                               <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary/20 to-primary/30 rounded-2xl shadow-md">
                                 {messageType === "video" ? (
@@ -671,6 +719,23 @@ export const MessageCreator = () => {
                               </div>
                               <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-full shadow-md">
                                 <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-700" />
+                              </div>
+                              {/* Action buttons - sağ üstte */}
+                              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <button
+                                  onClick={() => expandFile(file)}
+                                  className="w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors duration-200"
+                                  title="İndir"
+                                >
+                                  <Expand className="w-4 h-4 text-white" />
+                                </button>
+                                <button
+                                  onClick={() => removeFile(index)}
+                                  className="w-8 h-8 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors duration-200"
+                                  title="Sil"
+                                >
+                                  <X className="w-4 h-4 text-white" />
+                                </button>
                               </div>
                             </div>
                           ))}
@@ -1238,7 +1303,7 @@ export const MessageCreator = () => {
                         className="min-h-[200px] resize-none"
                       />
                     ) : (
-                      <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20 relative">
+                      <div className="border-2 border-dashed border-border/50 rounded-lg p-4 text-center bg-background/20 relative">
                         {/* Hidden file input - DESKTOP */}
                         <input
                           type="file"
@@ -1305,13 +1370,30 @@ export const MessageCreator = () => {
                                 {selectedFiles[
                                   messageType as keyof typeof selectedFiles
                                 ].map((file, index) => (
-                                  <div key={index} className="group">
+                                  <div key={index} className="group relative">
                                     <div className="w-full h-40 sm:h-48 bg-muted rounded-xl overflow-hidden border-2 border-primary/20 shadow-lg">
                                       <img
                                         src={URL.createObjectURL(file)}
                                         alt={file.name}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                                       />
+                                      {/* Action buttons - sağ üstte */}
+                                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <button
+                                          onClick={() => expandFile(file)}
+                                          className="w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors duration-200"
+                                          title="Büyüt"
+                                        >
+                                          <Expand className="w-4 h-4 text-white" />
+                                        </button>
+                                        <button
+                                          onClick={() => removeFile(index)}
+                                          className="w-8 h-8 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors duration-200"
+                                          title="Sil"
+                                        >
+                                          <X className="w-4 h-4 text-white" />
+                                        </button>
+                                      </div>
                                     </div>
                                     <div className="mt-1 text-center">
                                       <p className="text-sm font-semibold text-foreground truncate">
@@ -1327,36 +1409,48 @@ export const MessageCreator = () => {
                               </div>
                             ) : (
                               // Video/Audio için geniş ve güzel liste - DESKTOP
-                              <div className="space-y-3 w-full max-w-2xl">
+                              <div className="space-y-2 w-full max-w-2xl">
                                 {selectedFiles[
                                   messageType as keyof typeof selectedFiles
                                 ].map((file, index) => (
-                                  <div
-                                    key={index}
-                                    className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20 shadow-sm hover:shadow-md transition-shadow duration-200"
-                                  >
-                                    <div className="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-full">
-                                      {messageType === "video" ? (
-                                        <Video className="w-5 h-5 text-primary" />
-                                      ) : (
-                                        <Mic className="w-5 h-5 text-primary" />
-                                      )}
+                                  <div key={index} className="group relative">
+                                    <div className="w-full h-40 sm:h-48 bg-gradient-to-r from-primary/8 via-primary/5 to-primary/8 rounded-2xl border-2 border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
+                                      <div className="flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary/20 to-primary/30 rounded-2xl shadow-md">
+                                        {messageType === "video" ? (
+                                          <Video className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
+                                        ) : (
+                                          <Mic className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
+                                        )}
+                                      </div>
+                                      {/* Action buttons - sağ üstte */}
+                                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <button
+                                          onClick={() => expandFile(file)}
+                                          className="w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors duration-200"
+                                          title="İndir"
+                                        >
+                                          <Expand className="w-4 h-4 text-white" />
+                                        </button>
+                                        <button
+                                          onClick={() => removeFile(index)}
+                                          className="w-8 h-8 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors duration-200"
+                                          title="Sil"
+                                        >
+                                          <X className="w-4 h-4 text-white" />
+                                        </button>
+                                      </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-semibold truncate text-foreground">
+                                    <div className="mt-1 text-center">
+                                      <p className="text-base font-semibold text-foreground truncate">
                                         {file.name}
                                       </p>
-                                      <p className="text-xs text-muted-foreground font-medium">
+                                      <p className="text-sm text-muted-foreground mt-1">
                                         {(file.size / (1024 * 1024)).toFixed(1)}{" "}
                                         MB •{" "}
                                         {messageType === "video"
                                           ? "Video"
-                                          : "Audio"}{" "}
-                                        file
+                                          : "Audio"}
                                       </p>
-                                    </div>
-                                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
-                                      <CheckCircle className="w-4 h-4 text-green-600" />
                                     </div>
                                   </div>
                                 ))}
