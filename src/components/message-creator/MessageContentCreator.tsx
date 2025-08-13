@@ -200,8 +200,16 @@ export const MessageContentCreator = ({
                     ].map((file, index) => (
                       <div key={index} className="group">
                         <div
-                          className="w-full h-40 bg-muted rounded-xl border-2 border-primary/20 shadow-sm overflow-hidden relative cursor-pointer hover:border-primary/40 transition-all duration-300"
-                          onClick={() => onExpandFile(file)}
+                          className={`w-full h-40 bg-muted rounded-xl border-2 border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300 ${
+                            messageType === "audio"
+                              ? ""
+                              : "cursor-pointer hover:border-primary/40"
+                          }`}
+                          onClick={
+                            messageType === "audio"
+                              ? undefined
+                              : () => onExpandFile(file)
+                          }
                         >
                           {messageType === "image" ? (
                             <img
@@ -210,19 +218,62 @@ export const MessageContentCreator = ({
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           ) : messageType === "video" ? (
-                            <video
-                              src={URL.createObjectURL(file)}
-                              className="w-full h-full object-cover"
-                              muted
-                            />
+                            <div className="relative w-full h-full bg-gray-900">
+                              <video
+                                src={URL.createObjectURL(file)}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                muted
+                                preload="metadata"
+                                onLoadedData={(e) => {
+                                  // Video yüklendiğinde ilk kareyi göster
+                                  const video = e.target as HTMLVideoElement;
+                                  video.currentTime = 1; // 1 saniyeye git
+                                }}
+                                onError={() => {
+                                  // Video yüklenemezse fallback göster
+                                  console.log("Video yüklenemedi");
+                                }}
+                              />
+                              {/* Fallback için video ikonu */}
+                              <div className="absolute inset-0 flex items-center justify-center bg-gray-800/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <Video className="w-12 h-12 text-white/60" />
+                              </div>
+                              {/* Oynatma ikonu */}
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                  <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent ml-1"></div>
+                                </div>
+                              </div>
+                            </div>
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20">
-                              <div className="flex flex-col items-center gap-2">
+                            <div
+                              className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 p-4 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const audio = e.currentTarget.querySelector(
+                                  "audio"
+                                ) as HTMLAudioElement;
+                                if (audio) {
+                                  if (audio.paused) {
+                                    audio.play();
+                                  } else {
+                                    audio.pause();
+                                  }
+                                }
+                              }}
+                            >
+                              <div className="flex flex-col items-center gap-3 mb-4">
                                 <Mic className="w-8 h-8 text-primary" />
                                 <span className="text-sm font-medium text-primary">
                                   Audio File
                                 </span>
                               </div>
+                              <audio
+                                src={URL.createObjectURL(file)}
+                                controls
+                                className="w-full max-w-sm h-10"
+                                onClick={(e) => e.stopPropagation()}
+                              />
                             </div>
                           )}
                         </div>

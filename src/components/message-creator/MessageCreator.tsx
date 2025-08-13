@@ -387,11 +387,18 @@ export const MessageCreator = () => {
                     }
                   />
                 ) : previewFile.type.startsWith("video/") ? (
-                  <div className="w-full h-[70vh] bg-black rounded-lg flex items-center justify-center overflow-hidden">
+                  <div
+                    className="w-full h-[70vh] rounded-lg overflow-hidden flex items-center justify-center"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                    }}
+                  >
                     <video
                       src={URL.createObjectURL(previewFile)}
                       controls
-                      className="max-w-full max-h-full object-contain rounded-lg"
+                      className="max-w-full max-h-full rounded-lg shadow-lg"
                     />
                   </div>
                 ) : previewFile.type.startsWith("audio/") ? (
