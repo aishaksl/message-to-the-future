@@ -1,38 +1,40 @@
 import { useState, useEffect } from "react";
-import { Hero } from "@/components/Hero";
-import { MessageCreator } from "@/components/MessageCreator";
-import { Dashboard } from "@/components/Dashboard";
-import { SignIn } from "@/components/SignIn";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { Hero } from "@/components/layout/Hero";
+import { MessageCreator } from "@/components/message-creator";
+import { Dashboard } from "@/components/dashboard/Dashboard";
+import { SignIn } from "@/components/auth/SignIn";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Home, MessageSquarePlus, BarChart3, LogIn, Menu } from "lucide-react";
 
 const Index = () => {
-  const [currentView, setCurrentView] = useState<"hero" | "create" | "dashboard" | "signin">("hero");
+  const [currentView, setCurrentView] = useState<
+    "hero" | "create" | "dashboard" | "signin"
+  >("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const view = urlParams.get('view');
-    if (view && ['hero', 'create', 'dashboard', 'signin'].includes(view)) {
+    const view = urlParams.get("view");
+    if (view && ["hero", "create", "dashboard", "signin"].includes(view)) {
       setCurrentView(view as any);
     }
-    
+
     // Listen for URL changes
     const handlePopState = () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const view = urlParams.get('view');
-      if (view && ['hero', 'create', 'dashboard', 'signin'].includes(view)) {
+      const view = urlParams.get("view");
+      if (view && ["hero", "create", "dashboard", "signin"].includes(view)) {
         setCurrentView(view as any);
       } else {
-        setCurrentView('hero');
+        setCurrentView("hero");
       }
     };
-    
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   const navigation = [
@@ -52,7 +54,7 @@ const Index = () => {
                 TimeCapsule
               </span>
             </div>
-            
+
             <div className="hidden md:flex items-center space-x-1">
               {navigation.map(({ id, label, icon: Icon }) => (
                 <Button
@@ -60,7 +62,11 @@ const Index = () => {
                   variant={currentView === id ? "default" : "ghost"}
                   onClick={() => {
                     setCurrentView(id as any);
-                    window.history.pushState({}, '', id === 'hero' ? '/' : `/?view=${id}`);
+                    window.history.pushState(
+                      {},
+                      "",
+                      id === "hero" ? "/" : `/?view=${id}`
+                    );
                   }}
                   className="font-normal"
                 >
@@ -77,8 +83,8 @@ const Index = () => {
 
             <div className="hidden md:flex items-center space-x-2">
               <ThemeToggle />
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="font-normal"
                 onClick={() => setCurrentView("signin")}
               >
@@ -106,22 +112,32 @@ const Index = () => {
               key={id}
               variant="ghost"
               onClick={() => {
-                setCurrentView(id as any);
-                window.history.pushState({}, '', id === 'hero' ? '/' : `/?view=${id}`);
+                setCurrentView(id as unknown);
+                window.history.pushState(
+                  {},
+                  "",
+                  id === "hero" ? "/" : `/?view=${id}`
+                );
               }}
               className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${
-                currentView === id ? "text-primary bg-primary/10" : "text-muted-foreground"
+                currentView === id
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground"
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{label === "Create Message" ? "Create" : label}</span>
+              <span className="text-xs font-medium">
+                {label === "Create Message" ? "Create" : label}
+              </span>
             </Button>
           ))}
           <Button
             variant="ghost"
             onClick={() => setCurrentView("signin")}
             className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${
-              currentView === "signin" ? "text-primary bg-primary/10" : "text-muted-foreground"
+              currentView === "signin"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground"
             }`}
           >
             <LogIn className="w-5 h-5" />

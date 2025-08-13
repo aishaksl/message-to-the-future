@@ -2,11 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Clock, CheckCircle, MessageSquare, Plus, Send, Video, Image, Type, Users, Inbox, SendHorizontal, Eye, Gift } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  CheckCircle,
+  MessageSquare,
+  Plus,
+  Send,
+  Video,
+  Image,
+  Type,
+  Users,
+  Inbox,
+  SendHorizontal,
+  Eye,
+  Gift,
+} from "lucide-react";
 import { format, addDays } from "date-fns";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageDetailsDialog } from "@/components/MessageDetailsDialog";
+import { MessageDetailsDialog } from "@/components/dashboard/MessageDetailsDialog";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -14,7 +29,7 @@ export const Dashboard = () => {
   const [newMessageId, setNewMessageId] = useState<string | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
-  
+
   useEffect(() => {
     // Load sent messages from localStorage
     const storedMessages = localStorage.getItem("sentMessages");
@@ -23,18 +38,20 @@ export const Dashboard = () => {
       // Convert date strings back to Date objects
       const processedMessages = messages.map((message: any) => ({
         ...message,
-        deliveryDate: message.deliveryDate ? new Date(message.deliveryDate) : null,
+        deliveryDate: message.deliveryDate
+          ? new Date(message.deliveryDate)
+          : null,
         createdAt: message.createdAt ? new Date(message.createdAt) : null,
       }));
       setSentMessages(processedMessages);
     }
-    
+
     // Check for newly created message ID
     const messageId = localStorage.getItem("newMessageId");
     if (messageId) {
       setNewMessageId(messageId);
       localStorage.removeItem("newMessageId");
-      
+
       // Clear the new message ID after 3 seconds
       setTimeout(() => {
         setNewMessageId(null);
@@ -92,7 +109,7 @@ export const Dashboard = () => {
   };
 
   const handleUpdateMessage = (updatedMessage: any) => {
-    const updatedMessages = sentMessages.map(msg => 
+    const updatedMessages = sentMessages.map((msg) =>
       msg.id === updatedMessage.id ? updatedMessage : msg
     );
     setSentMessages(updatedMessages);
@@ -100,7 +117,7 @@ export const Dashboard = () => {
   };
 
   const handleDeleteMessage = (messageId: string) => {
-    const updatedMessages = sentMessages.filter(msg => msg.id !== messageId);
+    const updatedMessages = sentMessages.filter((msg) => msg.id !== messageId);
     setSentMessages(updatedMessages);
     localStorage.setItem("sentMessages", JSON.stringify(updatedMessages));
   };
@@ -111,10 +128,14 @@ export const Dashboard = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-foreground mb-2">Your Dashboard</h1>
-            <p className="text-muted-foreground">Track your messages across time</p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-foreground mb-2">
+              Your Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+              Track your messages across time
+            </p>
           </div>
-          <Button 
+          <Button
             className="flex items-center gap-2 w-full md:w-auto"
             onClick={() => navigate("/create-message")}
           >
@@ -122,8 +143,7 @@ export const Dashboard = () => {
             Create Message
           </Button>
         </div>
-        
-        
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card>
@@ -134,7 +154,9 @@ export const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-lg md:text-2xl font-semibold">12</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">Messages Sent</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    Messages Sent
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -148,7 +170,9 @@ export const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-lg md:text-2xl font-semibold">3</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">Scheduled</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    Scheduled
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -162,7 +186,9 @@ export const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-lg md:text-2xl font-semibold">8</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">Delivered</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    Delivered
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -176,7 +202,9 @@ export const Dashboard = () => {
                 </div>
                 <div>
                   <p className="text-lg md:text-2xl font-semibold">5</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">Recipients</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    Recipients
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -189,15 +217,15 @@ export const Dashboard = () => {
             <Tabs defaultValue="received" className="w-full">
               <div className="border-b border-border">
                 <TabsList className="grid w-full grid-cols-2 h-14 bg-transparent rounded-none p-0">
-                  <TabsTrigger 
-                    value="received" 
+                  <TabsTrigger
+                    value="received"
                     className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none transition-all"
                   >
                     <Inbox className="h-4 w-4" />
                     <span className="text-sm font-medium">Received</span>
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="sent" 
+                  <TabsTrigger
+                    value="sent"
                     className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none transition-all"
                   >
                     <SendHorizontal className="h-4 w-4" />
@@ -205,19 +233,27 @@ export const Dashboard = () => {
                   </TabsTrigger>
                 </TabsList>
               </div>
-              
+
               <TabsContent value="received" className="m-0 p-6 animate-fade-in">
                 <div className="space-y-4">
                   {receivedMessages.map((message) => (
-                    <div key={message.id} className="p-4 border border-border rounded-xl hover:bg-muted/50 transition-all duration-200 hover:shadow-md">
+                    <div
+                      key={message.id}
+                      className="p-4 border border-border rounded-xl hover:bg-muted/50 transition-all duration-200 hover:shadow-md"
+                    >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-primary/10 rounded-lg">
                             {getTypeIcon(message.type)}
                           </div>
-                          <h4 className="font-medium text-base">{message.subject}</h4>
+                          <h4 className="font-medium text-base">
+                            {message.subject}
+                          </h4>
                         </div>
-                        <Badge variant="outline" className="text-xs shrink-0 bg-background">
+                        <Badge
+                          variant="outline"
+                          className="text-xs shrink-0 bg-background"
+                        >
                           {format(message.receivedDate, "MMM dd")}
                         </Badge>
                       </div>
@@ -226,27 +262,31 @@ export const Dashboard = () => {
                       </p>
                     </div>
                   ))}
-                  
+
                   {receivedMessages.length === 0 && (
                     <div className="p-12 text-center text-muted-foreground">
                       <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Inbox className="h-8 w-8 opacity-50" />
                       </div>
-                      <p className="text-sm font-medium mb-1">No received messages yet</p>
-                      <p className="text-xs opacity-75">Your future messages will appear here</p>
+                      <p className="text-sm font-medium mb-1">
+                        No received messages yet
+                      </p>
+                      <p className="text-xs opacity-75">
+                        Your future messages will appear here
+                      </p>
                     </div>
                   )}
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="sent" className="m-0 p-6 animate-fade-in">
                 <div className="space-y-4">
                   {sentMessages.map((message) => (
-                     <div 
-                      key={message.id} 
+                    <div
+                      key={message.id}
                       className={`p-4 border border-border rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer ${
                         newMessageId === message.id
-                          ? "bg-blue-50 border-blue-200 shadow-md animate-fade-in" 
+                          ? "bg-blue-50 border-blue-200 shadow-md animate-fade-in"
                           : "hover:bg-muted/50"
                       }`}
                       onClick={() => handleViewMessage(message)}
@@ -257,32 +297,49 @@ export const Dashboard = () => {
                             {getTypeIcon(message.type)}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h4 className="font-medium text-base truncate">{message.subject}</h4>
+                            <h4 className="font-medium text-base truncate">
+                              {message.subject}
+                            </h4>
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-2 shrink-0">
                           {message.deliveryDate && (
-                            <Badge variant="outline" className="text-xs bg-background">
-                              {format(new Date(message.deliveryDate), "MMM dd, yyyy")}
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-background"
+                            >
+                              {format(
+                                new Date(message.deliveryDate),
+                                "MMM dd, yyyy"
+                              )}
                             </Badge>
                           )}
                           {message.isSurprise && (
-                            <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border-purple-200 font-medium text-xs">
+                            <Badge
+                              variant="secondary"
+                              className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border-purple-200 font-medium text-xs"
+                            >
                               Surprise
                             </Badge>
                           )}
-                          <Badge className={`${getStatusColor(message.status)} border text-xs`}>
+                          <Badge
+                            className={`${getStatusColor(
+                              message.status
+                            )} border text-xs`}
+                          >
                             {message.status}
                           </Badge>
                         </div>
                       </div>
-                      
+
                       <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                        {message.isSurprise ? "🎁 Surprise message - content hidden!" : message.preview}
+                        {message.isSurprise
+                          ? "🎁 Surprise message - content hidden!"
+                          : message.preview}
                       </p>
                     </div>
                   ))}
-                  
+
                   <div className="p-6 border-2 border-dashed border-border rounded-xl text-center bg-muted/20">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Plus className="h-6 w-6 text-primary" />
@@ -290,9 +347,9 @@ export const Dashboard = () => {
                     <p className="text-muted-foreground text-sm mb-3 font-medium">
                       Ready to send another message through time?
                     </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="w-full bg-background hover:bg-muted border-border"
                       onClick={() => navigate("/create-message")}
                     >
@@ -318,7 +375,10 @@ export const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {receivedMessages.map((message) => (
-                <div key={message.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div
+                  key={message.id}
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       {getTypeIcon(message.type)}
@@ -333,7 +393,7 @@ export const Dashboard = () => {
                   </p>
                 </div>
               ))}
-              
+
               {receivedMessages.length === 0 && (
                 <div className="p-8 text-center text-muted-foreground">
                   <Inbox className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -352,12 +412,12 @@ export const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-               {sentMessages.map((message) => (
-                 <div 
-                  key={message.id} 
+              {sentMessages.map((message) => (
+                <div
+                  key={message.id}
                   className={`p-4 border border-border rounded-xl transition-all duration-200 hover:shadow-md cursor-pointer ${
                     newMessageId === message.id
-                      ? "bg-blue-50 border-blue-200 shadow-md animate-fade-in" 
+                      ? "bg-blue-50 border-blue-200 shadow-md animate-fade-in"
                       : "hover:bg-muted/50"
                   }`}
                   onClick={() => handleViewMessage(message)}
@@ -367,36 +427,53 @@ export const Dashboard = () => {
                       <div className="p-2 bg-primary/10 rounded-lg">
                         {getTypeIcon(message.type)}
                       </div>
-                      <h4 className="font-medium text-base">{message.subject}</h4>
+                      <h4 className="font-medium text-base">
+                        {message.subject}
+                      </h4>
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       {message.deliveryDate && (
-                        <Badge variant="outline" className="text-xs bg-background">
-                          {format(new Date(message.deliveryDate), "MMM dd, yyyy")}
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-background"
+                        >
+                          {format(
+                            new Date(message.deliveryDate),
+                            "MMM dd, yyyy"
+                          )}
                         </Badge>
                       )}
                       {message.isSurprise && (
-                        <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border-purple-200 font-medium text-xs">
+                        <Badge
+                          variant="secondary"
+                          className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border-purple-200 font-medium text-xs"
+                        >
                           Surprise
                         </Badge>
                       )}
-                      <Badge className={`${getStatusColor(message.status)} border text-xs`}>
+                      <Badge
+                        className={`${getStatusColor(
+                          message.status
+                        )} border text-xs`}
+                      >
                         {message.status}
                       </Badge>
                     </div>
                   </div>
-                   <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                     {message.isSurprise ? "🎁 Surprise message - content hidden!" : message.preview}
-                   </p>
-                 </div>
-               ))}
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    {message.isSurprise
+                      ? "🎁 Surprise message - content hidden!"
+                      : message.preview}
+                  </p>
+                </div>
+              ))}
 
               <div className="p-4 border-2 border-dashed border-muted rounded-lg text-center">
                 <p className="text-muted-foreground text-sm mb-3">
                   Ready to send another message through time?
                 </p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => navigate("/create-message")}
                 >

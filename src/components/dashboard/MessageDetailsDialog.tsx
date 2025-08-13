@@ -39,11 +39,27 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+interface Message {
+  id: string;
+  subject: string;
+  content: string;
+  type: "text" | "image" | "video" | "audio";
+  deliveryDate?: Date | string;
+  recipientName: string;
+  recipientEmail?: string;
+  recipientPhone?: string;
+  deliveryMethod: "email" | "whatsapp" | "both";
+  status: string;
+  createdAt: Date | string;
+  isSurprise: boolean;
+  preview: string;
+}
+
 interface MessageDetailsDialogProps {
-  message: any;
+  message: Message | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: (updatedMessage: any) => void;
+  onUpdate: (updatedMessage: Message) => void;
   onDelete: (messageId: string) => void;
 }
 

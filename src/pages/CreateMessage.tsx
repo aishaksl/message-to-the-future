@@ -1,4 +1,4 @@
-import { MessageCreator } from "@/components/MessageCreator";
+import { MessageCreator } from "@/components/message-creator";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home, BarChart, Plus, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -12,11 +12,11 @@ const CreateMessage = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const navigation = [
@@ -38,8 +38,8 @@ const CreateMessage = () => {
     <div className="min-h-[calc(100vh-5rem)] flex flex-col">
       <div className="hidden md:block p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-4xl mx-auto flex gap-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate("/")}
             className="gap-2"
           >
@@ -51,7 +51,7 @@ const CreateMessage = () => {
       <div className="flex-1 overflow-hidden">
         <MessageCreator />
       </div>
-      
+
       {/* Mobile Bottom Navigation */}
       {isMobile && (
         <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
