@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, CheckCircle, Expand, X, Video, Mic } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 interface MessageContentCreatorProps {
   messageType: "text" | "image" | "video" | "audio";
@@ -25,6 +26,120 @@ interface MessageContentCreatorProps {
   onExpandFile: (file: File) => void;
   onExpandText: () => void;
 }
+
+// Video thumbnail component
+const VideoThumbnail = ({
+  file,
+  onClick,
+}: {
+  file: File;
+  onClick: () => void;
+}) => {
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const generateThumbnail = () => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+
+      if (!video || !canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const handleLoadedData = () => {
+        // Video boyutlarını ayarla
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // 1 saniyeye git veya video süresinin 1/4'üne
+        video.currentTime = Math.min(1, video.duration / 4);
+      };
+
+      const handleSeeked = () => {
+        // Canvas'a video frame'ini çiz
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Canvas'ı base64'e çevir
+        const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.8);
+        setThumbnail(thumbnailUrl);
+        setIsLoading(false);
+      };
+
+      const handleError = () => {
+        console.log("Video thumbnail oluşturulamadı");
+        setIsLoading(false);
+      };
+
+      video.addEventListener("loadeddata", handleLoadedData);
+      video.addEventListener("seeked", handleSeeked);
+      video.addEventListener("error", handleError);
+
+      video.src = URL.createObjectURL(file);
+
+      return () => {
+        video.removeEventListener("loadeddata", handleLoadedData);
+        video.removeEventListener("seeked", handleSeeked);
+        video.removeEventListener("error", handleError);
+        URL.revokeObjectURL(video.src);
+      };
+    };
+
+    generateThumbnail();
+  }, [file]);
+
+  return (
+    <div
+      className="relative w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group cursor-pointer"
+      onClick={onClick}
+    >
+      {/* Hidden video element for thumbnail generation */}
+      <video
+        ref={videoRef}
+        style={{ display: "none" }}
+        muted
+        preload="metadata"
+      />
+      <canvas ref={canvasRef} style={{ display: "none" }} />
+
+      {/* Loading state */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        </div>
+      )}
+
+      {/* Thumbnail image */}
+      {thumbnail && !isLoading && (
+        <img
+          src={thumbnail}
+          alt="Video thumbnail"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      )}
+
+      {/* Fallback when no thumbnail */}
+      {!thumbnail && !isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <Video className="w-16 h-16 text-white/60 mx-auto mb-2" />
+            <p className="text-white/60 text-sm">Video Preview</p>
+          </div>
+        </div>
+      )}
+
+      {/* Play button overlay */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
+          <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent ml-1"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const MessageContentCreator = ({
   messageType,
@@ -218,33 +333,10 @@ export const MessageContentCreator = ({
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           ) : messageType === "video" ? (
-                            <div className="relative w-full h-full bg-gray-900">
-                              <video
-                                src={URL.createObjectURL(file)}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                muted
-                                preload="metadata"
-                                onLoadedData={(e) => {
-                                  // Video yüklendiğinde ilk kareyi göster
-                                  const video = e.target as HTMLVideoElement;
-                                  video.currentTime = 1; // 1 saniyeye git
-                                }}
-                                onError={() => {
-                                  // Video yüklenemezse fallback göster
-                                  console.log("Video yüklenemedi");
-                                }}
-                              />
-                              {/* Fallback için video ikonu */}
-                              <div className="absolute inset-0 flex items-center justify-center bg-gray-800/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <Video className="w-12 h-12 text-white/60" />
-                              </div>
-                              {/* Oynatma ikonu */}
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                  <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent ml-1"></div>
-                                </div>
-                              </div>
-                            </div>
+                            <VideoThumbnail
+                              file={file}
+                              onClick={() => onExpandFile(file)}
+                            />
                           ) : (
                             <div
                               className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 p-4 cursor-pointer"

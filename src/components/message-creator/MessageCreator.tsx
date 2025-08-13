@@ -425,11 +425,11 @@ export const MessageCreator = () => {
                     </div>
                   </div>
                 ) : previewFile.type === "text/plain" ? (
-                  <div className="w-full h-[70vh] bg-white rounded-lg p-6 overflow-y-auto overflow-x-hidden border border-gray-200">
+                  <div className="w-full h-[70vh] bg-white rounded-lg border border-gray-200">
                     <textarea
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
-                      className="w-full h-full resize-none border-none outline-none text-base leading-relaxed text-gray-800 bg-transparent"
+                      className="w-full h-full resize-none border-none outline-none text-base leading-relaxed text-gray-800 bg-transparent overflow-y-auto p-4"
                       placeholder="Start typing your message..."
                       style={{
                         wordBreak: "break-word",
