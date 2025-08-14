@@ -152,6 +152,8 @@ export const MessageContentCreator = ({
   onExpandFile,
   onExpandText,
 }: MessageContentCreatorProps) => {
+  const [isWriting, setIsWriting] = useState(false);
+
   const removeFile = (fileIndex: number) => {
     setSelectedFiles((prev) => ({
       ...prev,
@@ -220,7 +222,10 @@ export const MessageContentCreator = ({
                     <Expand className="w-4 h-4 text-blue-500" />
                   </button>
                   <button
-                    onClick={() => setMessageText("")}
+                    onClick={() => {
+                      setMessageText("");
+                      setIsWriting(false);
+                    }}
                     className="p-1 transition-transform duration-200 hover:scale-125"
                     title="Temizle"
                   >
@@ -256,12 +261,43 @@ export const MessageContentCreator = ({
         </div>
 
         {messageType === "text" ? (
-          <Textarea
-            placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            className="min-h-[240px] resize-none"
-          />
+          <>
+            {!isWriting && messageText.length === 0 ? (
+              // Upload-style interface when no text is entered
+              <div className="relative border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20 min-h-[240px] flex flex-col items-center justify-center">
+                <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm mb-2">Start writing your message</p>
+                <p className="text-muted-foreground text-xs mb-4">
+                  Click to begin typing your thoughts
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsWriting(true);
+                  }}
+                  type="button"
+                >
+                  Start Writing
+                </Button>
+              </div>
+            ) : (
+              // Normal textarea when user has started typing - with expanded layout like other file types
+              <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl">
+                <div className="flex justify-center">
+                  <div className="w-full max-w-4xl">
+                    <Textarea
+                      placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      className="h-56 resize-none border-primary/20 bg-background/50 p-3"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <>
             <input

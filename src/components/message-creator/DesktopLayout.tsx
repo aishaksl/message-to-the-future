@@ -152,6 +152,8 @@ export const DesktopLayout = ({
     "text" | "image" | "video" | "audio"
   >("text");
 
+  const [isWriting, setIsWriting] = React.useState(false);
+
   // Confirmation dialog state
   const [confirmDialog, setConfirmDialog] = React.useState<{
     isOpen: boolean;
@@ -570,8 +572,8 @@ export const DesktopLayout = ({
                       "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative",
                       isSelected
                         ? currentType === type
-                          ? "border-primary bg-primary/10 shadow-lg ring-2 ring-primary/20"
-                          : "border-primary bg-primary/5 shadow-lg"
+                          ? "border-primary bg-primary/20 shadow-lg"
+                          : "border-primary bg-primary/4 shadow-lg"
                         : "border-border/40 hover:border-primary/40"
                     )}
                   >
@@ -594,11 +596,6 @@ export const DesktopLayout = ({
                       >
                         <Check className="w-5 h-5 text-green-600" />
                       </div>
-                    )}
-
-                    {/* Active indicator - sol üst köşe, büyük */}
-                    {isSelected && currentType === type && (
-                      <div className="absolute top-3 left-3 w-3 h-3 bg-primary rounded-full animate-pulse" />
                     )}
                   </button>
 
@@ -646,63 +643,78 @@ export const DesktopLayout = ({
 
             {selectedTypes.length > 0 && (
               <>
-                {((selectedFiles[currentType as keyof typeof selectedFiles]
-                  ?.length > 0 &&
-                  currentType !== "text") ||
-                  (currentType === "text" &&
-                    messageText.trim().length > 0)) && (
-                  <div className="flex gap-2">
-                    {currentType === "text" ? (
-                      <>
-                        <button
-                          onClick={onExpandText}
-                          className="p-1 transition-transform duration-200 hover:scale-125"
-                          title="Büyüt"
-                        >
-                          <Expand className="w-4 h-4 text-blue-500" />
-                        </button>
-                        <button
-                          onClick={() => setMessageText("")}
-                          className="p-1 transition-transform duration-200 hover:scale-125"
-                          title="Temizle"
-                        >
-                          <X className="w-4 h-4 text-red-500" />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() =>
-                            onExpandFile(
-                              selectedFiles[
-                                currentType as keyof typeof selectedFiles
-                              ][0]
-                            )
-                          }
-                          className="p-1 transition-transform duration-200 hover:scale-125"
-                          title="Büyüt"
-                        >
-                          <Expand className="w-4 h-4 text-blue-500" />
-                        </button>
-                        <button
-                          onClick={() => removeFile(0)}
-                          className="p-1 transition-transform duration-200 hover:scale-125"
-                          title="Sil"
-                        >
-                          <X className="w-4 h-4 text-red-500" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-
                 {currentType === "text" ? (
-                  <Textarea
-                    placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    className="min-h-[240px] resize-none"
-                  />
+                  <>
+                    {!isWriting && messageText.length === 0 ? (
+                      // Upload-style interface when no text is entered
+                      <div className="relative border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20 min-h-[240px] flex flex-col items-center justify-center">
+                        <Type className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                        <p className="text-sm mb-2">
+                          Start writing your message
+                        </p>
+                        <p className="text-muted-foreground text-xs mb-4">
+                          Click to begin typing your thoughts
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setIsWriting(true);
+                          }}
+                          type="button"
+                        >
+                          Start Writing
+                        </Button>
+                      </div>
+                    ) : (
+                      // Normal textarea when user has started typing - with expanded layout
+                      <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl relative">
+                        {/* Action buttons - mavi container'ın sağ üst köşesi */}
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          <button
+                            onClick={onExpandText}
+                            className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                            title="Expand"
+                          >
+                            <Expand className="w-4 h-4 text-blue-500 transition-colors duration-200" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setMessageText("");
+                              setIsWriting(false);
+                            }}
+                            className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                            title="Clear"
+                          >
+                            <X className="w-4 h-4 text-red-500 transition-colors duration-200" />
+                          </button>
+                        </div>
+                        <div className="flex justify-center mt-4">
+                          <div className="w-full max-w-4xl space-y-4">
+                            <div className="group">
+                              <div className="w-full h-52 bg-muted rounded-lg border border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300">
+                                <Textarea
+                                  placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
+                                  value={messageText}
+                                  onChange={(e) =>
+                                    setMessageText(e.target.value)
+                                  }
+                                  className="w-full h-full resize-none border-0 bg-transparent focus:ring-0 p-3 text-base leading-relaxed"
+                                  autoFocus
+                                  onFocus={(e) => {
+                                    // If the text is just a single space (from Start Writing button), clear it
+                                    if (messageText === " ") {
+                                      setMessageText("");
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <>
                     <input
@@ -750,8 +762,31 @@ export const DesktopLayout = ({
 
                     {selectedFiles[currentType as keyof typeof selectedFiles]
                       ?.length > 0 && (
-                      <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl">
-                        <div className="flex justify-center">
+                      <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl relative">
+                        {/* Action buttons - mavi container'ın sağ üst köşesi */}
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          <button
+                            onClick={() =>
+                              onExpandFile(
+                                selectedFiles[
+                                  currentType as keyof typeof selectedFiles
+                                ][0]
+                              )
+                            }
+                            className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                            title="Expand"
+                          >
+                            <Expand className="w-4 h-4 text-blue-500 transition-colors duration-200" />
+                          </button>
+                          <button
+                            onClick={() => removeFile(0)}
+                            className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                            title="Remove"
+                          >
+                            <X className="w-4 h-4 text-red-500 transition-colors duration-200" />
+                          </button>
+                        </div>
+                        <div className="flex justify-center mt-4">
                           <div className="w-full max-w-md space-y-4">
                             {selectedFiles[
                               currentType as keyof typeof selectedFiles
