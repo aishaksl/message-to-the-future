@@ -570,10 +570,14 @@ export const DesktopLayout = ({
                     }}
                     className={cn(
                       "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative",
-                      isSelected
+                      isSelected && typeHasContent
                         ? currentType === type
                           ? "border-primary bg-primary/20 shadow-lg"
                           : "border-primary bg-primary/4 shadow-lg"
+                        : isSelected && currentType === type
+                        ? "border-primary/60 bg-primary/10 shadow-md"
+                        : isSelected
+                        ? "border-border/60 bg-background/50"
                         : "border-border/40 hover:border-primary/40"
                     )}
                   >
