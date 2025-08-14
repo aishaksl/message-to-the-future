@@ -29,9 +29,9 @@ export const MessageCreator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [messageText, setMessageText] = useState("");
-  const [messageType, setMessageType] = useState<
-    "text" | "image" | "video" | "audio"
-  >("text");
+  const [selectedTypes, setSelectedTypes] = useState<
+    ("text" | "image" | "video" | "audio")[]
+  >([]);
   const [subject, setSubject] = useState("");
   const [recipientType, setRecipientType] = useState<"self" | "other">("self");
   const [recipientName, setRecipientName] = useState("");
@@ -107,9 +107,9 @@ export const MessageCreator = () => {
         }
         return true;
       case 4:
-        return messageType;
+        return selectedTypes.length > 0;
       case 5:
-        return subject && (messageType !== "text" || messageText);
+        return subject && (selectedTypes.includes("text") ? messageText : true);
       case 6:
         return selectedDate;
       default:
@@ -141,7 +141,7 @@ export const MessageCreator = () => {
       id: Date.now().toString(),
       subject,
       content: messageText,
-      type: messageType,
+      types: selectedTypes,
       deliveryDate: selectedDate,
       recipientType,
       recipientName: recipientType === "self" ? "Future Me" : recipientName,
@@ -154,7 +154,7 @@ export const MessageCreator = () => {
       preview: messageText
         ? messageText.substring(0, 100) +
           (messageText.length > 100 ? "..." : "")
-        : `${messageType} message`,
+        : `${selectedTypes.join(", ")} message`,
     };
 
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -206,15 +206,17 @@ export const MessageCreator = () => {
       case 3:
         return (
           <MessageTypeSelector
-            messageType={messageType}
-            setMessageType={setMessageType}
+            selectedTypes={selectedTypes}
+            setSelectedTypes={setSelectedTypes}
+            messageText={messageText}
+            selectedFiles={selectedFiles}
           />
         );
 
       case 4:
         return (
           <MessageContentCreator
-            messageType={messageType}
+            messageType={selectedTypes[0] || "text"}
             subject={subject}
             setSubject={setSubject}
             messageText={messageText}
@@ -248,7 +250,7 @@ export const MessageCreator = () => {
           <MessagePreview
             subject={subject}
             selectedDate={selectedDate}
-            messageType={messageType}
+            messageType={selectedTypes[0] || "text"}
             messageText={messageText}
           />
         );
@@ -308,7 +310,7 @@ export const MessageCreator = () => {
                   disabled={
                     !subject ||
                     !selectedDate ||
-                    (messageType === "text" && !messageText)
+                    (selectedTypes.includes("text") && !messageText)
                   }
                   className="flex-1"
                   onClick={handleComplete}
@@ -333,8 +335,8 @@ export const MessageCreator = () => {
             setRecipientEmail={setRecipientEmail}
             recipientPhone={recipientPhone}
             setRecipientPhone={setRecipientPhone}
-            messageType={messageType}
-            setMessageType={setMessageType}
+            selectedTypes={selectedTypes}
+            setSelectedTypes={setSelectedTypes}
             subject={subject}
             setSubject={setSubject}
             messageText={messageText}

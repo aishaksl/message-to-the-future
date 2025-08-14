@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface DesktopLayoutProps {
   // Recipient props
@@ -48,8 +57,8 @@ interface DesktopLayoutProps {
   setRecipientPhone: (phone: string) => void;
 
   // Message type props
-  messageType: "text" | "image" | "video" | "audio";
-  setMessageType: (type: "text" | "image" | "video" | "audio") => void;
+  selectedTypes: ("text" | "image" | "video" | "audio")[];
+  setSelectedTypes: (types: ("text" | "image" | "video" | "audio")[]) => void;
 
   // Content props
   subject: string;
@@ -95,8 +104,8 @@ export const DesktopLayout = ({
   setRecipientEmail,
   recipientPhone,
   setRecipientPhone,
-  messageType,
-  setMessageType,
+  selectedTypes,
+  setSelectedTypes,
   subject,
   setSubject,
   messageText,
@@ -139,10 +148,32 @@ export const DesktopLayout = ({
     },
   ];
 
+  const [currentType, setCurrentType] = React.useState<
+    "text" | "image" | "video" | "audio"
+  >("text");
+
+  // Confirmation dialog state
+  const [confirmDialog, setConfirmDialog] = React.useState<{
+    isOpen: boolean;
+    type: "text" | "image" | "video" | "audio" | null;
+    hasContent: boolean;
+  }>({
+    isOpen: false,
+    type: null,
+    hasContent: false,
+  });
+
+  // currentType'ı selectedTypes değiştiğinde güncelle
+  React.useEffect(() => {
+    if (selectedTypes.length > 0 && !selectedTypes.includes(currentType)) {
+      setCurrentType(selectedTypes[0]);
+    }
+  }, [selectedTypes, currentType]);
+
   const removeFile = (fileIndex: number) => {
     setSelectedFiles((prev) => ({
       ...prev,
-      [messageType]: prev[messageType].filter(
+      [currentType]: prev[currentType].filter(
         (_, index) => index !== fileIndex
       ),
     }));
@@ -153,7 +184,7 @@ export const DesktopLayout = ({
     if (files && files.length > 0) {
       setSelectedFiles((prev) => ({
         ...prev,
-        [messageType]: Array.from(files),
+        [currentType]: Array.from(files),
       }));
     }
   };
@@ -451,31 +482,139 @@ export const DesktopLayout = ({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {messageTypes.map(({ type, icon: Icon, label, description }) => (
-              <button
-                key={type}
-                onClick={() => setMessageType(type)}
-                className={cn(
-                  "p-4 rounded-xl border-2 transition-all duration-200 text-left",
-                  messageType === type
-                    ? "border-primary bg-primary/5 shadow-lg"
-                    : "border-border/40 hover:border-primary/40"
-                )}
-              >
-                <Icon
-                  className={cn(
-                    "w-6 h-6 mb-3",
-                    messageType === type
-                      ? "text-primary"
-                      : "text-muted-foreground"
+            {messageTypes.map(({ type, icon: Icon, label, description }) => {
+              const isSelected = selectedTypes.includes(type);
+
+              // İçerik var mı kontrol et
+              const hasContent = () => {
+                switch (type) {
+                  case "text":
+                    return messageText.trim().length > 0;
+                  case "image":
+                    return selectedFiles.image.length > 0;
+                  case "video":
+                    return selectedFiles.video.length > 0;
+                  case "audio":
+                    return selectedFiles.audio.length > 0;
+                  default:
+                    return false;
+                }
+              };
+
+              const typeHasContent = hasContent();
+
+              const handleRemoveType = (e: React.MouseEvent) => {
+                e.stopPropagation();
+
+                if (typeHasContent) {
+                  // İçerik varsa modern confirmation dialog göster
+                  setConfirmDialog({
+                    isOpen: true,
+                    type: type,
+                    hasContent: true,
+                  });
+                } else {
+                  // İçerik yoksa direkt kaldır
+                  setSelectedTypes(selectedTypes.filter((t) => t !== type));
+                }
+              };
+
+              const handleConfirmRemove = () => {
+                if (confirmDialog.type) {
+                  // Type'ı kaldır ve içeriği temizle
+                  setSelectedTypes(
+                    selectedTypes.filter((t) => t !== confirmDialog.type)
+                  );
+
+                  // İçeriği temizle
+                  if (confirmDialog.type === "text") {
+                    setMessageText("");
+                  } else {
+                    setSelectedFiles((prev) => ({
+                      ...prev,
+                      [confirmDialog.type!]: [],
+                    }));
+                  }
+                }
+
+                // Dialog'u kapat
+                setConfirmDialog({
+                  isOpen: false,
+                  type: null,
+                  hasContent: false,
+                });
+              };
+
+              const handleCancelRemove = () => {
+                setConfirmDialog({
+                  isOpen: false,
+                  type: null,
+                  hasContent: false,
+                });
+              };
+
+              return (
+                <div key={type} className="relative">
+                  <button
+                    onClick={() => {
+                      if (!isSelected) {
+                        // Type'ı seç ve currentType olarak ayarla
+                        setSelectedTypes([...selectedTypes, type]);
+                        setCurrentType(type);
+                      } else {
+                        // Zaten seçiliyse, currentType olarak ayarla (Step 4'te göster)
+                        setCurrentType(type);
+                      }
+                    }}
+                    className={cn(
+                      "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative",
+                      isSelected
+                        ? currentType === type
+                          ? "border-primary bg-primary/10 shadow-lg ring-2 ring-primary/20"
+                          : "border-primary bg-primary/5 shadow-lg"
+                        : "border-border/40 hover:border-primary/40"
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        "w-6 h-6 mb-3",
+                        isSelected ? "text-primary" : "text-muted-foreground"
+                      )}
+                    />
+                    <h4 className="font-medium text-sm mb-1">{label}</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {description}
+                    </p>
+
+                    {/* Content status indicator - minimal yeşil tik, sağ alt köşe */}
+                    {isSelected && typeHasContent && (
+                      <div
+                        className="absolute bottom-3 right-3"
+                        title="Content added"
+                      >
+                        <Check className="w-5 h-5 text-green-600" />
+                      </div>
+                    )}
+
+                    {/* Active indicator - sol üst köşe, büyük */}
+                    {isSelected && currentType === type && (
+                      <div className="absolute top-3 left-3 w-3 h-3 bg-primary rounded-full animate-pulse" />
+                    )}
+                  </button>
+
+                  {/* Çarpı butonu - eski yeri, üst sağ köşe içeride */}
+                  {isSelected && (
+                    <button
+                      onClick={handleRemoveType}
+                      className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center hover:bg-primary/10 rounded-full transition-colors duration-200"
+                      title={`Remove ${type}`}
+                    >
+                      <X className="w-4 h-4 text-primary hover:text-primary/80" />
+                    </button>
                   )}
-                />
-                <h4 className="font-medium text-sm mb-1">{label}</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {description}
-                </p>
-              </button>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -505,25 +644,15 @@ export const DesktopLayout = ({
               />
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Label className="text-base">Message Content</Label>
-                  {selectedFiles[messageType as keyof typeof selectedFiles]
-                    ?.length > 0 &&
-                    messageType !== "text" && (
-                      <div className="flex items-center justify-center w-5 h-5 bg-green-100 rounded-full">
-                        <CheckCircle className="w-3 h-3 text-green-600" />
-                      </div>
-                    )}
-                </div>
-                {((selectedFiles[messageType as keyof typeof selectedFiles]
+            {selectedTypes.length > 0 && (
+              <>
+                {((selectedFiles[currentType as keyof typeof selectedFiles]
                   ?.length > 0 &&
-                  messageType !== "text") ||
-                  (messageType === "text" &&
+                  currentType !== "text") ||
+                  (currentType === "text" &&
                     messageText.trim().length > 0)) && (
                   <div className="flex gap-2">
-                    {messageType === "text" ? (
+                    {currentType === "text" ? (
                       <>
                         <button
                           onClick={onExpandText}
@@ -546,7 +675,7 @@ export const DesktopLayout = ({
                           onClick={() =>
                             onExpandFile(
                               selectedFiles[
-                                messageType as keyof typeof selectedFiles
+                                currentType as keyof typeof selectedFiles
                               ][0]
                             )
                           }
@@ -566,154 +695,156 @@ export const DesktopLayout = ({
                     )}
                   </div>
                 )}
-              </div>
 
-              {messageType === "text" ? (
-                <Textarea
-                  placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  className="min-h-[240px] resize-none"
-                />
-              ) : (
-                <>
-                  <input
-                    type="file"
-                    multiple
-                    accept={
-                      messageType === "image"
-                        ? "image/*"
-                        : messageType === "video"
-                        ? "video/*"
-                        : messageType === "audio"
-                        ? "audio/*"
-                        : "*/*"
-                    }
-                    onChange={handleFileChange}
-                    style={{ display: "none" }}
-                    id={`fileInputDesktop-${messageType}`}
+                {currentType === "text" ? (
+                  <Textarea
+                    placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                    className="min-h-[240px] resize-none"
                   />
+                ) : (
+                  <>
+                    <input
+                      type="file"
+                      multiple
+                      accept={
+                        currentType === "image"
+                          ? "image/*"
+                          : currentType === "video"
+                          ? "video/*"
+                          : currentType === "audio"
+                          ? "audio/*"
+                          : "*/*"
+                      }
+                      onChange={handleFileChange}
+                      style={{ display: "none" }}
+                      id={`fileInputDesktop-${currentType}`}
+                    />
 
-                  {selectedFiles[messageType as keyof typeof selectedFiles]
-                    ?.length === 0 && (
-                    <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
-                      <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-sm mb-2">Upload your {messageType}</p>
-                      <p className="text-muted-foreground text-xs mb-4">
-                        Drag and drop or click to select files
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const input = document.getElementById(
-                            `fileInputDesktop-${messageType}`
-                          ) as HTMLInputElement;
-                          if (input) input.click();
-                        }}
-                        type="button"
-                      >
-                        Choose Files
-                      </Button>
-                    </div>
-                  )}
+                    {selectedFiles[currentType as keyof typeof selectedFiles]
+                      ?.length === 0 && (
+                      <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
+                        <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                        <p className="text-sm mb-2">
+                          Upload your {currentType}
+                        </p>
+                        <p className="text-muted-foreground text-xs mb-4">
+                          Drag and drop or click to select files
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const input = document.getElementById(
+                              `fileInputDesktop-${currentType}`
+                            ) as HTMLInputElement;
+                            if (input) input.click();
+                          }}
+                          type="button"
+                        >
+                          Choose Files
+                        </Button>
+                      </div>
+                    )}
 
-                  {selectedFiles[messageType as keyof typeof selectedFiles]
-                    ?.length > 0 && (
-                    <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl">
-                      <div className="flex justify-center">
-                        <div className="w-full max-w-md space-y-4">
-                          {selectedFiles[
-                            messageType as keyof typeof selectedFiles
-                          ].map((file, index) => (
-                            <div key={index} className="group">
-                              <div
-                                className={`w-full h-40 bg-muted rounded-xl border-2 border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300 ${
-                                  messageType === "audio"
-                                    ? ""
-                                    : "cursor-pointer hover:border-primary/40"
-                                }`}
-                                onClick={
-                                  messageType === "audio"
-                                    ? undefined
-                                    : () => onExpandFile(file)
-                                }
-                              >
-                                {messageType === "image" ? (
-                                  <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={file.name}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                ) : messageType === "video" ? (
-                                  <div className="relative w-full h-full">
-                                    <video
+                    {selectedFiles[currentType as keyof typeof selectedFiles]
+                      ?.length > 0 && (
+                      <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl">
+                        <div className="flex justify-center">
+                          <div className="w-full max-w-md space-y-4">
+                            {selectedFiles[
+                              currentType as keyof typeof selectedFiles
+                            ].map((file, index) => (
+                              <div key={index} className="group">
+                                <div
+                                  className={`w-full h-40 bg-muted rounded-xl border-2 border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300 ${
+                                    currentType === "audio"
+                                      ? ""
+                                      : "cursor-pointer hover:border-primary/40"
+                                  }`}
+                                  onClick={
+                                    currentType === "audio"
+                                      ? undefined
+                                      : () => onExpandFile(file)
+                                  }
+                                >
+                                  {currentType === "image" ? (
+                                    <img
                                       src={URL.createObjectURL(file)}
+                                      alt={file.name}
                                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                      muted
                                     />
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                      <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                        <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent ml-1"></div>
+                                  ) : currentType === "video" ? (
+                                    <div className="relative w-full h-full">
+                                      <video
+                                        src={URL.createObjectURL(file)}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        muted
+                                      />
+                                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                          <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent ml-1"></div>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ) : (
-                                  <div
-                                    className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 p-4 cursor-pointer"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const audio =
-                                        e.currentTarget.querySelector(
-                                          "audio"
-                                        ) as HTMLAudioElement;
-                                      if (audio) {
-                                        if (audio.paused) {
-                                          audio.play();
-                                        } else {
-                                          audio.pause();
+                                  ) : (
+                                    <div
+                                      className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 p-4 cursor-pointer"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const audio =
+                                          e.currentTarget.querySelector(
+                                            "audio"
+                                          ) as HTMLAudioElement;
+                                        if (audio) {
+                                          if (audio.paused) {
+                                            audio.play();
+                                          } else {
+                                            audio.pause();
+                                          }
                                         }
-                                      }
-                                    }}
-                                  >
-                                    <div className="flex flex-col items-center gap-3 mb-4">
-                                      <Mic className="w-8 h-8 text-primary" />
-                                      <span className="text-sm font-medium text-primary">
-                                        Audio File
-                                      </span>
+                                      }}
+                                    >
+                                      <div className="flex flex-col items-center gap-3 mb-4">
+                                        <Mic className="w-8 h-8 text-primary" />
+                                        <span className="text-sm font-medium text-primary">
+                                          Audio File
+                                        </span>
+                                      </div>
+                                      <audio
+                                        src={URL.createObjectURL(file)}
+                                        controls
+                                        className="w-full max-w-sm h-10"
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
                                     </div>
-                                    <audio
-                                      src={URL.createObjectURL(file)}
-                                      controls
-                                      className="w-full max-w-sm h-10"
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                  </div>
-                                )}
+                                  )}
+                                </div>
+                                <div className="mt-2 text-center">
+                                  <p className="text-sm font-medium text-foreground truncate">
+                                    {file.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {(file.size / (1024 * 1024)).toFixed(1)} MB
+                                    {currentType !== "image" &&
+                                      ` • ${
+                                        currentType === "video"
+                                          ? "Video"
+                                          : "Audio"
+                                      }`}
+                                  </p>
+                                </div>
                               </div>
-                              <div className="mt-2 text-center">
-                                <p className="text-sm font-medium text-foreground truncate">
-                                  {file.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {(file.size / (1024 * 1024)).toFixed(1)} MB
-                                  {messageType !== "image" &&
-                                    ` • ${
-                                      messageType === "video"
-                                        ? "Video"
-                                        : "Audio"
-                                    }`}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+                    )}
+                  </>
+                )}
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -812,7 +943,9 @@ export const DesktopLayout = ({
 
                 <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
                   <span className="text-sm font-medium text-primary">Type</span>
-                  <span className="text-sm capitalize">{messageType}</span>
+                  <span className="text-sm capitalize">
+                    {selectedTypes.join(", ")}
+                  </span>
                 </div>
 
                 {messageText && (
@@ -830,7 +963,7 @@ export const DesktopLayout = ({
               disabled={
                 !subject ||
                 !selectedDate ||
-                (messageType === "text" && !messageText) ||
+                (selectedTypes.includes("text") && !messageText) ||
                 isLoading
               }
               className="w-full h-12"
@@ -851,6 +984,86 @@ export const DesktopLayout = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Modern Confirmation Dialog */}
+      <Dialog
+        open={confirmDialog.isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConfirmDialog({
+              isOpen: false,
+              type: null,
+              hasContent: false,
+            });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                <X className="w-4 h-4 text-red-600" />
+              </div>
+              Remove {confirmDialog.type} content?
+            </DialogTitle>
+            <DialogDescription className="text-left">
+              You're about to remove <strong>{confirmDialog.type}</strong> from
+              your message. This will permanently delete all{" "}
+              {confirmDialog.type} content you've added.
+              <br />
+              <br />
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() =>
+                setConfirmDialog({
+                  isOpen: false,
+                  type: null,
+                  hasContent: false,
+                })
+              }
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (confirmDialog.type) {
+                  // Type'ı kaldır ve içeriği temizle
+                  setSelectedTypes(
+                    selectedTypes.filter((t) => t !== confirmDialog.type)
+                  );
+
+                  // İçeriği temizle
+                  if (confirmDialog.type === "text") {
+                    setMessageText("");
+                  } else {
+                    setSelectedFiles((prev) => ({
+                      ...prev,
+                      [confirmDialog.type!]: [],
+                    }));
+                  }
+                }
+
+                // Dialog'u kapat
+                setConfirmDialog({
+                  isOpen: false,
+                  type: null,
+                  hasContent: false,
+                });
+              }}
+              className="w-full sm:w-auto"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Remove {confirmDialog.type}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
