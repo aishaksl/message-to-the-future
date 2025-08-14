@@ -648,77 +648,44 @@ export const DesktopLayout = ({
             {selectedTypes.length > 0 && (
               <>
                 {currentType === "text" ? (
-                  <>
-                    {!isWriting && messageText.length === 0 ? (
-                      // Upload-style interface when no text is entered
-                      <div className="relative border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20 min-h-[240px] flex flex-col items-center justify-center">
-                        <Type className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                        <p className="text-sm mb-2">
-                          Start writing your message
-                        </p>
-                        <p className="text-muted-foreground text-xs mb-4">
-                          Click to begin typing your thoughts
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setIsWriting(true);
-                          }}
-                          type="button"
+                  // Always show textarea for text type - no start writing button needed
+                  <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl relative">
+                    {/* Action buttons - only show when there's text content */}
+                    {messageText.trim().length > 0 && (
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <button
+                          onClick={onExpandText}
+                          className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                          title="Expand"
                         >
-                          Start Writing
-                        </Button>
+                          <Expand className="w-4 h-4 text-blue-500 transition-colors duration-200" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMessageText("");
+                          }}
+                          className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                          title="Clear"
+                        >
+                          <X className="w-4 h-4 text-red-500 transition-colors duration-200" />
+                        </button>
                       </div>
-                    ) : (
-                      // Normal textarea when user has started typing - with expanded layout
-                      <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl relative">
-                        {/* Action buttons - mavi container'ın sağ üst köşesi */}
-                        <div className="absolute top-2 right-2 flex gap-1">
-                          <button
-                            onClick={onExpandText}
-                            className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
-                            title="Expand"
-                          >
-                            <Expand className="w-4 h-4 text-blue-500 transition-colors duration-200" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setMessageText("");
-                              setIsWriting(false);
-                            }}
-                            className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
-                            title="Clear"
-                          >
-                            <X className="w-4 h-4 text-red-500 transition-colors duration-200" />
-                          </button>
-                        </div>
-                        <div className="flex justify-center mt-4">
-                          <div className="w-full max-w-4xl space-y-4">
-                            <div className="group">
-                              <div className="w-full h-52 bg-muted rounded-lg border border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300">
-                                <Textarea
-                                  placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
-                                  value={messageText}
-                                  onChange={(e) =>
-                                    setMessageText(e.target.value)
-                                  }
-                                  className="w-full h-full resize-none border-0 bg-transparent focus:ring-0 p-3 text-base leading-relaxed"
-                                  autoFocus
-                                  onFocus={(e) => {
-                                    // If the text is just a single space (from Start Writing button), clear it
-                                    if (messageText === " ") {
-                                      setMessageText("");
-                                    }
-                                  }}
-                                />
-                              </div>
-                            </div>
+                    )}
+                    <div className="flex justify-center mt-4">
+                      <div className="w-full max-w-4xl space-y-4">
+                        <div className="group">
+                          <div className="w-full h-52 bg-muted rounded-lg border border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300">
+                            <Textarea
+                              placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
+                              value={messageText}
+                              onChange={(e) => setMessageText(e.target.value)}
+                              className="w-full h-full resize-none border-0 bg-transparent focus:ring-0 p-3 text-base leading-relaxed"
+                            />
                           </div>
                         </div>
                       </div>
-                    )}
-                  </>
+                    </div>
+                  </div>
                 ) : (
                   <>
                     <input
