@@ -209,7 +209,7 @@ export const DesktopLayout = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 onClick={() => setRecipientType("self")}
                 className={cn(
@@ -483,7 +483,7 @@ export const DesktopLayout = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {messageTypes.map(({ type, icon: Icon, label, description }) => {
               const isSelected = selectedTypes.includes(type);
 
@@ -569,7 +569,7 @@ export const DesktopLayout = ({
                       }
                     }}
                     className={cn(
-                      "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative",
+                      "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative h-[140px] flex flex-col",
                       isSelected && typeHasContent
                         ? currentType === type
                           ? "border-primary bg-primary/20 shadow-lg"
@@ -583,11 +583,13 @@ export const DesktopLayout = ({
                   >
                     <Icon
                       className={cn(
-                        "w-6 h-6 mb-3",
+                        "w-6 h-6 mb-3 flex-shrink-0",
                         isSelected ? "text-primary" : "text-muted-foreground"
                       )}
                     />
-                    <h4 className="font-medium text-sm mb-1">{label}</h4>
+                    <h4 className="font-medium text-sm mb-1 whitespace-nowrap">
+                      {label}
+                    </h4>
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       {description}
                     </p>
