@@ -1,135 +1,322 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, CreditCard, Crown, Star } from "lucide-react";
+import { ArrowLeft, CreditCard, Crown, Star, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { differenceInDays } from "date-fns";
+import { ModernDatePicker } from "@/components/ui/modern-date-picker";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const Payment = () => {
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState("5-10");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [daysFromNow, setDaysFromNow] = useState(0);
+  const [requiredPlan, setRequiredPlan] = useState<string | null>(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  useEffect(() => {
+    // Get selected date from localStorage (saved from MessageCreator)
+    const savedFormState = localStorage.getItem("messageFormState");
+    if (savedFormState) {
+      try {
+        const formState = JSON.parse(savedFormState);
+        if (formState.selectedDate) {
+          const date = new Date(formState.selectedDate);
+          setSelectedDate(date);
+
+          const days = differenceInDays(date, new Date());
+          setDaysFromNow(days);
+
+          // Determine required plan based on selected date
+          let plan = "1-5";
+          if (days <= 365 * 5) {
+            plan = "1-5";
+          } else if (days <= 365 * 10) {
+            plan = "5-10";
+          } else {
+            plan = "10-50";
+          }
+
+          setRequiredPlan(plan);
+          setSelectedPlan(plan);
+        }
+      } catch (error) {
+        console.error("Error parsing saved form state:", error);
+      }
+    }
+  }, []);
 
   return (
-    <div className="min-h-screen bg-background py-8 px-6">
-      <div className="max-w-2xl mx-auto">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate("/create-message")}
-          className="mb-6"
-        >
+    <div className="min-h-screen bg-background py-6 px-4">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <Button variant="ghost" onClick={() => navigate("/create-message")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Message Creation
         </Button>
 
-        <div className="text-center mb-8">
-          <Crown className="w-16 h-16 text-primary mx-auto mb-4" />
-          <h1 className="text-3xl md:text-4xl font-semibold text-foreground mb-4">
-            Choose Your Message Plan
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            One-time payment per message based on delivery timeframe
-          </p>
+        {/* Elegant Header */}
+        <div className="text-center">
+          <Crown className="w-12 h-12 text-primary mx-auto" />
+          <div className="space-y-4">
+            <h1 className="text-4xl font-light text-foreground">
+              Complete Payment
+            </h1>
+            <p className="text-muted-foreground">
+              Secure your message to the future
+            </p>
+          </div>
         </div>
 
+        {/* Payment Info Bar */}
+        {selectedDate && (
+          <div className="max-w-2xl mx-auto">
+            <div className="relative overflow-hidden bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-2xl border border-primary/20 shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+              <div className="relative p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-center w-12 h-12 bg-primary/20 rounded-xl">
+                      <Calendar className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Scheduled Delivery
+                      </p>
+                      <p className="text-xl font-bold text-foreground">
+                        {selectedDate.toLocaleDateString()}
+                      </p>
+                      <p className="text-sm text-primary font-medium">
+                        {Math.floor(daysFromNow / 365)} years from now
+                      </p>
+                    </div>
+                  </div>
+
+                  <Popover
+                    open={isDatePickerOpen}
+                    onOpenChange={setIsDatePickerOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        Change Date
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                      <ModernDatePicker
+                        value={selectedDate || undefined}
+                        onChange={(date) => {
+                          if (date) {
+                            setSelectedDate(date);
+                            const days = differenceInDays(date, new Date());
+                            setDaysFromNow(days);
+
+                            // Determine required plan based on new selected date
+                            let plan = "1-5";
+                            if (days <= 365 * 5) {
+                              plan = "1-5";
+                            } else if (days <= 365 * 10) {
+                              plan = "5-10";
+                            } else {
+                              plan = "10-50";
+                            }
+
+                            setRequiredPlan(plan);
+                            setSelectedPlan(plan);
+
+                            // Update localStorage with new date
+                            const savedFormState =
+                              localStorage.getItem("messageFormState");
+                            if (savedFormState) {
+                              try {
+                                const formState = JSON.parse(savedFormState);
+                                formState.selectedDate = date;
+                                localStorage.setItem(
+                                  "messageFormState",
+                                  JSON.stringify(formState)
+                                );
+                              } catch (error) {
+                                console.error(
+                                  "Error updating form state:",
+                                  error
+                                );
+                              }
+                            }
+
+                            setIsDatePickerOpen(false);
+                          }
+                        }}
+                        disabled={(date) => date <= new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              💡 Changing the date may update your payment amount
+            </p>
+          </div>
+        )}
+
         <Card className="bg-card/60 backdrop-blur-sm border-border/40 rounded-2xl shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center font-semibold flex items-center justify-center gap-2">
-              <Star className="w-6 h-6 text-primary" />
-              Choose Your Plan
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-8">
             <div className="grid gap-6 md:grid-cols-3">
-              <Card 
-                className={`border-2 transition-colors cursor-pointer ${
-                  selectedPlan === "1-5" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-border/40 hover:border-primary/40"
+              {/* 1-5 Years Plan */}
+              <Card
+                className={`border-2 transition-colors relative ${
+                  requiredPlan === "1-5"
+                    ? "border-primary bg-primary/5 cursor-pointer"
+                    : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
                 }`}
-                onClick={() => setSelectedPlan("1-5")}
+                onClick={() => requiredPlan === "1-5" && setSelectedPlan("1-5")}
               >
+                {requiredPlan === "1-5" && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                    <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                      Your Plan
+                    </span>
+                  </div>
+                )}
                 <CardHeader>
                   <CardTitle className="text-xl">1-5 Years</CardTitle>
-                  <div className="text-3xl font-bold">$5<span className="text-sm font-normal text-muted-foreground">/message</span></div>
-                  <p className="text-sm text-muted-foreground">One-time payment</p>
+                  <div className="text-3xl font-bold">
+                    $5
+                    <span className="text-sm font-normal text-muted-foreground">
+                      /message
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    One-time payment
+                  </p>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm mb-6">
+                  <ul className="space-y-2 text-xs mb-6">
                     <li>• Send messages 1-5 years in future</li>
                     <li>• All message types supported</li>
                     <li>• Email + WhatsApp delivery</li>
                     <li>• Safely protected</li>
                   </ul>
-                  <Button className="w-full" variant="outline">
+                  <Button
+                    className="w-full"
+                    variant={requiredPlan === "1-5" ? "default" : "outline"}
+                    disabled={requiredPlan !== "1-5"}
+                  >
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Pay $5
+                    {requiredPlan === "1-5" ? "Pay $5" : "Not Available"}
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card 
-                className={`border-2 relative cursor-pointer ${
-                  selectedPlan === "5-10" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-border/40 hover:border-primary/40"
+              {/* 5-10 Years Plan */}
+              <Card
+                className={`border-2 transition-colors relative ${
+                  requiredPlan === "5-10"
+                    ? "border-primary bg-primary/5 cursor-pointer"
+                    : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
                 }`}
-                onClick={() => setSelectedPlan("5-10")}
+                onClick={() =>
+                  requiredPlan === "5-10" && setSelectedPlan("5-10")
+                }
               >
-                {selectedPlan === "5-10" && (
+                {requiredPlan === "5-10" && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                     <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-                      Most Popular
+                      Your Plan
                     </span>
                   </div>
                 )}
                 <CardHeader>
                   <CardTitle className="text-xl">5-10 Years</CardTitle>
-                  <div className="text-3xl font-bold">$10<span className="text-sm font-normal text-muted-foreground">/message</span></div>
-                  <p className="text-sm text-muted-foreground">One-time payment</p>
+                  <div className="text-3xl font-bold">
+                    $10
+                    <span className="text-sm font-normal text-muted-foreground">
+                      /message
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    One-time payment
+                  </p>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm mb-6">
+                  <ul className="space-y-2 text-xs mb-6">
                     <li>• Send messages 5-10 years in future</li>
                     <li>• All message types supported</li>
                     <li>• Email + WhatsApp delivery</li>
                     <li>• Safely protected</li>
                   </ul>
-                  <Button className="w-full">
+                  <Button
+                    className="w-full"
+                    variant={requiredPlan === "5-10" ? "default" : "outline"}
+                    disabled={requiredPlan !== "5-10"}
+                  >
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Pay $10
+                    {requiredPlan === "5-10" ? "Pay $10" : "Not Available"}
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card 
-                className={`border-2 transition-colors cursor-pointer ${
-                  selectedPlan === "10-50" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-border/40 hover:border-primary/40"
+              {/* 10-50 Years Plan */}
+              <Card
+                className={`border-2 transition-colors relative ${
+                  requiredPlan === "10-50"
+                    ? "border-primary bg-primary/5 cursor-pointer"
+                    : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
                 }`}
-                onClick={() => setSelectedPlan("10-50")}
+                onClick={() =>
+                  requiredPlan === "10-50" && setSelectedPlan("10-50")
+                }
               >
+                {requiredPlan === "10-50" && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                    <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                      Your Plan
+                    </span>
+                  </div>
+                )}
                 <CardHeader>
                   <CardTitle className="text-xl">10-50 Years</CardTitle>
-                  <div className="text-3xl font-bold">$20<span className="text-sm font-normal text-muted-foreground">/message</span></div>
-                  <p className="text-sm text-muted-foreground">One-time payment</p>
+                  <div className="text-3xl font-bold">
+                    $20
+                    <span className="text-sm font-normal text-muted-foreground">
+                      /message
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    One-time payment
+                  </p>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm mb-6">
-                    <li>• Send messages 10-50 years in future</li>
+                  <ul className="space-y-2 text-xs mb-6">
+                    <li>• Send messages 10-50 years ahead</li>
                     <li>• All message types supported</li>
                     <li>• Email + WhatsApp delivery</li>
                     <li>• Safely protected</li>
                   </ul>
-                  <Button className="w-full" variant="outline">
+                  <Button
+                    className="w-full"
+                    variant={requiredPlan === "10-50" ? "default" : "outline"}
+                    disabled={requiredPlan !== "10-50"}
+                  >
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Pay $20
+                    {requiredPlan === "10-50" ? "Pay $20" : "Not Available"}
                   </Button>
                 </CardContent>
               </Card>
             </div>
 
             <div className="text-center text-sm text-muted-foreground">
-              <p>First year delivery is free. One-time payment per message for future years.</p>
+              <p>
+                First year delivery is free. One-time payment per message for
+                future years.
+              </p>
             </div>
           </CardContent>
         </Card>

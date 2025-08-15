@@ -71,6 +71,44 @@ export const MessageCreator = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Load saved form state on component mount
+  useEffect(() => {
+    const savedFormState = localStorage.getItem("messageFormState");
+    if (savedFormState) {
+      try {
+        const formState = JSON.parse(savedFormState);
+
+        // Restore all form fields
+        setRecipientType(formState.recipientType || "self");
+        setRecipientName(formState.recipientName || "");
+        setRecipientEmail(formState.recipientEmail || "");
+        setRecipientPhone(formState.recipientPhone || "");
+        setDeliveryMethod(formState.deliveryMethod || "email");
+        setIsSurpriseMode(formState.isSurpriseMode || false);
+        setSelectedTypes(formState.selectedTypes || []);
+        setSubject(formState.subject || "");
+        setMessageText(formState.messageText || "");
+        setCurrentStep(formState.currentStep || 1);
+
+        // Restore selected date
+        if (formState.selectedDate) {
+          setSelectedDate(new Date(formState.selectedDate));
+        }
+
+        // Clear the saved state after restoring
+        localStorage.removeItem("messageFormState");
+
+        toast({
+          title: "Form restored",
+          description: "Your previous form data has been restored.",
+        });
+      } catch (error) {
+        console.error("Error restoring form state:", error);
+        localStorage.removeItem("messageFormState");
+      }
+    }
+  }, [toast]);
+
   const totalSteps = 6;
 
   const handleDateChange = (date: Date | undefined) => {
@@ -79,6 +117,21 @@ export const MessageCreator = () => {
 
       const daysFromNow = differenceInDays(date, new Date());
       if (daysFromNow > 365) {
+        // Save current form state before navigating to payment
+        const formState = {
+          recipientType,
+          recipientName,
+          recipientEmail,
+          recipientPhone,
+          deliveryMethod,
+          isSurpriseMode,
+          selectedTypes,
+          subject,
+          messageText,
+          selectedDate: date,
+          currentStep,
+        };
+        localStorage.setItem("messageFormState", JSON.stringify(formState));
         navigate("/payment");
         return;
       }
@@ -232,6 +285,8 @@ export const MessageCreator = () => {
               );
               setIsPreviewOpen(true);
             }}
+            recipientType={recipientType}
+            recipientName={recipientName}
           />
         );
 
