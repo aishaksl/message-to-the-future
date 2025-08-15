@@ -676,7 +676,13 @@ export const DesktopLayout = ({
                         <div className="group">
                           <div className="w-full h-52 bg-muted rounded-lg border border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300">
                             <Textarea
-                              placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
+                              placeholder={
+                                recipientType === "self"
+                                  ? "Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
+                                  : recipientName
+                                  ? `Dear ${recipientName}, I want you to know... I hope you remember... I'm grateful for...`
+                                  : "Dear friend, I want you to know... I hope you remember... I'm grateful for..."
+                              }
                               value={messageText}
                               onChange={(e) => setMessageText(e.target.value)}
                               className="w-full h-full resize-none border-0 bg-transparent focus:ring-0 p-3 text-base leading-relaxed"

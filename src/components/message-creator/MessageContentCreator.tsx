@@ -25,6 +25,8 @@ interface MessageContentCreatorProps {
   >;
   onExpandFile: (file: File) => void;
   onExpandText: () => void;
+  recipientType: "self" | "other";
+  recipientName: string;
 }
 
 // Video thumbnail component
@@ -151,6 +153,8 @@ export const MessageContentCreator = ({
   setSelectedFiles,
   onExpandFile,
   onExpandText,
+  recipientType,
+  recipientName,
 }: MessageContentCreatorProps) => {
   const [isWriting, setIsWriting] = useState(false);
 
@@ -287,7 +291,13 @@ export const MessageContentCreator = ({
                 <div className="flex justify-center">
                   <div className="w-full max-w-4xl">
                     <Textarea
-                      placeholder="Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
+                      placeholder={
+                        recipientType === "self"
+                          ? "Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
+                          : recipientName
+                          ? `Dear ${recipientName}, I want you to know... I hope you remember... I'm grateful for...`
+                          : "Dear friend, I want you to know... I hope you remember... I'm grateful for..."
+                      }
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
                       className="h-56 resize-none border-primary/20 bg-background/50 p-3"
