@@ -209,7 +209,7 @@ export const DesktopLayout = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <button
                 onClick={() => setRecipientType("self")}
                 className={cn(
@@ -337,7 +337,7 @@ export const DesktopLayout = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               <button
                 onClick={() => setDeliveryMethod("email")}
                 className={cn(
@@ -483,7 +483,7 @@ export const DesktopLayout = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {messageTypes.map(({ type, icon: Icon, label, description }) => {
               const isSelected = selectedTypes.includes(type);
 

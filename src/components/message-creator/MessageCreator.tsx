@@ -318,103 +318,44 @@ export const MessageCreator = () => {
   return (
     <div className="min-h-screen bg-background py-4 px-4">
       <div className={cn("mx-auto", isMobile ? "max-w-md" : "max-w-4xl")}>
-        {/* Mobile: Step-by-step navigation */}
-        {isMobile ? (
-          <>
-            {/* Header with Progress */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Create Message</h2>
-                <span className="text-sm text-muted-foreground">
-                  Step {currentStep} of {totalSteps}
-                </span>
-              </div>
-              <Progress
-                value={(currentStep / totalSteps) * 100}
-                className="h-2"
-              />
-            </div>
-
-            {/* Step Content */}
-            <Card className="mb-3">
-              <CardContent className="p-4">{renderStepContent()}</CardContent>
-            </Card>
-
-            {/* Navigation Buttons */}
-            <div className="flex gap-3 pb-6">
-              <Button
-                variant="outline"
-                onClick={prevStep}
-                disabled={currentStep === 1}
-                className="flex-1"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              {currentStep < totalSteps ? (
-                <Button
-                  onClick={nextStep}
-                  disabled={!canProceedToStep(currentStep + 1)}
-                  className="flex-1"
-                >
-                  Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  disabled={
-                    !subject ||
-                    !selectedDate ||
-                    (selectedTypes.includes("text") && !messageText)
-                  }
-                  className="flex-1"
-                  onClick={handleComplete}
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Complete
-                </Button>
-              )}
-            </div>
-          </>
-        ) : (
-          <DesktopLayout
-            recipientType={recipientType}
-            setRecipientType={setRecipientType}
-            recipientName={recipientName}
-            setRecipientName={setRecipientName}
-            isSurpriseMode={isSurpriseMode}
-            setIsSurpriseMode={setIsSurpriseMode}
-            deliveryMethod={deliveryMethod}
-            setDeliveryMethod={setDeliveryMethod}
-            recipientEmail={recipientEmail}
-            setRecipientEmail={setRecipientEmail}
-            recipientPhone={recipientPhone}
-            setRecipientPhone={setRecipientPhone}
-            selectedTypes={selectedTypes}
-            setSelectedTypes={setSelectedTypes}
-            subject={subject}
-            setSubject={setSubject}
-            messageText={messageText}
-            setMessageText={setMessageText}
-            selectedFiles={selectedFiles}
-            setSelectedFiles={setSelectedFiles}
-            onExpandFile={expandFile}
-            onExpandText={() => {
-              setPreviewFile(
-                new File([messageText], "message.txt", {
-                  type: "text/plain",
-                })
-              );
-              setIsPreviewOpen(true);
-            }}
-            selectedDate={selectedDate}
-            onDateChange={handleDateChange}
-            isDatePickerOpen={isDatePickerOpen}
-            setIsDatePickerOpen={setIsDatePickerOpen}
-            isLoading={isLoading}
-            onComplete={handleComplete}
-          />
-        )}
+        {/* Both Mobile and Desktop: Use same layout */}
+        <DesktopLayout
+          recipientType={recipientType}
+          setRecipientType={setRecipientType}
+          recipientName={recipientName}
+          setRecipientName={setRecipientName}
+          isSurpriseMode={isSurpriseMode}
+          setIsSurpriseMode={setIsSurpriseMode}
+          deliveryMethod={deliveryMethod}
+          setDeliveryMethod={setDeliveryMethod}
+          recipientEmail={recipientEmail}
+          setRecipientEmail={setRecipientEmail}
+          recipientPhone={recipientPhone}
+          setRecipientPhone={setRecipientPhone}
+          selectedTypes={selectedTypes}
+          setSelectedTypes={setSelectedTypes}
+          subject={subject}
+          setSubject={setSubject}
+          messageText={messageText}
+          setMessageText={setMessageText}
+          selectedFiles={selectedFiles}
+          setSelectedFiles={setSelectedFiles}
+          onExpandFile={expandFile}
+          onExpandText={() => {
+            setPreviewFile(
+              new File([messageText], "message.txt", {
+                type: "text/plain",
+              })
+            );
+            setIsPreviewOpen(true);
+          }}
+          selectedDate={selectedDate}
+          onDateChange={handleDateChange}
+          isDatePickerOpen={isDatePickerOpen}
+          setIsDatePickerOpen={setIsDatePickerOpen}
+          isLoading={isLoading}
+          onComplete={handleComplete}
+        />
 
         {/* File Preview Modal */}
         <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
