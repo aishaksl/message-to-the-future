@@ -33,8 +33,10 @@ const Payment = () => {
           setDaysFromNow(days);
 
           // Determine required plan based on selected date
-          let plan = "1-5";
-          if (days <= 365 * 5) {
+          let plan = null;
+          if (days <= 365) {
+            plan = "free"; // First year is free
+          } else if (days <= 365 * 5) {
             plan = "1-5";
           } else if (days <= 365 * 10) {
             plan = "5-10";
@@ -52,8 +54,8 @@ const Payment = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background py-6 px-4">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-background py-4 px-4">
+      <div className="max-w-4xl mx-auto space-y-4">
         <Button variant="ghost" onClick={() => navigate("/create-message")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Message Creation
@@ -61,9 +63,9 @@ const Payment = () => {
 
         {/* Elegant Header */}
         <div className="text-center">
-          <Crown className="w-12 h-12 text-primary mx-auto" />
-          <div className="space-y-4">
-            <h1 className="text-4xl font-light text-foreground">
+          <Crown className="w-10 h-10 text-primary mx-auto" />
+          <div className="space-y-2">
+            <h1 className="text-3xl font-light text-foreground">
               Complete Payment
             </h1>
             <p className="text-muted-foreground">
@@ -78,8 +80,92 @@ const Payment = () => {
             <div className="relative overflow-hidden bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-2xl border border-primary/20 shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
-              <div className="relative p-6">
-                <div className="flex items-center justify-between">
+              <div className="relative p-4">
+                {/* Mobile Layout */}
+                <div className="flex flex-col space-y-4 sm:hidden">
+                  <div className="flex items-center space-x-4 justify-center">
+                    <div className="flex items-center justify-center w-12 h-12 bg-primary/20 rounded-xl">
+                      <Calendar className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Scheduled Delivery
+                      </p>
+                      <p className="text-xl font-bold text-foreground">
+                        {selectedDate.toLocaleDateString()}
+                      </p>
+                      <p className="text-sm text-primary font-medium">
+                        {Math.floor(daysFromNow / 365)} years from now
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-full">
+                    <Popover
+                      open={isDatePickerOpen}
+                      onOpenChange={setIsDatePickerOpen}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Calendar className="mr-2 h-4 w-4" />
+                          Change Date
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="center">
+                        <ModernDatePicker
+                          value={selectedDate || undefined}
+                          onChange={(date) => {
+                            if (date) {
+                              setSelectedDate(date);
+                              const days = differenceInDays(date, new Date());
+                              setDaysFromNow(days);
+
+                              // Determine required plan based on new selected date
+                              let plan = null;
+                              if (days <= 365) {
+                                plan = "free"; // First year is free
+                              } else if (days <= 365 * 5) {
+                                plan = "1-5";
+                              } else if (days <= 365 * 10) {
+                                plan = "5-10";
+                              } else {
+                                plan = "10-50";
+                              }
+
+                              setRequiredPlan(plan);
+                              setSelectedPlan(plan);
+
+                              // Update localStorage with new date
+                              const savedFormState =
+                                localStorage.getItem("messageFormState");
+                              if (savedFormState) {
+                                try {
+                                  const formState = JSON.parse(savedFormState);
+                                  formState.selectedDate = date;
+                                  localStorage.setItem(
+                                    "messageFormState",
+                                    JSON.stringify(formState)
+                                  );
+                                } catch (error) {
+                                  console.error(
+                                    "Error updating form state:",
+                                    error
+                                  );
+                                }
+                              }
+
+                              setIsDatePickerOpen(false);
+                            }
+                          }}
+                          disabled={(date) => date <= new Date()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className="hidden sm:block relative">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center justify-center w-12 h-12 bg-primary/20 rounded-xl">
                       <Calendar className="w-6 h-6 text-primary" />
@@ -97,65 +183,73 @@ const Payment = () => {
                     </div>
                   </div>
 
-                  <Popover
-                    open={isDatePickerOpen}
-                    onOpenChange={setIsDatePickerOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Change Date
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                      <ModernDatePicker
-                        value={selectedDate || undefined}
-                        onChange={(date) => {
-                          if (date) {
-                            setSelectedDate(date);
-                            const days = differenceInDays(date, new Date());
-                            setDaysFromNow(days);
+                  <div className="absolute top-1/2 right-0 transform -translate-y-1/2">
+                    <Popover
+                      open={isDatePickerOpen}
+                      onOpenChange={setIsDatePickerOpen}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full sm:w-auto"
+                        >
+                          <Calendar className="mr-2 h-4 w-4" />
+                          Change Date
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="center">
+                        <ModernDatePicker
+                          value={selectedDate || undefined}
+                          onChange={(date) => {
+                            if (date) {
+                              setSelectedDate(date);
+                              const days = differenceInDays(date, new Date());
+                              setDaysFromNow(days);
 
-                            // Determine required plan based on new selected date
-                            let plan = "1-5";
-                            if (days <= 365 * 5) {
-                              plan = "1-5";
-                            } else if (days <= 365 * 10) {
-                              plan = "5-10";
-                            } else {
-                              plan = "10-50";
-                            }
-
-                            setRequiredPlan(plan);
-                            setSelectedPlan(plan);
-
-                            // Update localStorage with new date
-                            const savedFormState =
-                              localStorage.getItem("messageFormState");
-                            if (savedFormState) {
-                              try {
-                                const formState = JSON.parse(savedFormState);
-                                formState.selectedDate = date;
-                                localStorage.setItem(
-                                  "messageFormState",
-                                  JSON.stringify(formState)
-                                );
-                              } catch (error) {
-                                console.error(
-                                  "Error updating form state:",
-                                  error
-                                );
+                              // Determine required plan based on new selected date
+                              let plan = null;
+                              if (days <= 365) {
+                                plan = "free"; // First year is free
+                              } else if (days <= 365 * 5) {
+                                plan = "1-5";
+                              } else if (days <= 365 * 10) {
+                                plan = "5-10";
+                              } else {
+                                plan = "10-50";
                               }
-                            }
 
-                            setIsDatePickerOpen(false);
-                          }
-                        }}
-                        disabled={(date) => date <= new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                              setRequiredPlan(plan);
+                              setSelectedPlan(plan);
+
+                              // Update localStorage with new date
+                              const savedFormState =
+                                localStorage.getItem("messageFormState");
+                              if (savedFormState) {
+                                try {
+                                  const formState = JSON.parse(savedFormState);
+                                  formState.selectedDate = date;
+                                  localStorage.setItem(
+                                    "messageFormState",
+                                    JSON.stringify(formState)
+                                  );
+                                } catch (error) {
+                                  console.error(
+                                    "Error updating form state:",
+                                    error
+                                  );
+                                }
+                              }
+
+                              setIsDatePickerOpen(false);
+                            }
+                          }}
+                          disabled={(date) => date <= new Date()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
               </div>
             </div>
@@ -167,8 +261,55 @@ const Payment = () => {
         )}
 
         <Card className="bg-card/60 backdrop-blur-sm border-border/40 rounded-2xl shadow-xl">
-          <CardContent className="space-y-6 pt-8">
-            <div className="grid gap-6 md:grid-cols-3">
+          <CardContent className="space-y-4 pt-6">
+            <div className="grid gap-4 md:grid-cols-4">
+              {/* Free Plan - First Year */}
+              <Card
+                className={`border-2 transition-colors relative ${
+                  requiredPlan === "free"
+                    ? "border-primary bg-primary/5 cursor-pointer"
+                    : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
+                }`}
+                onClick={() =>
+                  requiredPlan === "free" && setSelectedPlan("free")
+                }
+              >
+                {requiredPlan === "free" && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                    <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                      FREE
+                    </span>
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-xl">First Year</CardTitle>
+                  <div className="text-3xl font-bold text-foreground">
+                    $0
+                    <span className="text-sm font-normal text-muted-foreground">
+                      /message
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Completely free
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-xs mb-6">
+                    <li>• Send messages within 1 year</li>
+                    <li>• All message types supported</li>
+                    <li>• Email + WhatsApp delivery</li>
+                    <li>• No payment required</li>
+                  </ul>
+                  <Button
+                    className="w-full"
+                    variant={requiredPlan === "free" ? "default" : "outline"}
+                    disabled={requiredPlan !== "free"}
+                  >
+                    <Star className="mr-2 h-4 w-4" />
+                    {requiredPlan === "free" ? "Create Free" : "Not Available"}
+                  </Button>
+                </CardContent>
+              </Card>
               {/* 1-5 Years Plan */}
               <Card
                 className={`border-2 transition-colors relative ${
