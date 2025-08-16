@@ -17,7 +17,8 @@ const Payment = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [daysFromNow, setDaysFromNow] = useState(0);
   const [requiredPlan, setRequiredPlan] = useState<string | null>(null);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isMobileDatePickerOpen, setIsMobileDatePickerOpen] = useState(false);
+  const [isDesktopDatePickerOpen, setIsDesktopDatePickerOpen] = useState(false);
 
   useEffect(() => {
     // Get selected date from localStorage (saved from MessageCreator)
@@ -101,8 +102,8 @@ const Payment = () => {
                   </div>
                   <div className="w-full">
                     <Popover
-                      open={isDatePickerOpen}
-                      onOpenChange={setIsDatePickerOpen}
+                      open={isMobileDatePickerOpen}
+                      onOpenChange={setIsMobileDatePickerOpen}
                     >
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="w-full">
@@ -153,7 +154,7 @@ const Payment = () => {
                                 }
                               }
 
-                              setIsDatePickerOpen(false);
+                              setIsMobileDatePickerOpen(false);
                             }
                           }}
                           disabled={(date) => date <= new Date()}
@@ -185,8 +186,8 @@ const Payment = () => {
 
                   <div className="absolute top-1/2 right-0 transform -translate-y-1/2">
                     <Popover
-                      open={isDatePickerOpen}
-                      onOpenChange={setIsDatePickerOpen}
+                      open={isDesktopDatePickerOpen}
+                      onOpenChange={setIsDesktopDatePickerOpen}
                     >
                       <PopoverTrigger asChild>
                         <Button
@@ -241,7 +242,7 @@ const Payment = () => {
                                 }
                               }
 
-                              setIsDatePickerOpen(false);
+                              setIsDesktopDatePickerOpen(false);
                             }
                           }}
                           disabled={(date) => date <= new Date()}
