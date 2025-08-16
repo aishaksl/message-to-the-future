@@ -303,10 +303,28 @@ export const MessageCreator = () => {
       case 6:
         return (
           <MessagePreview
+            recipientType={recipientType}
+            recipientName={recipientName}
+            isSurpriseMode={isSurpriseMode}
+            deliveryMethod={deliveryMethod}
+            recipientEmail={recipientEmail}
+            recipientPhone={recipientPhone}
+            selectedTypes={selectedTypes}
             subject={subject}
-            selectedDate={selectedDate}
-            messageType={selectedTypes[0] || "text"}
             messageText={messageText}
+            selectedFiles={selectedFiles}
+            selectedDate={selectedDate}
+            isLoading={isLoading}
+            onComplete={handleComplete}
+            onExpandFile={expandFile}
+            onExpandText={() => {
+              setPreviewFile(
+                new File([messageText], "message.txt", {
+                  type: "text/plain",
+                })
+              );
+              setIsPreviewOpen(true);
+            }}
           />
         );
 

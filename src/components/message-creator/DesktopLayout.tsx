@@ -38,6 +38,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { MessagePreview } from "./MessagePreview";
 
 interface DesktopLayoutProps {
   // Recipient props
@@ -925,79 +926,26 @@ export const DesktopLayout = ({
         </CardContent>
       </Card>
 
-      {/* Step 6: Preview & Complete */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
-              6
-            </span>
-            Review & Send
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="p-6 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                  <span className="text-sm font-medium text-primary">
-                    Subject
-                  </span>
-                  <span className="text-sm">{subject}</span>
-                </div>
-
-                <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                  <span className="text-sm font-medium text-primary">
-                    Delivery
-                  </span>
-                  <span className="text-sm">
-                    {selectedDate && format(selectedDate, "PPP")}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                  <span className="text-sm font-medium text-primary">Type</span>
-                  <span className="text-sm capitalize">
-                    {selectedTypes.join(", ")}
-                  </span>
-                </div>
-
-                {messageText && (
-                  <div className="p-3 rounded-lg bg-background/60 backdrop-blur-sm">
-                    <div className="text-sm font-medium text-primary mb-2">
-                      Content
-                    </div>
-                    <p className="text-sm leading-relaxed">{messageText}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Button
-              disabled={
-                !subject ||
-                !selectedDate ||
-                (selectedTypes.includes("text") && !messageText) ||
-                isLoading
-              }
-              className="w-full h-12"
-              onClick={onComplete}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Scheduling Message...
-                </>
-              ) : (
-                <>
-                  <Check className="w-4 h-4 mr-2" />
-                  Schedule Message
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Review & Send - No longer a numbered step */}
+      <div className="mt-8 pt-8 border-t-2 border-dashed border-primary/20">
+        <MessagePreview
+          recipientType={recipientType}
+          recipientName={recipientName}
+          isSurpriseMode={isSurpriseMode}
+          deliveryMethod={deliveryMethod}
+          recipientEmail={recipientEmail}
+          recipientPhone={recipientPhone}
+          selectedTypes={selectedTypes}
+          subject={subject}
+          messageText={messageText}
+          selectedFiles={selectedFiles}
+          selectedDate={selectedDate}
+          isLoading={isLoading}
+          onComplete={onComplete}
+          onExpandFile={onExpandFile}
+          onExpandText={onExpandText}
+        />
+      </div>
 
       {/* Modern Confirmation Dialog */}
       <Dialog
