@@ -77,9 +77,9 @@ export const MessagePreview = ({
     <div className="space-y-4">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <CheckCircle className="w-6 h-6 text-green-500" />
-        </div>
+        <p className="flex items-center justify-center text-2xl font-bold">
+          Message Preview
+        </p>
         <p className="text-sm text-muted-foreground">
           Review your message before scheduling delivery
         </p>
