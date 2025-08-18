@@ -108,16 +108,22 @@ export const MessagePreview = ({
             </div>
 
             <div className="text-right">
-              <div className="flex items-center gap-1 text-sm font-medium">
-                <Calendar className="w-4 h-4 text-blue-600" />
-                {selectedDate && format(selectedDate, "MMM d, yyyy")}
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex items-center gap-1 text-sm font-medium">
+                  <span className="text-blue-600">From </span>
+                  {format(new Date(), "MM.dd.yyyy")}
+                </div>
+                <div className="flex items-center gap-1 text-sm font-medium">
+                  <span className="text-blue-600">To </span>
+                  {selectedDate && format(selectedDate, "MM.dd.yyyy")}
+                </div>
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground mt-1">
                 {yearsFromNow > 0
                   ? `${yearsFromNow} year${yearsFromNow > 1 ? "s" : ""}`
                   : daysFromNow > 0
-                  ? `${daysFromNow} day${daysFromNow > 1 ? "s" : ""}`
-                  : "Today"}
+                    ? `${daysFromNow} day${daysFromNow > 1 ? "s" : ""}`
+                    : "Today"}
               </div>
             </div>
           </div>
