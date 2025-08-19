@@ -119,11 +119,10 @@ const Index = () => {
                   id === "hero" ? "/" : `/?view=${id}`
                 );
               }}
-              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${
-                currentView === id
-                  ? "text-primary bg-primary/10"
-                  : "text-muted-foreground"
-              }`}
+              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${currentView === id
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground"
+                }`}
             >
               <Icon className="w-5 h-5" />
               <span className="text-xs font-medium">
@@ -134,11 +133,10 @@ const Index = () => {
           <Button
             variant="ghost"
             onClick={() => setCurrentView("signin")}
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${
-              currentView === "signin"
-                ? "text-primary bg-primary/10"
-                : "text-muted-foreground"
-            }`}
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${currentView === "signin"
+              ? "text-primary bg-primary/10"
+              : "text-muted-foreground"
+              }`}
           >
             <LogIn className="w-5 h-5" />
             <span className="text-xs font-medium">Sign In</span>
