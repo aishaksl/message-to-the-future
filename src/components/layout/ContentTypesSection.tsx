@@ -75,9 +75,6 @@ const ContentTypesSection: React.FC = () => {
                       className="transition-all duration-300 group-hover:scale-110"
                     />
                   </div>
-
-                  <div className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-gradient-to-br ${type.gradient} opacity-60 group-hover:opacity-100 transition-all duration-300`}></div>
-                  <div className={`absolute bottom-2 left-2 w-1 h-1 rounded-full bg-gradient-to-br ${type.gradient} opacity-40 group-hover:opacity-80 transition-all duration-300 delay-100`}></div>
                 </div>
 
                 <div className="relative z-10">
