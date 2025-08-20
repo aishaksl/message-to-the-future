@@ -194,15 +194,15 @@ export const DesktopLayout = ({
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-bold text-center mb-8">
+      <h2 className="text-2xl md:text-3xl lg:text-4xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight text-center mb-8">
         Create Your Message
       </h2>
 
       {/* Step 1: Recipient */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+        <CardHeader >
+          <CardTitle className="text-md md:text-lg lg:text-2xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight flex items-center gap-2">
+            <span className="w-8 h-8 text-white rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 opacity-30 flex items-center justify-center text-sm font-semibold">
               1
             </span>
             Who is this message for?
@@ -408,23 +408,23 @@ export const DesktopLayout = ({
                 )}
                 {(deliveryMethod === "whatsapp" ||
                   deliveryMethod === "both") && (
-                  <div>
-                    <Label
-                      htmlFor="recipientPhoneDesktop"
-                      className="text-base"
-                    >
-                      Phone Number
-                    </Label>
-                    <Input
-                      id="recipientPhoneDesktop"
-                      type="tel"
-                      placeholder="+90 555 123 4567"
-                      value={recipientPhone}
-                      onChange={(e) => setRecipientPhone(e.target.value)}
-                      className="mt-2"
-                    />
-                  </div>
-                )}
+                    <div>
+                      <Label
+                        htmlFor="recipientPhoneDesktop"
+                        className="text-base"
+                      >
+                        Phone Number
+                      </Label>
+                      <Input
+                        id="recipientPhoneDesktop"
+                        type="tel"
+                        placeholder="+90 555 123 4567"
+                        value={recipientPhone}
+                        onChange={(e) => setRecipientPhone(e.target.value)}
+                        className="mt-2"
+                      />
+                    </div>
+                  )}
               </div>
             )}
 
@@ -450,23 +450,23 @@ export const DesktopLayout = ({
                 )}
                 {(deliveryMethod === "whatsapp" ||
                   deliveryMethod === "both") && (
-                  <div>
-                    <Label
-                      htmlFor="recipientPhoneSelfDesktop"
-                      className="text-base"
-                    >
-                      Your Phone Number
-                    </Label>
-                    <Input
-                      id="recipientPhoneSelfDesktop"
-                      type="tel"
-                      placeholder="+90 555 123 4567"
-                      value={recipientPhone}
-                      onChange={(e) => setRecipientPhone(e.target.value)}
-                      className="mt-2"
-                    />
-                  </div>
-                )}
+                    <div>
+                      <Label
+                        htmlFor="recipientPhoneSelfDesktop"
+                        className="text-base"
+                      >
+                        Your Phone Number
+                      </Label>
+                      <Input
+                        id="recipientPhoneSelfDesktop"
+                        type="tel"
+                        placeholder="+90 555 123 4567"
+                        value={recipientPhone}
+                        onChange={(e) => setRecipientPhone(e.target.value)}
+                        className="mt-2"
+                      />
+                    </div>
+                  )}
               </div>
             )}
           </div>
@@ -576,10 +576,10 @@ export const DesktopLayout = ({
                           ? "border-primary bg-primary/20 shadow-lg"
                           : "border-primary bg-primary/4 shadow-lg"
                         : isSelected && currentType === type
-                        ? "border-primary/60 bg-primary/10 shadow-md"
-                        : isSelected
-                        ? "border-border/60 bg-background/50"
-                        : "border-border/40 hover:border-primary/40"
+                          ? "border-primary/60 bg-primary/10 shadow-md"
+                          : isSelected
+                            ? "border-border/60 bg-background/50"
+                            : "border-border/40 hover:border-primary/40"
                     )}
                   >
                     <Icon
@@ -683,8 +683,8 @@ export const DesktopLayout = ({
                                 recipientType === "self"
                                   ? "Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
                                   : recipientName
-                                  ? `Dear ${recipientName}, I want you to know... I hope you remember... I'm grateful for...`
-                                  : "Dear friend, I want you to know... I hope you remember... I'm grateful for..."
+                                    ? `Dear ${recipientName}, I want you to know... I hope you remember... I'm grateful for...`
+                                    : "Dear friend, I want you to know... I hope you remember... I'm grateful for..."
                               }
                               value={messageText}
                               onChange={(e) => setMessageText(e.target.value)}
@@ -704,10 +704,10 @@ export const DesktopLayout = ({
                         currentType === "image"
                           ? "image/*"
                           : currentType === "video"
-                          ? "video/*"
-                          : currentType === "audio"
-                          ? "audio/*"
-                          : "*/*"
+                            ? "video/*"
+                            : currentType === "audio"
+                              ? "audio/*"
+                              : "*/*"
                       }
                       onChange={handleFileChange}
                       style={{ display: "none" }}
@@ -716,146 +716,144 @@ export const DesktopLayout = ({
 
                     {selectedFiles[currentType as keyof typeof selectedFiles]
                       ?.length === 0 && (
-                      <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
-                        <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                        <p className="text-sm mb-2">
-                          Upload your {currentType}
-                        </p>
-                        <p className="text-muted-foreground text-xs mb-4">
-                          Drag and drop or click to select files
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const input = document.getElementById(
-                              `fileInputDesktop-${currentType}`
-                            ) as HTMLInputElement;
-                            if (input) input.click();
-                          }}
-                          type="button"
-                        >
-                          Choose Files
-                        </Button>
-                      </div>
-                    )}
+                        <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
+                          <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                          <p className="text-sm mb-2">
+                            Upload your {currentType}
+                          </p>
+                          <p className="text-muted-foreground text-xs mb-4">
+                            Drag and drop or click to select files
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const input = document.getElementById(
+                                `fileInputDesktop-${currentType}`
+                              ) as HTMLInputElement;
+                              if (input) input.click();
+                            }}
+                            type="button"
+                          >
+                            Choose Files
+                          </Button>
+                        </div>
+                      )}
 
                     {selectedFiles[currentType as keyof typeof selectedFiles]
                       ?.length > 0 && (
-                      <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl relative">
-                        {/* Action buttons - mavi container'ın sağ üst köşesi */}
-                        <div className="absolute top-2 right-2 flex gap-1">
-                          <button
-                            onClick={() =>
-                              onExpandFile(
-                                selectedFiles[
+                        <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl relative">
+                          {/* Action buttons - mavi container'ın sağ üst köşesi */}
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            <button
+                              onClick={() =>
+                                onExpandFile(
+                                  selectedFiles[
                                   currentType as keyof typeof selectedFiles
-                                ][0]
-                              )
-                            }
-                            className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
-                            title="Expand"
-                          >
-                            <Expand className="w-4 h-4 text-blue-500 transition-colors duration-200" />
-                          </button>
-                          <button
-                            onClick={() => removeFile(0)}
-                            className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
-                            title="Remove"
-                          >
-                            <X className="w-4 h-4 text-red-500 transition-colors duration-200" />
-                          </button>
-                        </div>
-                        <div className="flex justify-center mt-4">
-                          <div className="w-full max-w-md space-y-4">
-                            {selectedFiles[
-                              currentType as keyof typeof selectedFiles
-                            ].map((file, index) => (
-                              <div key={index} className="group">
-                                <div
-                                  className={`w-full h-40 bg-muted rounded-xl border-2 border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300 ${
-                                    currentType === "audio"
+                                  ][0]
+                                )
+                              }
+                              className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                              title="Expand"
+                            >
+                              <Expand className="w-4 h-4 text-blue-500 transition-colors duration-200" />
+                            </button>
+                            <button
+                              onClick={() => removeFile(0)}
+                              className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                              title="Remove"
+                            >
+                              <X className="w-4 h-4 text-red-500 transition-colors duration-200" />
+                            </button>
+                          </div>
+                          <div className="flex justify-center mt-4">
+                            <div className="w-full max-w-md space-y-4">
+                              {selectedFiles[
+                                currentType as keyof typeof selectedFiles
+                              ].map((file, index) => (
+                                <div key={index} className="group">
+                                  <div
+                                    className={`w-full h-40 bg-muted rounded-xl border-2 border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300 ${currentType === "audio"
                                       ? ""
                                       : "cursor-pointer hover:border-primary/40"
-                                  }`}
-                                  onClick={
-                                    currentType === "audio"
-                                      ? undefined
-                                      : () => onExpandFile(file)
-                                  }
-                                >
-                                  {currentType === "image" ? (
-                                    <img
-                                      src={URL.createObjectURL(file)}
-                                      alt={file.name}
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                    />
-                                  ) : currentType === "video" ? (
-                                    <div className="relative w-full h-full">
-                                      <video
+                                      }`}
+                                    onClick={
+                                      currentType === "audio"
+                                        ? undefined
+                                        : () => onExpandFile(file)
+                                    }
+                                  >
+                                    {currentType === "image" ? (
+                                      <img
                                         src={URL.createObjectURL(file)}
+                                        alt={file.name}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                        muted
                                       />
-                                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                          <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent ml-1"></div>
+                                    ) : currentType === "video" ? (
+                                      <div className="relative w-full h-full">
+                                        <video
+                                          src={URL.createObjectURL(file)}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                          muted
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                          <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                            <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent ml-1"></div>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  ) : (
-                                    <div
-                                      className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 p-4 cursor-pointer"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        const audio =
-                                          e.currentTarget.querySelector(
-                                            "audio"
-                                          ) as HTMLAudioElement;
-                                        if (audio) {
-                                          if (audio.paused) {
-                                            audio.play();
-                                          } else {
-                                            audio.pause();
+                                    ) : (
+                                      <div
+                                        className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 p-4 cursor-pointer"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const audio =
+                                            e.currentTarget.querySelector(
+                                              "audio"
+                                            ) as HTMLAudioElement;
+                                          if (audio) {
+                                            if (audio.paused) {
+                                              audio.play();
+                                            } else {
+                                              audio.pause();
+                                            }
                                           }
-                                        }
-                                      }}
-                                    >
-                                      <div className="flex flex-col items-center gap-3 mb-4">
-                                        <Mic className="w-8 h-8 text-primary" />
-                                        <span className="text-sm font-medium text-primary">
-                                          Audio File
-                                        </span>
+                                        }}
+                                      >
+                                        <div className="flex flex-col items-center gap-3 mb-4">
+                                          <Mic className="w-8 h-8 text-primary" />
+                                          <span className="text-sm font-medium text-primary">
+                                            Audio File
+                                          </span>
+                                        </div>
+                                        <audio
+                                          src={URL.createObjectURL(file)}
+                                          controls
+                                          className="w-full max-w-sm h-10"
+                                          onClick={(e) => e.stopPropagation()}
+                                        />
                                       </div>
-                                      <audio
-                                        src={URL.createObjectURL(file)}
-                                        controls
-                                        className="w-full max-w-sm h-10"
-                                        onClick={(e) => e.stopPropagation()}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="mt-2 text-center">
-                                  <p className="text-sm font-medium text-foreground truncate">
-                                    {file.name}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    {(file.size / (1024 * 1024)).toFixed(1)} MB
-                                    {currentType !== "image" &&
-                                      ` • ${
-                                        currentType === "video"
+                                    )}
+                                  </div>
+                                  <div className="mt-2 text-center">
+                                    <p className="text-sm font-medium text-foreground truncate">
+                                      {file.name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {(file.size / (1024 * 1024)).toFixed(1)} MB
+                                      {currentType !== "image" &&
+                                        ` • ${currentType === "video"
                                           ? "Video"
                                           : "Audio"
-                                      }`}
-                                  </p>
+                                        }`}
+                                    </p>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </>
                 )}
               </>
