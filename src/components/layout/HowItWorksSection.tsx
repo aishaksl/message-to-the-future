@@ -14,10 +14,10 @@ const HowItWorksSection: React.FC = () => {
   return (
     <div className="h-full flex flex-col justify-center">
       <div className="text-center mb-8">
-        <h2 className="text-4xl md:text-5xl font-light text-slate-800 mb-4">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight mb-4">
           How It Works
         </h2>
-        <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg md:text-xl text-slate-600 leading-relaxed font-light">
           Create your message in just 5 simple steps
         </p>
       </div>
@@ -50,7 +50,7 @@ const HowItWorksSection: React.FC = () => {
 
           <div className="relative z-10">
             <div className="inline-flex items-center justify-center w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-full text-sm font-bold mb-2">1</div>
-            <h3 className="text-lg font-bold text-slate-800 mb-1 bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">Choose Recipient</h3>
+            <h3 className="text-lg  text-slate-800 mb-1 bg-gradient-to-br from-blue-300 to-purple-600  bg-clip-text text-transparent">Choose Recipient</h3>
             <p className="text-sm text-slate-600">Select who will receive your message: yourself or someone special</p>
           </div>
         </div>
@@ -73,7 +73,7 @@ const HowItWorksSection: React.FC = () => {
 
           <div className="relative z-10">
             <div className="inline-flex items-center justify-center w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-full text-sm font-bold mb-2">2</div>
-            <h3 className="text-lg font-bold text-slate-800 mb-1 bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">Choose Platform</h3>
+            <h3 className="text-lg text-slate-800 mb-1 bg-gradient-to-br from-blue-300 to-purple-600 bg-clip-text text-transparent">Choose Platform</h3>
             <p className="text-sm text-slate-600">Select your preferred delivery method: Email or WhatsApp</p>
           </div>
         </div>
@@ -98,7 +98,7 @@ const HowItWorksSection: React.FC = () => {
 
           <div className="relative z-10">
             <div className="inline-flex items-center justify-center w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-full text-sm font-bold mb-2">3</div>
-            <h3 className="text-lg font-bold text-slate-800 mb-1 bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">Content Type</h3>
+            <h3 className="text-lg text-slate-800 mb-1 bg-gradient-to-br from-blue-300 to-purple-600 bg-clip-text text-transparent">Content Type</h3>
             <p className="text-sm text-slate-600">Choose the type of content: text, video, audio, or image</p>
           </div>
         </div>
@@ -118,7 +118,7 @@ const HowItWorksSection: React.FC = () => {
 
           <div className="relative z-10">
             <div className="inline-flex items-center justify-center w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-full text-sm font-bold mb-2">4</div>
-            <h3 className="text-lg font-bold text-slate-800 mb-1 bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">Add Content</h3>
+            <h3 className="text-lg text-slate-800 mb-1 bg-gradient-to-br from-blue-300 to-purple-600 bg-clip-text text-transparent">Add Content</h3>
             <p className="text-sm text-slate-600">Upload your files or write your message content</p>
           </div>
         </div>
@@ -131,16 +131,16 @@ const HowItWorksSection: React.FC = () => {
 
             <div className="relative z-10 w-24 h-24 bg-white/25 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
               <div className="w-16 h-16 bg-white/20 rounded-xl flex flex-col items-center justify-center gap-1">
-                <div className="text-xs text-indigo-600 font-bold">2025</div>
-                <CalendarHeart size={24} color="#6366F1" strokeWidth={1.80} />
-                <div className="text-xs text-indigo-600 font-bold">Dec 25</div>
+                <div className="text-xs text-indigo-600 ">2025</div>
+                <CalendarHeart size={24} color="#6366F1" strokeWidth={1.25} />
+                <div className="text-xs text-indigo-600 ">Dec 25</div>
               </div>
             </div>
           </div>
 
           <div className="relative z-10">
             <div className="inline-flex items-center justify-center w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-full text-sm font-bold mb-2">5</div>
-            <h3 className="text-lg font-bold text-slate-800 mb-1 bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">Set Schedule</h3>
+            <h3 className="text-lg text-slate-800 mb-1 bg-gradient-to-br from-blue-300 to-purple-600 bg-clip-text text-transparent">Set Schedule</h3>
             <p className="text-sm text-slate-600">Choose when your message should be delivered</p>
           </div>
         </div>
