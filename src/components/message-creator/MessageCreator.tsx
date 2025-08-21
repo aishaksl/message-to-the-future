@@ -187,14 +187,58 @@ export const MessageCreator = () => {
     setIsPreviewOpen(true);
   };
 
+  // Helper function to convert file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const handleComplete = async () => {
     setIsLoading(true);
+
+    // Convert all selected files to base64
+    const mediaFiles: {
+      images?: string[];
+      videos?: string[];
+      audios?: string[];
+    } = {};
+
+    try {
+      if (selectedFiles.image.length > 0) {
+        mediaFiles.images = await Promise.all(
+          selectedFiles.image.map(file => fileToBase64(file))
+        );
+      }
+      if (selectedFiles.video.length > 0) {
+        mediaFiles.videos = await Promise.all(
+          selectedFiles.video.map(file => fileToBase64(file))
+        );
+      }
+      if (selectedFiles.audio.length > 0) {
+        mediaFiles.audios = await Promise.all(
+          selectedFiles.audio.map(file => fileToBase64(file))
+        );
+      }
+    } catch (error) {
+      console.error('Error converting files to base64:', error);
+      toast({
+        title: "Error processing files",
+        description: "There was an error processing your media files.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
 
     const message = {
       id: Date.now().toString(),
       subject,
       content: messageText,
-      types: selectedTypes,
+      type: selectedTypes.length > 0 ? selectedTypes[0] : "text",
       deliveryDate: selectedDate,
       recipientType,
       recipientName: recipientType === "self" ? "Future Me" : recipientName,
@@ -208,6 +252,7 @@ export const MessageCreator = () => {
         ? messageText.substring(0, 100) +
         (messageText.length > 100 ? "..." : "")
         : `${selectedTypes.join(", ")} message`,
+      mediaFiles: Object.keys(mediaFiles).length > 0 ? mediaFiles : undefined,
     };
 
     await new Promise((resolve) => setTimeout(resolve, 1500));
