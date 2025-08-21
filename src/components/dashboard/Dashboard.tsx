@@ -90,7 +90,7 @@ export const Dashboard = () => {
         createdAt: message.createdAt ? new Date(message.createdAt) : null,
       }));
       setSentMessages(processedMessages);
-
+      
       // Save the migrated data back to localStorage
       localStorage.setItem("sentMessages", JSON.stringify(processedMessages));
     }
@@ -157,6 +157,98 @@ export const Dashboard = () => {
     }
   };
 
+  const getMessageTypes = (message: Message) => {
+    const types = [];
+    
+    // Check for text content
+    if (message.content && message.content.trim()) {
+      types.push('text');
+    }
+    
+    // Check for media files
+    if (message.mediaFiles) {
+      if (message.mediaFiles.images && message.mediaFiles.images.length > 0) {
+        types.push('image');
+      }
+      if (message.mediaFiles.videos && message.mediaFiles.videos.length > 0) {
+        types.push('video');
+      }
+      if (message.mediaFiles.audios && message.mediaFiles.audios.length > 0) {
+        types.push('audio');
+      }
+    }
+    
+    // Fallback to the original type if no content detected
+    if (types.length === 0) {
+      types.push(message.type || 'text');
+    }
+    
+    return types;
+  };
+
+  const renderMessageCard = (message: Message, type: 'sent' | 'received') => {
+    const messageTypes = getMessageTypes(message);
+    const isNewMessage = newMessageId === message.id;
+    
+    return (
+      <div
+        key={message.id}
+        className={`group relative bg-gradient-to-br from-white/80 to-blue-50/40 border border-blue-200/30 rounded-xl p-8 cursor-pointer transition-all duration-500 hover:bg-gradient-to-br hover:from-white/90 hover:to-purple-50/40 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-100/20 ${
+          isNewMessage ? "bg-gradient-to-br from-white/95 to-blue-100/50 border-blue-400/60 shadow-lg shadow-blue-200/30" : ""
+        }`}
+        onClick={() => handleViewMessage(message, type)}
+      >
+        {/* Zen Header - Minimal */}
+        <div className="mb-8">
+          <h4 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-slate-800 to-blue-700 mb-3 leading-relaxed">
+            {message.subject || 'Untitled'}
+          </h4>
+          <div className="w-12 h-px bg-gradient-to-r from-blue-300/60 to-purple-300/60 mb-6"></div>
+          <div className="flex items-center justify-between text-xs font-light text-blue-600/70">
+            <span>{message.recipientName}</span>
+            {message.isSurprise && (
+              <div className="text-purple-600/70">
+                ✦
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Content - Minimal Preview */}
+        <div className="mb-8">
+          <p className="text-sm font-light text-slate-600 leading-loose line-clamp-1">
+            {message.preview || message.content || '...'}
+          </p>
+        </div>
+
+        {/* Footer - Essential Info Only */}
+        <div className="flex items-center justify-between pt-6 border-t border-blue-200/20">
+          <div className="flex items-center gap-4">
+            {messageTypes.map((msgType, index) => (
+              <div key={index} className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                <div className="text-blue-600/80">
+                  {getTypeIcon(msgType)}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-xs font-light text-blue-500/70">
+            {message.deliveryDate ? format(new Date(message.deliveryDate), "MMM yyyy") : format(new Date(message.createdAt), "MMM yyyy")}
+          </div>
+        </div>
+
+        {/* Subtle Status Indicator */}
+        <div className="absolute top-4 right-4">
+          <div className={`w-2 h-2 rounded-full ${
+            message.status === 'delivered' ? 'bg-gradient-to-br from-emerald-400 to-emerald-500' :
+            message.status === 'scheduled' ? 'bg-gradient-to-br from-blue-400 to-purple-500' :
+            'bg-gradient-to-br from-slate-400 to-slate-500'
+          }`}></div>
+        </div>
+      </div>
+    );
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "delivered":
@@ -203,7 +295,7 @@ export const Dashboard = () => {
         <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-gradient-to-br from-purple-200/25 to-pink-200/25 rounded-full blur-2xl" />
         <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-gradient-to-br from-green-200/20 to-emerald-200/20 rounded-full blur-xl" />
       </div>
-
+      
       <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
         {/* Header - Zen minimalist style */}
         <div className="text-center mb-12">
@@ -213,14 +305,14 @@ export const Dashboard = () => {
               <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-br from-cyan-500 to-blue-600 opacity-70">Through Time</span>
             </h1>
-
+            
             <div className="w-16 h-px bg-slate-300 mx-auto"></div>
-
+            
             <p className="text-lg md:text-xl text-slate-600 leading-relaxed font-light max-w-2xl mx-auto">
               Every message is a bridge between moments, connecting your past, present, and future.
             </p>
           </div>
-
+          
           <div className="mt-8">
             <Button
               onClick={() => navigate("/create-message")}
@@ -236,56 +328,56 @@ export const Dashboard = () => {
 
         {/* Stats Cards - Glassmorphism design */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/10 p-6">
+          <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-blue-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
-                <Send className="h-6 w-6 text-blue-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
+                <Send className="h-6 w-6 text-white" />
               </div>
               <div>
                 <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-400 to-purple-600">{sentMessages.length}</p>
-                <p className="text-sm text-slate-500 font-light">
+                <p className="text-sm text-blue-600/70 font-light">
                   Messages Sent
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/10 p-6">
+          <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-purple-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-2xl flex items-center justify-center">
-                <Clock className="h-6 w-6 text-cyan-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
+                <Clock className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-cyan-400 to-blue-600">{sentMessages.filter(msg => msg.status === 'scheduled').length}</p>
-                <p className="text-sm text-slate-500 font-light">
+                <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-purple-400 to-blue-600">{sentMessages.filter(msg => msg.status === 'scheduled').length}</p>
+                <p className="text-sm text-purple-600/70 font-light">
                   Scheduled
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/10 p-6">
+          <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-blue-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
+                <CheckCircle className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-green-400 to-emerald-600">{sentMessages.filter(msg => msg.status === 'delivered').length}</p>
-                <p className="text-sm text-slate-500 font-light">
+                <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-400 to-purple-600">{sentMessages.filter(msg => msg.status === 'delivered').length}</p>
+                <p className="text-sm text-blue-600/70 font-light">
                   Delivered
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/10 p-6">
+          <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-purple-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
-                <MessageCircleHeart className="h-6 w-6 text-purple-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-blue-400 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
+                <MessageCircleHeart className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-purple-400 to-pink-600">{receivedMessages.length}</p>
-                <p className="text-sm text-slate-500 font-light">
+                <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-purple-400 to-blue-600">{receivedMessages.length}</p>
+                <p className="text-sm text-purple-600/70 font-light">
                   Received
                 </p>
               </div>
@@ -295,20 +387,20 @@ export const Dashboard = () => {
 
         {/* Mobile Tabs - Zen Design */}
         <div className="lg:hidden">
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 overflow-hidden">
+          <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 overflow-hidden">
             <Tabs defaultValue="received" className="w-full">
-              <div className="border-b border-slate-200/50">
+              <div className="border-b border-blue-200/30">
                 <TabsList className="grid w-full grid-cols-2 h-14 bg-transparent rounded-none p-0">
                   <TabsTrigger
                     value="received"
-                    className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-50 data-[state=active]:to-purple-50 data-[state=active]:border-b-2 data-[state=active]:border-blue-400 data-[state=active]:shadow-none transition-all font-light"
+                    className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-300 data-[state=active]:to-purple-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-200/30 transition-all font-light text-blue-600/70 hover:text-blue-800"
                   >
                     <Inbox className="h-4 w-4" />
                     <span className="text-sm">Received</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="sent"
-                    className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-50 data-[state=active]:to-purple-50 data-[state=active]:border-b-2 data-[state=active]:border-blue-400 data-[state=active]:shadow-none transition-all font-light"
+                    className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-300 data-[state=active]:to-purple-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-200/30 transition-all font-light text-blue-600/70 hover:text-blue-800"
                   >
                     <SendHorizontal className="h-4 w-4" />
                     <span className="text-sm">Sent</span>
@@ -317,113 +409,52 @@ export const Dashboard = () => {
               </div>
 
               <TabsContent value="received" className="m-0 p-6 animate-fade-in">
-                <div className="space-y-4">
-                  {receivedMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className="group py-4 px-2 cursor-pointer transition-all duration-300 hover:bg-slate-50/50 rounded-lg border-b border-slate-100/50 last:border-b-0"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 text-slate-400 group-hover:text-blue-500 transition-colors">
-                            {getTypeIcon(message.type)}
-                          </div>
-                          <div>
-                            <p className="font-light text-slate-800 group-hover:text-slate-900">
-                              {message.subject}
-                            </p>
-                            <p className="text-sm text-slate-500 font-light">
-                              {format(new Date(message.createdAt), "MMM dd")}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-xs text-slate-500 font-light">
-                          received
-                        </div>
-                      </div>
+                {receivedMessages.length > 0 ? (
+                  <div className="space-y-12">
+                    {receivedMessages.map((message) => renderMessageCard(message, 'received'))}
+                  </div>
+                ) : (
+                  <div className="p-12 text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-100/30">
+                      <Inbox className="h-8 w-8 text-blue-600" />
                     </div>
-                  ))}
-
-                  {receivedMessages.length === 0 && (
-                    <div className="p-12 text-center">
-                      <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <Inbox className="h-8 w-8 text-slate-400" />
-                      </div>
-                      <p className="text-slate-600 font-light mb-1">
-                        No received messages yet
-                      </p>
-                      <p className="text-xs text-slate-500 font-light">
-                        Your future messages will appear here
-                      </p>
-                    </div>
-                  )}
-                </div>
+                    <p className="text-blue-700/70 font-light">No received messages yet</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="sent" className="m-0 p-6 animate-fade-in">
-                <div className="space-y-4">
-                  {sentMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`group py-4 px-2 cursor-pointer transition-all duration-300 hover:bg-slate-50/50 rounded-lg border-b border-slate-100/50 last:border-b-0 ${newMessageId === message.id
-                          ? "bg-blue-50/50 animate-fade-in"
-                          : ""
-                        }`}
-                      onClick={() => handleViewMessage(message, 'sent')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 text-slate-400 group-hover:text-blue-500 transition-colors">
-                            {getTypeIcon(message.type)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-light text-slate-800 group-hover:text-slate-900">
-                              {message.subject}
-                            </p>
-                            <p className="text-sm text-slate-500 font-light line-clamp-2 mb-1 break-words">
-                              {message.preview || message.content}
-                            </p>
-                            <p className="text-xs text-slate-400 font-light">
-                              {message.deliveryDate && format(
-                                new Date(message.deliveryDate),
-                                "MMM dd, yyyy"
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {message.isSurprise && (
-                            <div className="text-xs text-purple-600 font-light">
-                              🎁
-                            </div>
-                          )}
-                          <div className={`text-xs font-light ${message.status === 'delivered' ? 'text-green-600' :
-                              message.status === 'scheduled' ? 'text-blue-600' :
-                                'text-slate-500'
-                            }`}>
-                            {message.status}
-                          </div>
-                        </div>
-                      </div>
+                {sentMessages.length > 0 ? (
+                  <div className="space-y-12">
+                    {sentMessages.map((message) => renderMessageCard(message, 'sent'))}
+                    <div className="p-6 border-2 border-dashed border-purple-200/50 rounded-xl text-center bg-gradient-to-br from-blue-50/50 to-purple-50/50">
+                      <p className="text-purple-700/70 text-sm mb-3 font-light">
+                        Ready to send another message through time?
+                      </p>
+                      <button
+                        className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
+                        onClick={() => navigate("/create-message")}
+                      >
+                        <Plus className="h-4 w-4" />
+                        Create New Message
+                      </button>
                     </div>
-                  ))}
-
-                  <div className="p-6 border-2 border-dashed border-slate-200/50 rounded-xl text-center bg-gradient-to-br from-slate-50 to-slate-100">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                      <Plus className="h-6 w-6 text-blue-600" />
+                  </div>
+                ) : (
+                  <div className="p-12 text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-100/30">
+                      <SendHorizontal className="h-8 w-8 text-purple-600" />
                     </div>
-                    <p className="text-slate-600 text-sm mb-3 font-light">
-                      Ready to send another message through time?
-                    </p>
+                    <p className="text-purple-700/70 font-light mb-4">No sent messages yet</p>
                     <button
-                      className="w-full bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2"
+                      className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
                       onClick={() => navigate("/create-message")}
                     >
                       <Plus className="h-4 w-4" />
-                      Create New Message
+                      Create Your First Message
                     </button>
                   </div>
-                </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
@@ -432,124 +463,60 @@ export const Dashboard = () => {
         {/* Desktop Side-by-Side Layout - Zen Design */}
         <div className="hidden lg:grid lg:grid-cols-2 gap-8">
           {/* Received Messages */}
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 overflow-hidden">
-            <div className="p-6 border-b border-slate-200/50">
-              <h3 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-slate-600 to-slate-800 flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center">
-                  <Inbox className="h-4 w-4 text-blue-600" />
+          <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 overflow-hidden">
+            <div className="p-6 border-b border-blue-200/30">
+              <h3 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-600 to-purple-700 flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-300 to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200/30">
+                  <Inbox className="h-4 w-4 text-white" />
                 </div>
                 Received Messages
               </h3>
             </div>
-            <div className="p-6 space-y-4">
-              {receivedMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className="group py-4 px-2 cursor-pointer transition-all duration-300 hover:bg-slate-50/50 rounded-lg border-b border-slate-100/50 last:border-b-0"
-                  onClick={() => handleViewMessage(message, 'received')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 text-slate-400 group-hover:text-blue-500 transition-colors">
-                        {getTypeIcon(message.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-light text-slate-800 group-hover:text-slate-900">{message.subject}</p>
-                        <p className="text-sm text-slate-500 font-light line-clamp-2 mb-1 break-words">
-                          {message.preview || message.content}
-                        </p>
-                        <p className="text-xs text-slate-400 font-light">
-                          {format(new Date(message.createdAt), "MMM dd, yyyy")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-xs text-slate-500 font-light">
-                      received
-                    </div>
+            <div className="p-6">
+                {receivedMessages.length > 0 ? (
+                  <div className="space-y-12">
+                    {receivedMessages.map((message) => renderMessageCard(message, 'received'))}
                   </div>
-                </div>
-              ))}
-
-              {receivedMessages.length === 0 && (
+                ) : (
                 <div className="p-12 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Inbox className="h-8 w-8 text-slate-400" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-100/30">
+                    <Inbox className="h-8 w-8 text-blue-600" />
                   </div>
-                  <p className="text-slate-600 font-light">No received messages yet</p>
+                  <p className="text-blue-700/70 font-light">No received messages yet</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Sent Messages */}
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 overflow-hidden">
-            <div className="p-6 border-b border-slate-200/50">
-              <h3 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-slate-600 to-slate-800 flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center">
-                  <SendHorizontal className="h-4 w-4 text-blue-600" />
+          <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 overflow-hidden">
+            <div className="p-6 border-b border-purple-200/30">
+              <h3 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-600 to-purple-700 flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-300 to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200/30">
+                  <SendHorizontal className="h-4 w-4 text-white" />
                 </div>
                 Sent Messages
               </h3>
             </div>
-            <div className="p-6 space-y-4">
-              {sentMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`group py-4 px-2 cursor-pointer transition-all duration-300 hover:bg-slate-50/50 rounded-lg border-b border-slate-100/50 last:border-b-0 ${newMessageId === message.id
-                      ? "bg-blue-50/50 animate-fade-in"
-                      : ""
-                    }`}
-                  onClick={() => handleViewMessage(message, 'sent')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 text-slate-400 group-hover:text-blue-500 transition-colors">
-                        {getTypeIcon(message.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-light text-slate-800 group-hover:text-slate-900">
-                          {message.subject}
-                        </p>
-                        <p className="text-sm text-slate-500 font-light line-clamp-2 mb-1 break-words">
-                          {message.preview || message.content}
-                        </p>
-                        <p className="text-xs text-slate-400 font-light">
-                          {message.deliveryDate && format(
-                            new Date(message.deliveryDate),
-                            "MMM dd, yyyy"
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {message.isSurprise && (
-                        <div className="text-xs text-purple-600 font-light">
-                          🎁
-                        </div>
-                      )}
-                      <div className={`text-xs font-light ${message.status === 'delivered' ? 'text-green-600' :
-                          message.status === 'scheduled' ? 'text-blue-600' :
-                            'text-slate-500'
-                        }`}>
-                        {message.status}
-                      </div>
-                    </div>
+            <div className="p-6">
+                {sentMessages.length > 0 ? (
+                  <div className="space-y-12">
+                    {sentMessages.map((message) => renderMessageCard(message, 'sent'))}
                   </div>
+                ) : (
+                <div className="p-6 border-2 border-dashed border-purple-200/50 rounded-xl text-center bg-gradient-to-br from-blue-50/50 to-purple-50/50">
+                  <p className="text-purple-700/70 text-sm mb-3 font-light">
+                    Ready to send another message through time?
+                  </p>
+                  <button
+                    className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
+                    onClick={() => navigate("/create-message")}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create New Message
+                  </button>
                 </div>
-              ))}
-
-              <div className="p-6 border-2 border-dashed border-slate-200/50 rounded-xl text-center bg-gradient-to-br from-slate-50 to-slate-100">
-                <p className="text-slate-600 text-sm mb-3 font-light">
-                  Ready to send another message through time?
-                </p>
-                <button
-                  className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
-                  onClick={() => navigate("/create-message")}
-                >
-                  <Plus className="h-4 w-4" />
-                  Create New Message
-                </button>
-              </div>
+              )}
             </div>
           </div>
         </div>
