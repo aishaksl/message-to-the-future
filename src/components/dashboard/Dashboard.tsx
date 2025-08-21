@@ -18,7 +18,6 @@ import {
   SendHorizontal,
   Eye,
   Gift,
-  MessageCircleHeart,
   Sparkles,
 } from "lucide-react";
 import { format, addDays } from "date-fns";
@@ -319,7 +318,7 @@ export const Dashboard = () => {
               size="lg"
               className="text-white font-bold px-8 py-4 rounded-xl bg-gradient-to-r from-purple-300 to-purple-400 hover:brightness-110 hover:shadow-lg transition-all duration-200 border-0"
             >
-              <MessageCircleHeart className="w-5 h-5 mr-3" />
+              <Plus className="w-5 h-5 mr-3" />
               Create New Message
               <Sparkles className="w-5 h-5 ml-3" />
             </Button>
@@ -373,7 +372,7 @@ export const Dashboard = () => {
           <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-purple-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-blue-400 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
-                <MessageCircleHeart className="h-6 w-6 text-white" />
+                <Inbox className="h-6 w-6 text-white" />
               </div>
               <div>
                 <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-purple-400 to-blue-600">{receivedMessages.length}</p>
@@ -402,7 +401,7 @@ export const Dashboard = () => {
                     value="sent"
                     className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-300 data-[state=active]:to-purple-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-200/30 transition-all font-light text-blue-600/70 hover:text-blue-800"
                   >
-                    <SendHorizontal className="h-4 w-4" />
+                    <Send className="h-4 w-4" />
                     <span className="text-sm">Sent</span>
                   </TabsTrigger>
                 </TabsList>
@@ -443,7 +442,7 @@ export const Dashboard = () => {
                 ) : (
                   <div className="p-12 text-center">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-100/30">
-                      <SendHorizontal className="h-8 w-8 text-purple-600" />
+                      <Send className="h-8 w-8 text-purple-600" />
                     </div>
                     <p className="text-purple-700/70 font-light mb-4">No sent messages yet</p>
                     <button
@@ -493,7 +492,7 @@ export const Dashboard = () => {
             <div className="p-6 border-b border-purple-200/30">
               <h3 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-600 to-purple-700 flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-300 to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200/30">
-                  <SendHorizontal className="h-4 w-4 text-white" />
+                  <Send className="h-4 w-4 text-white" />
                 </div>
                 Sent Messages
               </h3>
