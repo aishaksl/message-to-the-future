@@ -938,25 +938,40 @@ export const DesktopLayout = ({
         </CardContent>
       </Card>
 
-      {/* Review & Send - No longer a numbered step */}
-      <div className="mt-8 pt-8 border-t-2 border-dashed border-primary/20">
-        <MessagePreview
-          recipientType={recipientType}
-          recipientName={recipientName}
-          isSurpriseMode={isSurpriseMode}
-          deliveryMethod={deliveryMethod}
-          recipientEmail={recipientEmail}
-          recipientPhone={recipientPhone}
-          selectedTypes={selectedTypes}
-          subject={subject}
-          messageText={messageText}
-          selectedFiles={selectedFiles}
-          selectedDate={selectedDate}
-          isLoading={isLoading}
-          onComplete={onComplete}
-          onExpandFile={onExpandFile}
-          onExpandText={onExpandText}
-        />
+      {/* Message Preview */}
+      <div className="space-y-4">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight">
+            Message Preview
+          </p>
+          <p className="text-sm text-muted-foreground font-light">
+            Review your message before scheduling delivery
+          </p>
+        </div>
+
+        {/* Card with consistent styling */}
+        <Card className="border-slate-200/60 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+          <CardContent className="p-6">
+            <MessagePreview
+              recipientType={recipientType}
+              recipientName={recipientName}
+              isSurpriseMode={isSurpriseMode}
+              deliveryMethod={deliveryMethod}
+              recipientEmail={recipientEmail}
+              recipientPhone={recipientPhone}
+              selectedTypes={selectedTypes}
+              subject={subject}
+              messageText={messageText}
+              selectedFiles={selectedFiles}
+              selectedDate={selectedDate}
+              isLoading={isLoading}
+              onComplete={onComplete}
+              onExpandFile={onExpandFile}
+              onExpandText={onExpandText}
+            />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Modern Confirmation Dialog */}
