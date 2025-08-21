@@ -132,7 +132,7 @@ export const DesktopLayout = ({
     {
       type: "image" as const,
       icon: Image,
-      label: "Precious Moment",
+      label: "Magic Moment",
       description: "Capture a memory that speaks volumes",
     },
     {
@@ -194,44 +194,44 @@ export const DesktopLayout = ({
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl md:text-3xl lg:text-4xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight text-center mb-8">
+      <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight text-center mb-12 pb-1">
         Create Your Message
       </h2>
 
       {/* Step 1: Recipient */}
-      <Card>
-        <CardHeader >
-          <CardTitle className="text-md md:text-lg lg:text-2xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight flex items-center gap-2">
-            <span className="w-8 h-8 text-white rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 opacity-30 flex items-center justify-center text-sm font-semibold">
+      <Card className="border-slate-200/60 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl md:text-2xl lg:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight flex items-center gap-3">
+            <span className="w-10 h-10 text-slate-600 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-sm font-light border border-slate-200">
               1
             </span>
             Who is this message for?
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="pt-2">
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <button
                 onClick={() => setRecipientType("self")}
                 className={cn(
-                  "p-4 rounded-xl border-2 transition-all duration-200 text-left",
+                  "p-6 rounded-2xl border transition-all duration-300 text-left hover:shadow-sm",
                   recipientType === "self"
-                    ? "border-primary bg-primary/5 shadow-lg"
-                    : "border-border/40 hover:border-primary/40"
+                    ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50 shadow-sm"
+                    : "border-slate-200/60 hover:border-blue-200/60 bg-white/50"
                 )}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <User
                     className={cn(
                       "w-6 h-6",
                       recipientType === "self"
-                        ? "text-primary"
-                        : "text-muted-foreground"
+                        ? "text-blue-500"
+                        : "text-slate-400"
                     )}
                   />
                   <div>
-                    <h4 className="font-medium">Future Me</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <h4 className="font-light text-lg text-slate-700">Future Me</h4>
+                    <p className="text-sm text-slate-500 font-light">
                       Send a message to your future self
                     </p>
                   </div>
@@ -241,24 +241,24 @@ export const DesktopLayout = ({
               <button
                 onClick={() => setRecipientType("other")}
                 className={cn(
-                  "p-4 rounded-xl border-2 transition-all duration-200 text-left",
+                  "p-6 rounded-2xl border transition-all duration-300 text-left hover:shadow-sm",
                   recipientType === "other"
-                    ? "border-primary bg-primary/5 shadow-lg"
-                    : "border-border/40 hover:border-primary/40"
+                    ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50 shadow-sm"
+                    : "border-slate-200/60 hover:border-blue-200/60 bg-white/50"
                 )}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <Send
                     className={cn(
                       "w-6 h-6",
                       recipientType === "other"
-                        ? "text-primary"
-                        : "text-muted-foreground"
+                        ? "text-blue-500"
+                        : "text-slate-400"
                     )}
                   />
                   <div>
-                    <h4 className="font-medium">Someone Else</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <h4 className="font-light text-lg text-slate-700">Someone Else</h4>
+                    <p className="text-sm text-slate-500 font-light">
                       Send a message to another person
                     </p>
                   </div>
@@ -267,34 +267,34 @@ export const DesktopLayout = ({
             </div>
 
             {recipientType === "self" && (
-              <div className="space-y-4 animate-fade-in">
-                <div className="p-4 border-2 border-dashed border-primary/20 rounded-xl bg-primary/5">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Gift className="w-5 h-5 text-primary" />
+              <div className="space-y-6 animate-fade-in">
+                <div className="p-6 border border-dashed border-blue-200/60 rounded-2xl bg-gradient-to-br from-blue-50/30 to-purple-50/30">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-blue-100/50 rounded-xl border border-blue-200/40">
+                      <Gift className="w-5 h-5 text-blue-500" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-primary">
+                      <h4 className="font-light text-lg text-blue-600">
                         Surprise Mode
                       </h4>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-500 font-light">
                         Keep your future self guessing!
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-4">
                     <input
                       type="checkbox"
                       id="surpriseModeDesktop"
                       checked={isSurpriseMode}
                       onChange={(e) => setIsSurpriseMode(e.target.checked)}
-                      className="mt-1 w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
+                      className="mt-1 w-4 h-4 text-blue-500 bg-white border-slate-300 rounded focus:ring-blue-400 focus:ring-1 focus:ring-opacity-30"
                     />
                     <label
                       htmlFor="surpriseModeDesktop"
-                      className="cursor-pointer text-sm text-muted-foreground leading-relaxed"
+                      className="cursor-pointer text-sm text-slate-600 leading-relaxed font-light"
                     >
-                      <strong className="text-foreground">
+                      <strong className="text-slate-700 font-normal">
                         Make this a surprise message
                       </strong>
                       <br />
@@ -307,9 +307,9 @@ export const DesktopLayout = ({
             )}
 
             {recipientType === "other" && (
-              <div className="space-y-4 animate-fade-in">
+              <div className="space-y-6 animate-fade-in">
                 <div>
-                  <Label htmlFor="recipientNameDesktop" className="text-base">
+                  <Label htmlFor="recipientNameDesktop" className="text-base font-light text-slate-600">
                     Recipient Name
                   </Label>
                   <Input
@@ -317,7 +317,7 @@ export const DesktopLayout = ({
                     placeholder="Who will receive this message?"
                     value={recipientName}
                     onChange={(e) => setRecipientName(e.target.value)}
-                    className="mt-2"
+                    className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -327,72 +327,84 @@ export const DesktopLayout = ({
       </Card>
 
       {/* Step 2: Delivery Method */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+      <Card className="border-slate-200/60 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl md:text-2xl lg:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight flex items-center gap-3">
+            <span className="w-10 h-10 text-slate-600 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-sm font-light border border-slate-200">
               2
             </span>
             How should it be delivered?
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <CardContent className="pt-2">
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={() => setDeliveryMethod("email")}
                 className={cn(
-                  "p-3 rounded-lg border transition-all text-left",
+                  "p-4 rounded-2xl border transition-all duration-300 text-left hover:shadow-sm",
                   deliveryMethod === "email"
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/40"
+                    ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50 shadow-sm"
+                    : "border-slate-200/60 hover:border-blue-200/60 bg-white/50"
                 )}
               >
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <span className="text-sm font-medium">Email Only</span>
+                <div className="flex items-center gap-3">
+                  <Mail className={cn(
+                    "w-5 h-5",
+                    deliveryMethod === "email" ? "text-blue-500" : "text-slate-400"
+                  )} />
+                  <span className="text-sm font-light text-slate-700">Email Only</span>
                 </div>
               </button>
 
               <button
                 onClick={() => setDeliveryMethod("whatsapp")}
                 className={cn(
-                  "p-3 rounded-lg border transition-all text-left",
+                  "p-4 rounded-2xl border transition-all duration-300 text-left hover:shadow-sm",
                   deliveryMethod === "whatsapp"
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/40"
+                    ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50 shadow-sm"
+                    : "border-slate-200/60 hover:border-blue-200/60 bg-white/50"
                 )}
               >
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">WhatsApp Only</span>
+                <div className="flex items-center gap-3">
+                  <MessageCircle className={cn(
+                    "w-5 h-5",
+                    deliveryMethod === "whatsapp" ? "text-blue-500" : "text-slate-400"
+                  )} />
+                  <span className="text-sm font-light text-slate-700">WhatsApp Only</span>
                 </div>
               </button>
 
               <button
                 onClick={() => setDeliveryMethod("both")}
                 className={cn(
-                  "p-3 rounded-lg border transition-all text-left",
+                  "p-4 rounded-2xl border transition-all duration-300 text-left hover:shadow-sm",
                   deliveryMethod === "both"
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/40"
+                    ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50 shadow-sm"
+                    : "border-slate-200/60 hover:border-blue-200/60 bg-white/50"
                 )}
               >
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">Email + WhatsApp</span>
+                <div className="flex items-center gap-3">
+                  <Mail className={cn(
+                    "w-4 h-4",
+                    deliveryMethod === "both" ? "text-blue-500" : "text-slate-400"
+                  )} />
+                  <MessageCircle className={cn(
+                    "w-4 h-4",
+                    deliveryMethod === "both" ? "text-blue-500" : "text-slate-400"
+                  )} />
+                  <span className="text-sm font-light text-slate-700">Email + WhatsApp</span>
                 </div>
               </button>
             </div>
 
             {recipientType === "other" && (
-              <div className="space-y-4 animate-fade-in">
+              <div className="space-y-6 animate-fade-in">
                 {(deliveryMethod === "email" || deliveryMethod === "both") && (
                   <div>
                     <Label
                       htmlFor="recipientEmailDesktop"
-                      className="text-base"
+                      className="text-base font-light text-slate-600"
                     >
                       Email Address
                     </Label>
@@ -402,7 +414,7 @@ export const DesktopLayout = ({
                       placeholder="recipient@example.com"
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="mt-2"
+                      className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
                     />
                   </div>
                 )}
@@ -411,7 +423,7 @@ export const DesktopLayout = ({
                     <div>
                       <Label
                         htmlFor="recipientPhoneDesktop"
-                        className="text-base"
+                        className="text-base font-light text-slate-600"
                       >
                         Phone Number
                       </Label>
@@ -421,7 +433,7 @@ export const DesktopLayout = ({
                         placeholder="+90 555 123 4567"
                         value={recipientPhone}
                         onChange={(e) => setRecipientPhone(e.target.value)}
-                        className="mt-2"
+                        className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
                       />
                     </div>
                   )}
@@ -429,12 +441,12 @@ export const DesktopLayout = ({
             )}
 
             {recipientType === "self" && (
-              <div className="space-y-4 animate-fade-in">
+              <div className="space-y-6 animate-fade-in">
                 {(deliveryMethod === "email" || deliveryMethod === "both") && (
                   <div>
                     <Label
                       htmlFor="recipientEmailSelfDesktop"
-                      className="text-base"
+                      className="text-base font-light text-slate-600"
                     >
                       Your Email Address
                     </Label>
@@ -444,7 +456,7 @@ export const DesktopLayout = ({
                       placeholder="your@example.com"
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="mt-2"
+                      className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
                     />
                   </div>
                 )}
@@ -453,7 +465,7 @@ export const DesktopLayout = ({
                     <div>
                       <Label
                         htmlFor="recipientPhoneSelfDesktop"
-                        className="text-base"
+                        className="text-base font-light text-slate-600"
                       >
                         Your Phone Number
                       </Label>
@@ -463,7 +475,7 @@ export const DesktopLayout = ({
                         placeholder="+90 555 123 4567"
                         value={recipientPhone}
                         onChange={(e) => setRecipientPhone(e.target.value)}
-                        className="mt-2"
+                        className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
                       />
                     </div>
                   )}
@@ -474,10 +486,10 @@ export const DesktopLayout = ({
       </Card>
 
       {/* Step 3: Message Type */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+      <Card className="border-slate-200/60 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl md:text-2xl lg:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight flex items-center gap-3">
+            <span className="w-10 h-10 text-slate-600 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-sm font-light border border-slate-200">
               3
             </span>
             Choose Message Type
@@ -570,28 +582,24 @@ export const DesktopLayout = ({
                       }
                     }}
                     className={cn(
-                      "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative h-[140px] flex flex-col",
-                      isSelected && typeHasContent
+                      "w-full p-6 rounded-2xl border transition-all duration-300 text-left relative min-h-[120px] md:h-[140px] flex flex-col bg-white/60 backdrop-blur-sm shadow-sm hover:shadow-md",
+                      isSelected
                         ? currentType === type
-                          ? "border-primary bg-primary/20 shadow-lg"
-                          : "border-primary bg-primary/4 shadow-lg"
-                        : isSelected && currentType === type
-                          ? "border-primary/60 bg-primary/10 shadow-md"
-                          : isSelected
-                            ? "border-border/60 bg-background/50"
-                            : "border-border/40 hover:border-primary/40"
+                          ? "border-purple-300 bg-gradient-to-br from-purple-50 to-blue-50 shadow-lg"
+                          : "border-purple-200 bg-gradient-to-br from-purple-25 to-blue-25 shadow-md"
+                        : "border-slate-200/60 hover:border-purple-200 hover:bg-gradient-to-br hover:from-purple-25 hover:to-blue-25"
                     )}
                   >
                     <Icon
                       className={cn(
-                        "w-6 h-6 mb-3 flex-shrink-0",
-                        isSelected ? "text-primary" : "text-muted-foreground"
+                        "w-7 h-7 mb-3 flex-shrink-0 text-purple-600"
                       )}
+                      strokeWidth={1.5}
                     />
-                    <h4 className="font-medium text-sm mb-1 whitespace-nowrap">
+                    <h4 className="font-light text-sm mb-1 md:whitespace-nowrap text-slate-700">
                       {label}
                     </h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="text-xs text-slate-500 leading-relaxed font-light">
                       {description}
                     </p>
 
@@ -607,13 +615,13 @@ export const DesktopLayout = ({
                   </button>
 
                   {/* Çarpı butonu - eski yeri, üst sağ köşe içeride */}
-                  {isSelected && (
+                  {isSelected && typeHasContent && (
                     <button
                       onClick={handleRemoveType}
-                      className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center hover:bg-primary/10 rounded-full transition-colors duration-200"
+                      className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center hover:bg-purple-100 rounded-full transition-colors duration-300"
                       title={`Remove ${type}`}
                     >
-                      <X className="w-4 h-4 text-primary hover:text-primary/80" />
+                      <X className="w-4 h-4 text-slate-500 hover:text-purple-600" />
                     </button>
                   )}
                 </div>
@@ -624,10 +632,10 @@ export const DesktopLayout = ({
       </Card>
 
       {/* Step 4: Message Content */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+      <Card className="border-slate-200/60 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl md:text-2xl lg:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight flex items-center gap-3">
+            <span className="w-10 h-10 text-slate-600 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-sm font-light border border-slate-200">
               4
             </span>
             Your Message
@@ -636,7 +644,7 @@ export const DesktopLayout = ({
         <CardContent>
           <div className="space-y-6">
             <div>
-              <Label htmlFor="subjectDesktop" className="text-base">
+              <Label htmlFor="subjectDesktop" className="text-base font-light text-slate-600">
                 Subject
               </Label>
               <Input
@@ -644,7 +652,7 @@ export const DesktopLayout = ({
                 placeholder="Give your message a title..."
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="mt-2"
+                className="mt-3 border-slate-200 bg-white/80 focus:ring-1 focus:ring-purple-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
               />
             </div>
 
@@ -652,32 +660,37 @@ export const DesktopLayout = ({
               <>
                 {currentType === "text" ? (
                   // Always show textarea for text type - no start writing button needed
-                  <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl relative">
+                  <div className={cn(
+                    "mt-6 p-6 border border-slate-200/60 rounded-2xl relative backdrop-blur-sm",
+                    messageText.trim().length > 0
+                      ? "bg-gradient-to-br from-blue-50/50 to-purple-50/50"
+                      : "bg-gradient-to-br from-purple-25 to-blue-25"
+                  )}>
                     {/* Action buttons - only show when there's text content */}
                     {messageText.trim().length > 0 && (
                       <div className="absolute top-2 right-2 flex gap-1">
                         <button
                           onClick={onExpandText}
-                          className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                          className="p-2 rounded-full transition-all duration-300 hover:bg-white/60 hover:shadow-md"
                           title="Expand"
                         >
-                          <Expand className="w-4 h-4 text-blue-500 transition-colors duration-200" />
+                          <Expand className="w-4 h-4 text-purple-600 transition-colors duration-300" />
                         </button>
                         <button
                           onClick={() => {
                             setMessageText("");
                           }}
-                          className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                          className="p-2 rounded-full transition-all duration-300 hover:bg-white/60 hover:shadow-md"
                           title="Clear"
                         >
-                          <X className="w-4 h-4 text-red-500 transition-colors duration-200" />
+                          <X className="w-4 h-4 text-slate-500 transition-colors duration-300" />
                         </button>
                       </div>
                     )}
                     <div className="flex justify-center mt-4">
                       <div className="w-full max-w-4xl space-y-4">
                         <div className="group">
-                          <div className="w-full h-52 bg-muted rounded-lg border border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300">
+                          <div className="w-full h-52 bg-white/80 rounded-xl border border-slate-200/60 shadow-sm overflow-hidden relative transition-all duration-300 backdrop-blur-sm">
                             <Textarea
                               placeholder={
                                 recipientType === "self"
@@ -688,7 +701,7 @@ export const DesktopLayout = ({
                               }
                               value={messageText}
                               onChange={(e) => setMessageText(e.target.value)}
-                              className="w-full h-full resize-none border-0 bg-transparent focus:ring-0 p-3 text-base leading-relaxed"
+                              className="w-full h-full resize-none border-0 bg-transparent focus:ring-0 p-4 text-base leading-relaxed font-light placeholder:text-slate-400"
                             />
                           </div>
                         </div>
@@ -716,12 +729,12 @@ export const DesktopLayout = ({
 
                     {selectedFiles[currentType as keyof typeof selectedFiles]
                       ?.length === 0 && (
-                        <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
-                          <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                          <p className="text-sm mb-2">
+                        <div className="border-2 border-dashed border-slate-200/60 rounded-2xl p-8 text-center bg-white/40 backdrop-blur-sm">
+                          <Upload className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+                          <p className="text-sm mb-2 font-light text-slate-600">
                             Upload your {currentType}
                           </p>
-                          <p className="text-muted-foreground text-xs mb-4">
+                          <p className="text-slate-400 text-xs mb-4 font-light">
                             Drag and drop or click to select files
                           </p>
                           <Button
@@ -734,6 +747,7 @@ export const DesktopLayout = ({
                               if (input) input.click();
                             }}
                             type="button"
+                            className="border-slate-200 bg-white/80 hover:bg-gradient-to-br hover:from-purple-50 hover:to-blue-50 hover:border-purple-200 transition-all duration-300 font-light"
                           >
                             Choose Files
                           </Button>
@@ -742,9 +756,9 @@ export const DesktopLayout = ({
 
                     {selectedFiles[currentType as keyof typeof selectedFiles]
                       ?.length > 0 && (
-                        <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl relative">
+                        <div className="mt-6 p-6 bg-gradient-to-br from-blue-50/50 to-purple-50/50 border border-slate-200/60 rounded-2xl relative backdrop-blur-sm">
                           {/* Action buttons - mavi container'ın sağ üst köşesi */}
-                          <div className="absolute top-2 right-2 flex gap-1">
+                          <div className="absolute top-3 right-3 flex gap-1">
                             <button
                               onClick={() =>
                                 onExpandFile(
@@ -753,17 +767,17 @@ export const DesktopLayout = ({
                                   ][0]
                                 )
                               }
-                              className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                              className="p-2 rounded-full transition-all duration-300 hover:bg-white/60 hover:shadow-md"
                               title="Expand"
                             >
-                              <Expand className="w-4 h-4 text-blue-500 transition-colors duration-200" />
+                              <Expand className="w-4 h-4 text-purple-600 transition-colors duration-300" />
                             </button>
                             <button
                               onClick={() => removeFile(0)}
-                              className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:shadow-lg hover:-translate-y-0.5"
+                              className="p-2 rounded-full transition-all duration-300 hover:bg-white/60 hover:shadow-md"
                               title="Remove"
                             >
-                              <X className="w-4 h-4 text-red-500 transition-colors duration-200" />
+                              <X className="w-4 h-4 text-slate-500 transition-colors duration-300" />
                             </button>
                           </div>
                           <div className="flex justify-center mt-4">
@@ -863,10 +877,10 @@ export const DesktopLayout = ({
       </Card>
 
       {/* Step 5: Delivery Date */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+      <Card className="border-slate-200/60 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl md:text-2xl lg:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight flex items-center gap-3">
+            <span className="w-10 h-10 text-slate-600 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-sm font-light border border-slate-200">
               5
             </span>
             When to Deliver?
@@ -875,7 +889,7 @@ export const DesktopLayout = ({
         <CardContent>
           <div className="space-y-6">
             <div>
-              <Label className="text-base mb-4 block">Delivery Date</Label>
+              <Label className="text-base mb-4 block font-light text-slate-600">Delivery Date</Label>
               <Popover
                 open={isDatePickerOpen}
                 onOpenChange={setIsDatePickerOpen}
@@ -884,26 +898,26 @@ export const DesktopLayout = ({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-center text-center font-normal h-16 rounded-xl border-2 border-dashed",
-                      !selectedDate && "text-muted-foreground border-border/40",
-                      selectedDate && "border-primary/30 bg-primary/5"
+                      "w-full justify-center text-center font-light h-16 rounded-2xl border-2 border-dashed bg-white/60 backdrop-blur-sm transition-all duration-300",
+                      !selectedDate && "text-slate-400 border-slate-200/60 hover:border-purple-200 hover:bg-gradient-to-br hover:from-purple-25 hover:to-blue-25",
+                      selectedDate && "border-purple-200 bg-gradient-to-br from-purple-25 to-blue-25 text-slate-700"
                     )}
                   >
                     {selectedDate ? (
                       <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground mb-0.5">
+                        <span className="text-xs text-slate-500 mb-0.5 font-light">
                           Delivery Date
                         </span>
-                        <span className="font-medium">
+                        <span className="font-light">
                           {format(selectedDate, "PPP")}
                         </span>
                       </div>
                     ) : (
                       <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground mb-0.5">
+                        <span className="text-xs text-slate-400 mb-0.5 font-light">
                           Select Date
                         </span>
-                        <span>Choose when to deliver</span>
+                        <span className="font-light">Choose when to deliver</span>
                       </div>
                     )}
                   </Button>
@@ -916,7 +930,7 @@ export const DesktopLayout = ({
                   />
                 </PopoverContent>
               </Popover>
-              <p className="text-sm text-muted-foreground mt-4 text-center">
+              <p className="text-sm text-slate-500 mt-4 text-center font-light">
                 Free for first year, paid plans for up to 50 years.
               </p>
             </div>
