@@ -286,13 +286,22 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
-      {/* Decorative Blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 -left-32 w-64 h-64 bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-2xl" />
-        <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-gradient-to-br from-purple-200/25 to-pink-200/25 rounded-full blur-2xl" />
-        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-gradient-to-br from-green-200/20 to-emerald-200/20 rounded-full blur-xl" />
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Decorative Background Bubbles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Large bubbles */}
+        <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-500/20 top-10 left-10" style={{ borderRadius: '50% 30% 70% 40%' }}></div>
+        <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-pink-300/20 to-purple-400/20 top-32 right-16" style={{ borderRadius: '60% 40% 30% 70%' }}></div>
+        <div className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-cyan-300/15 to-blue-400/15 bottom-20 left-20" style={{ borderRadius: '40% 60% 70% 30%' }}></div>
+        <div className="absolute w-28 h-28 rounded-full bg-gradient-to-br from-violet-300/18 to-purple-500/18 top-16 right-1/3" style={{ borderRadius: '45% 55% 65% 35%' }}></div>
+
+        {/* Medium bubbles */}
+        <div className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-yellow-200/30 to-orange-300/30 bottom-1/3 right-10" style={{ borderRadius: '30% 70% 40% 60%' }}></div>
+        <div className="absolute w-18 h-18 rounded-full bg-gradient-to-br from-amber-300/22 to-yellow-400/22 top-2/3 left-1/2" style={{ borderRadius: '55% 45% 35% 65%' }}></div>
+        
+        {/* Small bubbles */}
+        <div className="absolute w-16 h-16 rounded-full bg-gradient-to-br from-emerald-200/25 to-green-300/25 top-1/2 right-1/4" style={{ borderRadius: '65% 35% 45% 55%' }}></div>
+        <div className="absolute w-14 h-14 rounded-full bg-gradient-to-br from-rose-200/20 to-pink-300/20 bottom-1/2 left-1/4" style={{ borderRadius: '40% 60% 30% 70%' }}></div>
       </div>
       
       <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
