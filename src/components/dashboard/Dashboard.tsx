@@ -441,7 +441,7 @@ export const Dashboard = () => {
 
           <div className="mt-8">
             <Button
-              onClick={() => navigate("/create-message")}
+              onClick={() => navigate("/create-message", { state: { fromButton: true } })}
               size="lg"
               className="text-white font-bold px-8 py-4 rounded-xl bg-gradient-to-r from-purple-300 to-purple-400 hover:brightness-110 hover:shadow-lg transition-all duration-200 border-0"
             >
@@ -559,7 +559,7 @@ export const Dashboard = () => {
                       </p>
                       <button
                         className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
-                        onClick={() => navigate("/create-message")}
+                        onClick={() => navigate("/create-message", { state: { fromButton: true } })}
                       >
                         <Plus className="h-4 w-4" />
                         Create New Message
@@ -574,7 +574,7 @@ export const Dashboard = () => {
                     <p className="text-purple-700/70 font-light mb-4">No sent messages yet</p>
                     <button
                       className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
-                      onClick={() => navigate("/create-message")}
+                      onClick={() => navigate("/create-message", { state: { fromButton: true } })}
                     >
                       <Plus className="h-4 w-4" />
                       Create Your First Message
@@ -636,7 +636,7 @@ export const Dashboard = () => {
                   </p>
                   <button
                     className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
-                    onClick={() => navigate("/create-message")}
+                    onClick={() => navigate("/create-message", { state: { fromButton: true } })}
                   >
                     <Plus className="h-4 w-4" />
                     Create New Message

@@ -11,6 +11,9 @@ const CreateMessage = () => {
   
   // Get editing message from navigation state
   const editingMessage = location.state?.editingMessage || null;
+  
+  // Check if user came from a button (not navbar) - detect if there's a referrer or specific navigation state
+  const isFromButton = location.state?.fromButton || document.referrer.includes(window.location.origin);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -54,11 +57,20 @@ const CreateMessage = () => {
         <div className="max-w-4xl mx-auto flex gap-4">
           <Button
             variant="ghost"
-            onClick={() => navigate("/")}
+            onClick={() => navigate(-1)}
             className="gap-2"
           >
-            <Home className="h-4 w-4" />
-            Home
+            {isFromButton ? (
+              <>
+                <ArrowLeft className="h-4 w-4 text-purple-600" />
+                <span className="text-purple-600">Back</span>
+              </>
+            ) : (
+              <>
+                <Home className="h-4 w-4" />
+                Home
+              </>
+            )}
           </Button>
         </div>
       </div>

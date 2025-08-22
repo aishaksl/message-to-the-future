@@ -431,7 +431,8 @@ export const MessageDetailsDialog = ({
                     onClick={() => {
                       navigate('/create-message', {
                         state: {
-                          editingMessage: message
+                          editingMessage: message,
+                          fromButton: true
                         }
                       });
                     }}

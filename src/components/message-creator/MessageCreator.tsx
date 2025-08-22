@@ -123,19 +123,19 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
       setSubject(editingMessage.subject);
       setMessageText(editingMessage.content);
       setCurrentStep(1); // Start from first step when editing
-      
+
       // Set delivery date
       if (editingMessage.deliveryDate) {
         setSelectedDate(new Date(editingMessage.deliveryDate));
       }
-      
+
       // Handle media files if they exist
       if (editingMessage.mediaFiles) {
         // Note: We can't restore actual File objects from base64, 
         // but we can show that media exists in the preview
         // This is a limitation of the current implementation
       }
-      
+
       toast({
         title: "Editing message",
         description: "Message data has been loaded for editing.",
@@ -269,22 +269,22 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
 
   const handleDelete = async () => {
     if (!editingMessage) return;
-    
+
     const existingMessages = JSON.parse(
       localStorage.getItem("sentMessages") || "[]"
     );
-    
+
     const updatedMessages = existingMessages.filter((msg: Message) => msg.id !== editingMessage.id);
     localStorage.setItem("sentMessages", JSON.stringify(updatedMessages));
-    
+
     toast({
       title: "Message deleted successfully!",
       description: "Redirecting to dashboard...",
     });
-    
+
     // Trigger a custom event to notify dashboard of deleted message
     window.dispatchEvent(new CustomEvent('newMessageCreated', { detail: { messageId: editingMessage.id } }));
-    
+
     // Navigate back to dashboard
     navigate("/dashboard");
   };
@@ -353,7 +353,7 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
     const existingMessages = JSON.parse(
       localStorage.getItem("sentMessages") || "[]"
     );
-    
+
     if (editingMessage) {
       // Update existing message
       const messageIndex = existingMessages.findIndex((msg: Message) => msg.id === editingMessage.id);
@@ -364,7 +364,7 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
       // Create new message
       existingMessages.unshift(message);
     }
-    
+
     localStorage.setItem("sentMessages", JSON.stringify(existingMessages));
     localStorage.setItem("newMessageId", message.id);
 

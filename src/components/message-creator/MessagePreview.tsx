@@ -67,7 +67,7 @@ interface MessagePreviewProps {
   onComplete: () => void;
   onExpandFile: (file: File) => void;
   onExpandText: () => void;
-  
+
   // Edit mode props
   editingMessage?: Message;
   onDelete?: () => void;

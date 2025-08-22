@@ -15,7 +15,7 @@ export const CTASection: React.FC = () => {
           Join thousands who trust us with their most meaningful messages
         </p>
         <Button
-          onClick={() => navigate('/create-message')}
+          onClick={() => navigate('/create-message', { state: { fromButton: true } })}
           size="lg"
           className="bg-gradient-to-r hover:from-cyan-200 hover:to-blue-300 
                from-blue-200 to-purple-300 

@@ -69,7 +69,7 @@ export const HeroSection: React.FC = () => {
       {/* Action Buttons - Minimal Design */}
       <div className="flex flex-col sm:flex-row gap-6 items-center pt-4">
         <Button
-          onClick={() => navigate('/create-message')}
+          onClick={() => navigate('/create-message', { state: { fromButton: true } })}
           size="lg"
           className="text-white font-bold px-6 py-3 rounded-lg 
                bg-gradient-to-r from-purple-300 to-purple-400 

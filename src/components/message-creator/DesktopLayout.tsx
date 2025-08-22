@@ -112,7 +112,7 @@ interface DesktopLayoutProps {
   // Complete props
   isLoading: boolean;
   onComplete: () => void;
-  
+
   // Edit mode props
   editingMessage?: Message;
 }
