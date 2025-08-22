@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
 import {
   CalendarDays,
   Clock,
@@ -72,6 +73,7 @@ export const Dashboard = () => {
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedMessageType, setSelectedMessageType] = useState<'sent' | 'received'>('sent');
+  const [activeTab, setActiveTab] = useState<string>('received');
 
   useEffect(() => {
     // Load sent messages from localStorage
@@ -144,16 +146,67 @@ export const Dashboard = () => {
   // Handle auto-scrolling to specific message
   useEffect(() => {
     const hash = window.location.hash;
+    
     if (hash && hash.startsWith('#message-')) {
       const messageId = hash.replace('#message-', '');
+      
+      // Switch to sent tab when there's a message fragment
+      setActiveTab('sent');
+      
       const messageElement = document.getElementById(`message-${messageId}`);
+      
       if (messageElement) {
-        setTimeout(() => {
+        // Detect mobile device and viewport
+        const isMobile = window.innerWidth < 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const delay = isMobile ? 1200 : 500; // Increased mobile delay
+        
+        const scrollToMessage = () => {
           messageElement.scrollIntoView({
             behavior: 'smooth',
-            block: 'center'
+            block: 'center',
+            inline: 'nearest'
           });
-        }, 100); // Small delay to ensure DOM is ready
+          
+          // Additional mobile-specific scroll adjustment
+          if (isMobile) {
+            setTimeout(() => {
+              const rect = messageElement.getBoundingClientRect();
+              const viewportHeight = window.innerHeight;
+              const offset = viewportHeight * 0.15; // 15% offset from top for mobile nav/status bars
+              
+              window.scrollBy({
+                top: -offset,
+                behavior: 'smooth'
+              });
+            }, 300);
+          }
+        };
+        
+        setTimeout(scrollToMessage, delay);
+        
+        // Handle orientation changes on mobile
+        if (isMobile) {
+          const handleOrientationChange = () => {
+            setTimeout(scrollToMessage, 300);
+          };
+          window.addEventListener('orientationchange', handleOrientationChange);
+          
+          return () => {
+            window.removeEventListener('orientationchange', handleOrientationChange);
+          };
+        }
+      } else {
+        // Retry after a longer delay if element not found (for mobile)
+        setTimeout(() => {
+          const retryElement = document.getElementById(`message-${messageId}`);
+          if (retryElement) {
+            retryElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+              inline: 'nearest'
+            });
+          }
+        }, 1000);
       }
     }
   }, [sentMessages]); // Re-run when messages are loaded
@@ -241,12 +294,24 @@ export const Dashboard = () => {
     const isNewMessage = newMessageId === message.id;
 
     return (
-      <div
+      <motion.div
         key={message.id}
         id={`message-${message.id}`}
-        className={`group relative bg-gradient-to-br from-white/80 to-blue-50/40 border border-blue-200/30 rounded-xl p-8 cursor-pointer transition-all duration-500 hover:bg-gradient-to-br hover:from-white/90 hover:to-purple-50/40 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-100/20 ${isNewMessage ? "animate-new-message" : ""
-          }`}
+        className="group relative bg-gradient-to-br from-white/80 to-blue-50/40 border border-blue-200/30 rounded-xl p-8 cursor-pointer transition-all duration-500 hover:bg-gradient-to-br hover:from-white/90 hover:to-purple-50/40 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-100/20"
         onClick={() => handleViewMessage(message, type)}
+        initial={isNewMessage ? { opacity: 0.6, scale: 0.98, backgroundColor: "rgba(255, 255, 255, 0.8)" } : false}
+        animate={isNewMessage ? { 
+          opacity: [0.6, 1, 0.6, 1, 1], 
+          scale: [0.98, 1, 0.98, 1, 1],
+          backgroundColor: [
+            "rgba(255, 255, 255, 0.8)",
+            "rgba(219, 234, 254, 0.9)", 
+            "rgba(255, 255, 255, 0.8)",
+            "rgba(219, 234, 254, 0.9)",
+            "rgba(255, 255, 255, 0.8)"
+          ]
+        } : {}}
+        transition={isNewMessage ? { duration: 2, times: [0, 0.25, 0.5, 0.75, 1], ease: "easeInOut" } : {}}
       >
         {/* Zen Header - Minimal */}
         <div className="mb-8">
@@ -294,7 +359,7 @@ export const Dashboard = () => {
                 'bg-gradient-to-br from-slate-400 to-slate-500'
             }`}></div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -446,7 +511,7 @@ export const Dashboard = () => {
         {/* Mobile Tabs - Zen Design */}
         <div className="lg:hidden">
           <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 overflow-hidden">
-            <Tabs defaultValue="received" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="border-b border-blue-200/30">
                 <TabsList className="grid w-full grid-cols-2 h-14 bg-transparent rounded-none p-0">
                   <TabsTrigger
