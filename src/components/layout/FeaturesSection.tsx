@@ -3,8 +3,8 @@ import { Clock, Layers, Shield } from "lucide-react";
 export const FeaturesSection: React.FC = () => {
   return (
     <div className="h-full flex flex-col justify-center">
-      <div className="text-center mb-8 md:mb-16">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight mb-6 md:mb-4">
+      <div className="text-center mb-8 md:mb-16 ">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight mb-4 md:mb-4 ">
           Why Choose Our Platform
         </h2>
         <p className="text-lg md:text-xl text-slate-600 leading-relaxed font-light">

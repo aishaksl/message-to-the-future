@@ -263,8 +263,8 @@ const Payment = () => {
               {/* Free Plan - First Year */}
               <Card
                 className={`border-2 transition-colors relative ${requiredPlan === "free"
-                    ? "border-primary bg-primary/5 cursor-pointer"
-                    : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
+                  ? "border-primary bg-primary/5 cursor-pointer"
+                  : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
                   }`}
                 onClick={() =>
                   requiredPlan === "free" && setSelectedPlan("free")
@@ -309,8 +309,8 @@ const Payment = () => {
               {/* 1-5 Years Plan */}
               <Card
                 className={`border-2 transition-colors relative ${requiredPlan === "1-5"
-                    ? "border-primary bg-primary/5 cursor-pointer"
-                    : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
+                  ? "border-primary bg-primary/5 cursor-pointer"
+                  : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
                   }`}
                 onClick={() => requiredPlan === "1-5" && setSelectedPlan("1-5")}
               >
@@ -354,8 +354,8 @@ const Payment = () => {
               {/* 5-10 Years Plan */}
               <Card
                 className={`border-2 transition-colors relative ${requiredPlan === "5-10"
-                    ? "border-primary bg-primary/5 cursor-pointer"
-                    : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
+                  ? "border-primary bg-primary/5 cursor-pointer"
+                  : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
                   }`}
                 onClick={() =>
                   requiredPlan === "5-10" && setSelectedPlan("5-10")
@@ -401,8 +401,8 @@ const Payment = () => {
               {/* 10-50 Years Plan */}
               <Card
                 className={`border-2 transition-colors relative ${requiredPlan === "10-50"
-                    ? "border-primary bg-primary/5 cursor-pointer"
-                    : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
+                  ? "border-primary bg-primary/5 cursor-pointer"
+                  : "border-border/20 bg-muted/30 opacity-60 cursor-not-allowed"
                   }`}
                 onClick={() =>
                   requiredPlan === "10-50" && setSelectedPlan("10-50")

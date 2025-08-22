@@ -22,9 +22,9 @@ export const CTASection: React.FC = () => {
                  from-blue-200 to-purple-300 
                  text-white px-12 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
           >
-          <MessageSquarePlus className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-          Create Your Message
-          <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            <MessageSquarePlus className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+            Create Your Message
+            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
       </div>

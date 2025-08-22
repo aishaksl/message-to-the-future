@@ -422,7 +422,7 @@ export const Dashboard = () => {
         <div className="absolute w-14 h-14 rounded-full bg-gradient-to-br from-rose-200/20 to-pink-300/20 bottom-1/2 left-1/4" style={{ borderRadius: '40% 60% 30% 70%' }}></div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
+      <div className="container mx-auto px-4 py-8 sm:pt-36 max-w-7xl relative z-10">
         {/* Header - Zen minimalist style */}
         <div className="text-center mb-12">
           <div className="space-y-4">

@@ -489,7 +489,7 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-4 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background py-4 px-4 sm:pt-36 relative overflow-hidden">
       {/* Decorative Background Bubbles */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Large bubbles */}

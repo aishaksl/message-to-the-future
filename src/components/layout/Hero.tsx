@@ -9,7 +9,7 @@ export const Hero: React.FC = () => {
   return (
     <div className="relative">
       {/* Hero Section - Full Screen */}
-      <section className="h-[100vh] md:min-h-screen bg-white relative overflow-hidden flex items-center justify-center">
+      <section className="h-[calc(100vh-8rem)] md:h-[100vh] md:min-h-screen bg-white relative overflow-hidden flex items-center justify-center">
         {/* Decorative blobs */}
         <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-blue-200 to-purple-300 top-20 left-10 opacity-40" style={{ borderRadius: '50% 30% 70% 40%' }}></div>
         <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-cyan-200 to-purple-300 bottom-32 right-16 opacity-50" style={{ borderRadius: '60% 40% 30% 70%' }}></div>

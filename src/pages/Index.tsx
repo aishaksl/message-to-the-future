@@ -44,10 +44,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Mobile App Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50">
+        <div className="flex items-center justify-center py-3">
+          <span className="text-xl font-light tracking-wide bg-gradient-to-br from-blue-300 to-purple-600 bg-clip-text text-transparent">
+            TimeCapsule
+          </span>
+        </div>
+      </div>
+
       {/* Navigation */}
-      <nav className="fixed top-2 md:top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-4xl px-6">
+      <nav className="hidden md:block fixed top-2 md:top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-4xl px-6">
         <div className="bg-white/90 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/10">
-          <div className="px-8 py-4">
+          <div className="px-4 py-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2">
@@ -58,7 +67,7 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="hidden md:flex items-center space-x-2">
+              <div className="hidden md:flex items-center space-x-3">
                 {navigation.map(({ id, label, icon: Icon }) => (
                   <Button
                     key={id}
@@ -72,11 +81,11 @@ const Index = () => {
                       );
                     }}
                     className={`font-light tracking-wide transition-all duration-300 rounded-xl px-4 py-2 ${currentView === id
-                        ? "bg-gradient-to-br from-blue-300 to-purple-600 text-white shadow-md"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                      ? "bg-gradient-to-br from-blue-300 to-purple-600 text-white shadow-md"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                       }`}
                   >
-                    <Icon className="w-4 h-4 mr-2" />
+                    <Icon className="w-4 h-4" />
                     {label}
                   </Button>
                 ))}
@@ -93,8 +102,8 @@ const Index = () => {
                   variant="ghost"
                   onClick={() => setCurrentView("signin")}
                   className={`font-light tracking-wide transition-all duration-300 rounded-xl px-4 py-2 ${currentView === "signin"
-                      ? "bg-gradient-to-br from-blue-300 to-purple-600 text-white shadow-md"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    ? "bg-gradient-to-br from-blue-300 to-purple-600 text-white shadow-md"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                 >
                   <LogIn className="w-4 h-4 mr-2" />
@@ -107,7 +116,7 @@ const Index = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="pt-8 md:pt-16 pb-20 md:pb-8 min-h-[calc(100vh-5rem)] md:min-h-auto">
+      <main className="pt-16 md:pt-0 pb-20 md:pb-8 min-h-screen md:min-h-auto flex flex-col">
         {currentView === "hero" && <Hero />}
         {currentView === "create" && <MessageCreator />}
         {currentView === "dashboard" && <Dashboard />}
@@ -130,8 +139,8 @@ const Index = () => {
                 );
               }}
               className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${currentView === id
-                  ? "text-primary bg-primary/10"
-                  : "text-muted-foreground"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground"
                 }`}
             >
               <Icon className="w-5 h-5" />
@@ -144,8 +153,8 @@ const Index = () => {
             variant="ghost"
             onClick={() => setCurrentView("signin")}
             className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${currentView === "signin"
-                ? "text-primary bg-primary/10"
-                : "text-muted-foreground"
+              ? "text-primary bg-primary/10"
+              : "text-muted-foreground"
               }`}
           >
             <LogIn className="w-5 h-5" />
