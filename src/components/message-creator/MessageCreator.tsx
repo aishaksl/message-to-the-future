@@ -23,7 +23,33 @@ import { DateSelector } from "./DateSelector";
 import { MessagePreview } from "./MessagePreview";
 import { DesktopLayout } from "./DesktopLayout";
 
-export const MessageCreator = () => {
+interface Message {
+  id: string;
+  subject: string;
+  content: string;
+  type: string;
+  deliveryDate: Date | undefined;
+  recipientType: "self" | "other";
+  recipientName: string;
+  recipientEmail: string;
+  recipientPhone: string;
+  deliveryMethod: "email" | "whatsapp" | "both";
+  status: string;
+  createdAt: Date;
+  isSurprise: boolean;
+  preview: string;
+  mediaFiles?: {
+    image?: File[];
+    video?: File[];
+    audio?: File[];
+  };
+}
+
+interface MessageCreatorProps {
+  editingMessage?: Message | null;
+}
+
+export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
@@ -83,43 +109,75 @@ export const MessageCreator = () => {
     }
   }, [shouldNavigate, navigate]);
 
-  // Load saved form state on component mount
+  // Load saved form state on component mount or populate from editing message
   useEffect(() => {
-    const savedFormState = localStorage.getItem("messageFormState");
-    if (savedFormState) {
-      try {
-        const formState = JSON.parse(savedFormState);
+    if (editingMessage) {
+      // Pre-populate form with editing message data
+      setRecipientType(editingMessage.recipientType || "self");
+      setRecipientName(editingMessage.recipientName === "Future Me" ? "" : editingMessage.recipientName);
+      setRecipientEmail(editingMessage.recipientEmail || "");
+      setRecipientPhone(editingMessage.recipientPhone || "");
+      setDeliveryMethod(editingMessage.deliveryMethod);
+      setIsSurpriseMode(editingMessage.isSurprise);
+      setSelectedTypes([editingMessage.type as "text" | "image" | "video" | "audio"]);
+      setSubject(editingMessage.subject);
+      setMessageText(editingMessage.content);
+      setCurrentStep(1); // Start from first step when editing
+      
+      // Set delivery date
+      if (editingMessage.deliveryDate) {
+        setSelectedDate(new Date(editingMessage.deliveryDate));
+      }
+      
+      // Handle media files if they exist
+      if (editingMessage.mediaFiles) {
+        // Note: We can't restore actual File objects from base64, 
+        // but we can show that media exists in the preview
+        // This is a limitation of the current implementation
+      }
+      
+      toast({
+        title: "Editing message",
+        description: "Message data has been loaded for editing.",
+      });
+    } else {
+      // Load saved form state from localStorage (for payment flow)
+      const savedFormState = localStorage.getItem("messageFormState");
+      if (savedFormState) {
+        try {
+          const formState = JSON.parse(savedFormState);
 
-        // Restore all form fields
-        setRecipientType(formState.recipientType || "self");
-        setRecipientName(formState.recipientName || "");
-        setRecipientEmail(formState.recipientEmail || "");
-        setRecipientPhone(formState.recipientPhone || "");
-        setDeliveryMethod(formState.deliveryMethod || "email");
-        setIsSurpriseMode(formState.isSurpriseMode || false);
-        setSelectedTypes(formState.selectedTypes || []);
-        setSubject(formState.subject || "");
-        setMessageText(formState.messageText || "");
-        setCurrentStep(formState.currentStep || 1);
+          // Restore all form fields
+          setRecipientType(formState.recipientType || "self");
+          setRecipientName(formState.recipientName || "");
+          setRecipientEmail(formState.recipientEmail || "");
+          setRecipientPhone(formState.recipientPhone || "");
+          setDeliveryMethod(formState.deliveryMethod || "email");
+          setIsSurpriseMode(formState.isSurpriseMode || false);
+          setSelectedTypes(formState.selectedTypes || []);
+          setSubject(formState.subject || "");
+          setMessageText(formState.messageText || "");
+          setCurrentStep(formState.currentStep || 1);
 
-        // Restore selected date
-        if (formState.selectedDate) {
-          setSelectedDate(new Date(formState.selectedDate));
+          // Restore selected date
+          if (formState.selectedDate) {
+            setSelectedDate(new Date(formState.selectedDate));
+          }
+
+          // Clear the saved state after restoring
+          localStorage.removeItem("messageFormState");
+
+          toast({
+            title: "Form restored",
+            description: "Your previous form data has been restored.",
+          });
+        } catch (error) {
+          console.error("Error restoring form state:", error);
+          localStorage.removeItem("messageFormState");
         }
-
-        // Clear the saved state after restoring
-        localStorage.removeItem("messageFormState");
-
-        toast({
-          title: "Form restored",
-          description: "Your previous form data has been restored.",
-        });
-      } catch (error) {
-        console.error("Error restoring form state:", error);
-        localStorage.removeItem("messageFormState");
       }
     }
-  }, [toast]);
+  }, [editingMessage, toast]);
 
   const totalSteps = 6;
 
@@ -209,6 +267,28 @@ export const MessageCreator = () => {
     });
   };
 
+  const handleDelete = async () => {
+    if (!editingMessage) return;
+    
+    const existingMessages = JSON.parse(
+      localStorage.getItem("sentMessages") || "[]"
+    );
+    
+    const updatedMessages = existingMessages.filter((msg: Message) => msg.id !== editingMessage.id);
+    localStorage.setItem("sentMessages", JSON.stringify(updatedMessages));
+    
+    toast({
+      title: "Message deleted successfully!",
+      description: "Redirecting to dashboard...",
+    });
+    
+    // Trigger a custom event to notify dashboard of deleted message
+    window.dispatchEvent(new CustomEvent('newMessageCreated', { detail: { messageId: editingMessage.id } }));
+    
+    // Navigate back to dashboard
+    navigate("/dashboard");
+  };
+
   const handleComplete = async () => {
     setIsLoading(true);
 
@@ -247,7 +327,7 @@ export const MessageCreator = () => {
     }
 
     const message = {
-      id: Date.now().toString(),
+      id: editingMessage ? editingMessage.id : Date.now().toString(),
       subject,
       content: messageText,
       type: selectedTypes.length > 0 ? selectedTypes[0] : "text",
@@ -258,7 +338,7 @@ export const MessageCreator = () => {
       recipientPhone,
       deliveryMethod,
       status: "scheduled",
-      createdAt: new Date(),
+      createdAt: editingMessage ? editingMessage.createdAt : new Date(),
       isSurprise: isSurpriseMode,
       preview: messageText
         ? messageText.substring(0, 100) +
@@ -273,18 +353,29 @@ export const MessageCreator = () => {
     const existingMessages = JSON.parse(
       localStorage.getItem("sentMessages") || "[]"
     );
-    existingMessages.unshift(message);
+    
+    if (editingMessage) {
+      // Update existing message
+      const messageIndex = existingMessages.findIndex((msg: Message) => msg.id === editingMessage.id);
+      if (messageIndex !== -1) {
+        existingMessages[messageIndex] = message;
+      }
+    } else {
+      // Create new message
+      existingMessages.unshift(message);
+    }
+    
     localStorage.setItem("sentMessages", JSON.stringify(existingMessages));
     localStorage.setItem("newMessageId", message.id);
 
     setIsLoading(false);
 
     toast({
-      title: "Message scheduled successfully!",
+      title: editingMessage ? "Message updated successfully!" : "Message scheduled successfully!",
       description: "Redirecting to dashboard...",
     });
 
-    // Trigger a custom event to notify dashboard of new message
+    // Trigger a custom event to notify dashboard of new/updated message
     window.dispatchEvent(new CustomEvent('newMessageCreated', { detail: { messageId: message.id } }));
 
     // Trigger navigation using modern React approach
@@ -387,6 +478,8 @@ export const MessageCreator = () => {
               );
               setIsPreviewOpen(true);
             }}
+            editingMessage={editingMessage}
+            onDelete={editingMessage ? handleDelete : undefined}
           />
         );
 
@@ -450,6 +543,7 @@ export const MessageCreator = () => {
           setIsDatePickerOpen={setIsDatePickerOpen}
           isLoading={isLoading}
           onComplete={handleComplete}
+          editingMessage={editingMessage}
         />
 
         {/* File Preview Modal */}

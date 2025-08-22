@@ -1,12 +1,16 @@
 import { MessageCreator } from "@/components/message-creator";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home, BarChart, Plus, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 const CreateMessage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Get editing message from navigation state
+  const editingMessage = location.state?.editingMessage || null;
 
   useEffect(() => {
     const checkMobile = () => {
@@ -18,6 +22,16 @@ const CreateMessage = () => {
 
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    // Update document title based on mode
+    document.title = editingMessage ? "Edit Message - Message to the Future" : "Create Message - Message to the Future";
+    
+    // Cleanup on unmount
+    return () => {
+      document.title = "Message to the Future";
+    };
+  }, [editingMessage]);
 
   const navigation = [
     { name: "Home", icon: Home, view: "hero" },
@@ -49,7 +63,7 @@ const CreateMessage = () => {
         </div>
       </div>
       <div className="flex-1 overflow-hidden">
-        <MessageCreator />
+        <MessageCreator editingMessage={editingMessage} />
       </div>
 
       {/* Mobile Bottom Navigation */}

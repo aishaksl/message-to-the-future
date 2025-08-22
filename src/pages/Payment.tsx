@@ -96,7 +96,7 @@ const Payment = () => {
                         {selectedDate.toLocaleDateString()}
                       </p>
                       <p className="text-sm text-primary font-medium">
-                        {Math.floor(daysFromNow / 365)} years from now
+                        {daysFromNow <= 0 ? 'Delivered' : `${Math.floor(daysFromNow / 365)} years from now`}
                       </p>
                     </div>
                   </div>
@@ -157,7 +157,6 @@ const Payment = () => {
                               setIsMobileDatePickerOpen(false);
                             }
                           }}
-                          disabled={(date) => date <= new Date()}
                           initialFocus
                         />
                       </PopoverContent>
@@ -179,7 +178,7 @@ const Payment = () => {
                         {selectedDate.toLocaleDateString()}
                       </p>
                       <p className="text-sm text-primary font-medium">
-                        {Math.floor(daysFromNow / 365)} years from now
+                        {daysFromNow <= 0 ? 'Delivered' : `${Math.floor(daysFromNow / 365)} years from now`}
                       </p>
                     </div>
                   </div>
@@ -245,7 +244,6 @@ const Payment = () => {
                               setIsDesktopDatePickerOpen(false);
                             }
                           }}
-                          disabled={(date) => date <= new Date()}
                           initialFocus
                         />
                       </PopoverContent>

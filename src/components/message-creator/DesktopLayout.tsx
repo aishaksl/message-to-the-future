@@ -40,6 +40,28 @@ import {
 } from "@/components/ui/dialog";
 import { MessagePreview } from "./MessagePreview";
 
+interface Message {
+  id: string;
+  subject: string;
+  content: string;
+  type: string;
+  deliveryDate: Date | undefined;
+  recipientType: "self" | "other";
+  recipientName: string;
+  recipientEmail: string;
+  recipientPhone: string;
+  deliveryMethod: "email" | "whatsapp" | "both";
+  status: string;
+  createdAt: Date;
+  isSurprise: boolean;
+  preview: string;
+  mediaFiles?: {
+    image?: File[];
+    video?: File[];
+    audio?: File[];
+  };
+}
+
 interface DesktopLayoutProps {
   // Recipient props
   recipientType: "self" | "other";
@@ -90,6 +112,9 @@ interface DesktopLayoutProps {
   // Complete props
   isLoading: boolean;
   onComplete: () => void;
+  
+  // Edit mode props
+  editingMessage?: Message;
 }
 
 export const DesktopLayout = ({
@@ -121,6 +146,7 @@ export const DesktopLayout = ({
   setIsDatePickerOpen,
   isLoading,
   onComplete,
+  editingMessage,
 }: DesktopLayoutProps) => {
   const messageTypes = [
     {
@@ -195,7 +221,7 @@ export const DesktopLayout = ({
   return (
     <div className="space-y-8">
       <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight text-center mb-12 pb-1">
-        Create Your Message
+        {editingMessage ? "Edit Your Message" : "Create Your Message"}
       </h2>
 
       {/* Step 1: Recipient */}

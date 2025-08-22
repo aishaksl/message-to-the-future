@@ -25,8 +25,10 @@ import {
   Mic,
   Trash2,
   AlertTriangle,
+  User,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,6 +55,7 @@ interface Message {
   createdAt: Date | string;
   isSurprise: boolean;
   preview: string;
+  senderName?: string;
   // Media file data
   mediaFiles?: {
     images?: string[]; // base64 encoded images
@@ -79,6 +82,7 @@ export const MessageDetailsDialog = ({
   isEditable = true,
 }: MessageDetailsDialogProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editedSubject, setEditedSubject] = useState("");
   const [editedContent, setEditedContent] = useState("");
@@ -181,15 +185,15 @@ export const MessageDetailsDialog = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-100/50 rounded-xl border border-blue-200/40">
-                  <Mail className="w-5 h-5 text-blue-500" />
+                  <User className="w-5 h-5 text-blue-500" />
                 </div>
                 <div>
                   <h4 className="font-light text-lg text-slate-700">
-                    {message.recipientName}
+                    {isEditable ? message.recipientName : (message.senderName || "Unknown Sender")}
                   </h4>
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-slate-500 font-light">
-                      Message recipient
+                      {isEditable ? "Message recipient" : "Message sender"}
                     </p>
                     {message.isSurprise && (
                       <Badge variant="secondary" className="text-xs bg-blue-100/50 text-blue-600 border-blue-200/40">
@@ -213,10 +217,10 @@ export const MessageDetailsDialog = ({
                   </div>
                 </div>
                 <div className="text-xs text-slate-400 mt-1 font-light">
-                  {message.deliveryDate ? 
-                    `${Math.ceil((new Date(message.deliveryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days from now` :
-                    '...days from now'
-                  }
+                  {message.deliveryDate ? (() => {
+                    const daysFromNow = Math.ceil((new Date(message.deliveryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                    return daysFromNow <= 0 ? 'Delivered' : `${daysFromNow} days from now`;
+                  })() : '...days from now'}
                 </div>
               </div>
             </div>
@@ -399,25 +403,41 @@ export const MessageDetailsDialog = ({
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-between items-center pt-4">
-            <div className="flex gap-2">
+          <div className="flex justify-between items-center pt-6 border-t border-border/50">
+            <div className="flex gap-3">
               {!message.isSurprise && isEditable &&
                 (isEditing ? (
                   <>
-                    <Button onClick={handleSave} size="sm">
+                    <Button 
+                      onClick={handleSave} 
+                      size="sm"
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-sm transition-all duration-200 hover:shadow-md"
+                    >
                       <Save className="h-4 w-4 mr-2" />
                       Save Changes
                     </Button>
-                    <Button onClick={handleCancel} variant="outline" size="sm">
+                    <Button 
+                      onClick={handleCancel} 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+                    >
                       <X className="h-4 w-4 mr-2" />
                       Cancel
                     </Button>
                   </>
                 ) : (
                   <Button
-                    onClick={() => setIsEditing(true)}
-                    variant="outline"
+                    onClick={() => {
+                      navigate('/create-message', {
+                        state: {
+                          editingMessage: message
+                        }
+                      });
+                    }}
+                    variant="ghost"
                     size="sm"
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-950/30 border border-blue-200 dark:border-blue-800 transition-all duration-200 hover:shadow-sm"
                   >
                     <Edit3 className="h-4 w-4 mr-2" />
                     Edit Message
@@ -428,9 +448,12 @@ export const MessageDetailsDialog = ({
             {isEditable && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-800 transition-all duration-200 hover:shadow-sm w-10 h-10 p-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </AlertDialogTrigger>
               <AlertDialogContent>
@@ -444,11 +467,13 @@ export const MessageDetailsDialog = ({
                     cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogFooter className="gap-3">
+                  <AlertDialogCancel className="border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200">
+                    Cancel
+                  </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 shadow-sm transition-all duration-200 hover:shadow-md"
                   >
                     Delete Message
                   </AlertDialogAction>

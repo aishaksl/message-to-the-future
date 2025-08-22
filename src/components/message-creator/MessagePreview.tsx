@@ -13,20 +13,43 @@ import {
   Loader2,
   Play,
   Expand,
+  Trash2,
 } from "lucide-react";
 
+interface Message {
+  id: string;
+  subject: string;
+  content: string;
+  type: string;
+  deliveryDate: Date | undefined;
+  recipientType: "self" | "other";
+  recipientName: string;
+  recipientEmail: string;
+  recipientPhone: string;
+  deliveryMethod: "email" | "whatsapp" | "both";
+  status: string;
+  createdAt: Date;
+  isSurprise: boolean;
+  preview: string;
+  mediaFiles?: {
+    image?: File[];
+    video?: File[];
+    audio?: File[];
+  };
+}
+
 interface MessagePreviewProps {
-  // Recipient data
+  // Recipient props
   recipientType: "self" | "other";
   recipientName: string;
   isSurpriseMode: boolean;
 
-  // Delivery data
+  // Delivery method props
   deliveryMethod: "email" | "whatsapp" | "both";
   recipientEmail: string;
   recipientPhone: string;
 
-  // Message data
+  // Message type props
   selectedTypes: ("text" | "image" | "video" | "audio")[];
   subject: string;
   messageText: string;
@@ -36,14 +59,18 @@ interface MessagePreviewProps {
     audio: File[];
   };
 
-  // Date data
+  // Date props
   selectedDate: Date | undefined;
 
-  // Actions
+  // Complete props
   isLoading: boolean;
   onComplete: () => void;
   onExpandFile: (file: File) => void;
   onExpandText: () => void;
+  
+  // Edit mode props
+  editingMessage?: Message;
+  onDelete?: () => void;
 }
 
 export const MessagePreview = ({
@@ -59,6 +86,8 @@ export const MessagePreview = ({
   onComplete,
   onExpandFile,
   onExpandText,
+  editingMessage,
+  onDelete,
 }: MessagePreviewProps) => {
   const daysFromNow = selectedDate
     ? differenceInDays(selectedDate, new Date())
@@ -119,7 +148,9 @@ export const MessagePreview = ({
                 ? `${yearsFromNow} year${yearsFromNow > 1 ? "s" : ""} from now`
                 : daysFromNow > 0
                   ? `${daysFromNow} day${daysFromNow > 1 ? "s" : ""} from now`
-                  : "Today"}
+                  : daysFromNow === 0
+                    ? "Today"
+                    : "Delivered"}
             </div>
           </div>
         </div>
@@ -216,8 +247,20 @@ export const MessagePreview = ({
         </div>
       )}
 
-      {/* Schedule Message Button */}
-      <div className="flex justify-center pt-8">
+      {/* Action Buttons */}
+      <div className="flex justify-center gap-4 pt-8">
+        {editingMessage && onDelete && (
+          <Button
+            onClick={onDelete}
+            disabled={isLoading}
+            variant="destructive"
+            className="px-8 py-4 rounded-2xl font-light text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+            size="lg"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete Message
+          </Button>
+        )}
         <Button
           onClick={onComplete}
           disabled={isLoading}
@@ -227,10 +270,10 @@ export const MessagePreview = ({
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Scheduling...
+              {editingMessage ? "Updating..." : "Scheduling..."}
             </>
           ) : (
-            "Schedule Message"
+            editingMessage ? "Edit Message" : "Schedule Message"
           )}
         </Button>
       </div>

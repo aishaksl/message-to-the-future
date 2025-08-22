@@ -40,6 +40,7 @@ interface Message {
   createdAt: Date | string;
   isSurprise: boolean;
   preview: string;
+  senderName?: string;
   // Media file data
   mediaFiles?: {
     images?: string[]; // base64 encoded images
@@ -227,6 +228,7 @@ export const Dashboard = () => {
       createdAt: new Date(2023, 5, 15),
       isSurprise: false,
       preview: "Happy birthday! I hope you achieved everything you wanted...",
+      senderName: "Past You",
     },
     {
       id: "2",
@@ -242,6 +244,7 @@ export const Dashboard = () => {
       createdAt: new Date(2023, 8, 22),
       isSurprise: false,
       preview: "A special video message from your past self",
+      senderName: "Your Past Self",
     },
   ];
 
