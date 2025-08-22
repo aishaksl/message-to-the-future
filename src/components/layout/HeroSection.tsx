@@ -55,7 +55,7 @@ export const HeroSection: React.FC = () => {
 
         <div className="w-16 h-px bg-slate-300 mx-auto"></div>
 
-        <div className="hidden md:block space-y-2 md:space-y-4 max-w-2xl mx-auto">
+        <div className="space-y-2 md:space-y-4 max-w-2xl mx-auto">
           <p className="text-base md:text-lg lg:text-xl text-slate-600 leading-relaxed font-light">
             Every moment passes like sand through our fingers, but the love we share transcends time itself.
           </p>
