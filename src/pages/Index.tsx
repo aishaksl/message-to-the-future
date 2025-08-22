@@ -5,21 +5,20 @@ import { Dashboard } from "@/components/dashboard/Dashboard";
 import { SignIn } from "@/components/auth/SignIn";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, MessageSquarePlus, BarChart3, LogIn, Menu } from "lucide-react";
+import { Home, MessageSquarePlus, BarChart3, LogIn } from "lucide-react";
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<
     "hero" | "create" | "dashboard" | "signin"
   >("hero");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
 
   useEffect(() => {
     // Check URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const view = urlParams.get("view");
     if (view && ["hero", "create", "dashboard", "signin"].includes(view)) {
-      setCurrentView(view as any);
+      setCurrentView(view as "hero" | "create" | "dashboard" | "signin");
     }
 
     // Listen for URL changes
@@ -27,7 +26,7 @@ const Index = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const view = urlParams.get("view");
       if (view && ["hero", "create", "dashboard", "signin"].includes(view)) {
-        setCurrentView(view as any);
+        setCurrentView(view as "hero" | "create" | "dashboard" | "signin");
       } else {
         setCurrentView("hero");
       }
@@ -46,7 +45,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-4xl px-6">
+      <nav className="fixed top-2 md:top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-4xl px-6">
         <div className="bg-white/90 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/10">
           <div className="px-8 py-4">
             <div className="flex items-center justify-between">
@@ -65,7 +64,7 @@ const Index = () => {
                     key={id}
                     variant="ghost"
                     onClick={() => {
-                      setCurrentView(id as any);
+                      setCurrentView(id as "hero" | "create" | "dashboard" | "signin");
                       window.history.pushState(
                         {},
                         "",
@@ -84,52 +83,9 @@ const Index = () => {
                 ))}
               </div>
 
-              {/* Theme Toggle for mobile */}
+              {/* Theme Toggle for mobile - moved to bottom nav */}
               <div className="md:hidden">
-                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Menu className="w-5 h-5" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-64">
-                    <div className="flex flex-col space-y-4 mt-8">
-                      {navigation.map(({ id, label, icon: Icon }) => (
-                        <Button
-                          key={id}
-                          variant={currentView === id ? "default" : "ghost"}
-                          onClick={() => {
-                            setCurrentView(id as any);
-                            setMobileMenuOpen(false);
-                            window.history.pushState(
-                              {},
-                              "",
-                              id === "hero" ? "/" : `/?view=${id}`
-                            );
-                          }}
-                          className="justify-start font-normal"
-                        >
-                          <Icon className="w-4 h-4 mr-2" />
-                          {label}
-                        </Button>
-                      ))}
-                      <Button
-                        variant={currentView === "signin" ? "default" : "ghost"}
-                        onClick={() => {
-                          setCurrentView("signin");
-                          setMobileMenuOpen(false);
-                        }}
-                        className="justify-start font-normal"
-                      >
-                        <LogIn className="w-4 h-4 mr-2" />
-                        Sign In
-                      </Button>
-                      <div className="pt-4 border-t">
-                        <ThemeToggle />
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                <ThemeToggle />
               </div>
 
               {/* Desktop Sign In */}
@@ -153,7 +109,7 @@ const Index = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="pt-28 pb-20 md:pb-8 min-h-[calc(100vh-5rem)] md:min-h-auto">
+      <main className="pt-8 md:pt-16 pb-20 md:pb-8 min-h-[calc(100vh-5rem)] md:min-h-auto">
         {currentView === "hero" && <Hero />}
         {currentView === "create" && <MessageCreator />}
         {currentView === "dashboard" && <Dashboard />}
@@ -168,7 +124,7 @@ const Index = () => {
               key={id}
               variant="ghost"
               onClick={() => {
-                setCurrentView(id as any);
+                setCurrentView(id as "hero" | "create" | "dashboard" | "signin");
                 window.history.pushState(
                   {},
                   "",

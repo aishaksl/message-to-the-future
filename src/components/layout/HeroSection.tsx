@@ -34,7 +34,7 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col justify-center items-center text-center px-4 space-y-8">
+    <div className="h-full flex flex-col justify-center items-center text-center px-4 space-y-3 md:space-y-6">
       {/* Current Time Display - Clean and Minimal */}
       <div className="space-y-2">
         <div className="text-2xl font-mono font-light text-slate-500 tracking-widest">
@@ -46,8 +46,8 @@ export const HeroSection: React.FC = () => {
       </div>
 
       {/* Main Content - Zen Minimalist Design */}
-      <div className="space-y-6 max-w-4xl">
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight">
+      <div className="space-y-3 md:space-y-6 max-w-4xl">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight">
           Life is Fleeting
           <br />
           <span className="bg-clip-text text-transparent bg-gradient-to-br from-cyan-500 to-blue-600 opacity-30">Love is Eternal</span>
@@ -55,19 +55,19 @@ export const HeroSection: React.FC = () => {
 
         <div className="w-16 h-px bg-slate-300 mx-auto"></div>
 
-        <div className="space-y-4 max-w-2xl mx-auto">
-          <p className="text-lg md:text-xl text-slate-600 leading-relaxed font-light">
+        <div className="space-y-2 md:space-y-4 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg lg:text-xl text-slate-600 leading-relaxed font-light">
             Every moment passes like sand through our fingers, but the love we share transcends time itself.
           </p>
 
-          <p className="text-base md:text-lg text-slate-500 leading-relaxed font-light">
+          <p className="text-sm md:text-base lg:text-lg text-slate-500 leading-relaxed font-light">
             Create timeless treasures that will touch hearts long after you're gone.
           </p>
         </div>
       </div>
 
       {/* Action Buttons - Minimal Design */}
-      <div className="flex flex-col sm:flex-row gap-6 items-center pt-4">
+      <div className="flex flex-col sm:flex-row gap-3 md:gap-6 items-center pt-2 md:pt-4">
         <Button
           onClick={() => navigate('/create-message', { state: { fromButton: true } })}
           size="lg"

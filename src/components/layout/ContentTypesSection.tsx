@@ -39,10 +39,10 @@ const ContentTypesSection: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col justify-center">
-      <div className="text-center mb-16 max-w-2xl mx-auto space-y-4">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight">
+      <div className="text-center mb-20 md:mb-16 max-w-2xl mx-auto space-y-6 md:space-y-4">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight">
           Send Messages To The Future
-          <span className="block text-4xl md:text-5xl bg-gradient-to-r from-cyan-500 to-blue-600 opacity-30 bg-clip-text text-transparent font-medium pb-1">
+          <span className="block text-3xl md:text-5xl bg-gradient-to-r from-cyan-500 to-blue-600 opacity-30 bg-clip-text text-transparent font-medium pb-1">
             In Four Ways
           </span>
         </h2>
