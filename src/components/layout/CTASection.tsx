@@ -11,7 +11,7 @@ export const CTASection: React.FC = () => {
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight mb-6 md:mb-4 pb-1">
           Ready to Send Your First Message?
         </h2>
-        <p className="mb-12 md:mb-8 text-lg md:text-xl text-slate-600 leading-relaxed font-light">
+        <p className="hidden md:block mb-12 md:mb-8 text-lg md:text-xl text-slate-600 leading-relaxed font-light">
           Join thousands who trust us with their most meaningful messages
         </p>
         <Button
