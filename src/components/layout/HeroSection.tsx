@@ -78,7 +78,7 @@ export const HeroSection: React.FC = () => {
         >
           <MessageSquarePlus className="w-4 h-4 mr-3" />
           Create Your Message
-          <ArrowRight className="w-4 h-4 ml-3" />
+
         </Button>
 
         <Button
