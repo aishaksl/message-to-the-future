@@ -33,7 +33,7 @@ export const Hero: React.FC = () => {
       </section>
 
       {/* How It Works Section - Full Screen */}
-      <section className="min-h-screen bg-white relative overflow-hidden flex items-center justify-center pt-16 md:pt-0">
+      <section className="min-h-screen bg-white relative overflow-hidden flex items-center justify-center md:pt-0">
         {/* Decorative blobs */}
         <div className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-indigo-200 to-blue-300 top-24 left-16 opacity-30" style={{ borderRadius: '60% 40% 30% 70%' }}></div>
         <div className="absolute w-26 h-26 rounded-full bg-gradient-to-br from-rose-200 to-pink-300 bottom-28 right-20 opacity-40" style={{ borderRadius: '40% 60% 70% 30%' }}></div>

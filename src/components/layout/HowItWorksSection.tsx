@@ -26,9 +26,9 @@ const HowItWorksSection: React.FC = () => {
         <div className="contents">
           {/* First 4 cards in normal grid flow */}
           {/* Step 1: Choose Recipient */}
-          <div className="group bg-white rounded-xl px-3 py-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
+          <div className="group bg-white rounded-xl px-3 pt-6 md:p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
             {/* ... existing step 1 content ... */}
-            <div className="h-24 md:h-32 relative mb-2 md:mb-3 flex items-center justify-center">
+            <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
               <div className="relative z-10 w-24 h-24 bg-white/25 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
                 <div className="flex flex-col gap-2 items-center">
                   <div className="flex items-center gap-1 px-2 py-1 rounded-xl bg-white/30 border border-white/40 transition-all duration-300">
@@ -55,8 +55,8 @@ const HowItWorksSection: React.FC = () => {
           </div>
 
           {/* Step 2: Choose Platform */}
-          <div className="group bg-white rounded-xl px-3 py-4 md:p-6 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
-            <div className="h-24 md:h-32 relative mb-2 md:mb-3 flex items-center justify-center">
+          <div className="group bg-white rounded-xl px-3 pt-6 md:p-6 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
+            <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
               <div className="relative z-10 w-24 h-24 bg-white/25 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
                 <div className="flex gap-3 items-center">
                   <MessageCircleHeart size={32} strokeWidth={1.25} color="#6366F1" />
@@ -75,8 +75,8 @@ const HowItWorksSection: React.FC = () => {
           </div>
 
           {/* Step 3: Content Type */}
-          <div className="group bg-white rounded-xl px-3 py-4 md:p-6 shadow-lg border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
-            <div className="h-24 md:h-32 relative mb-2 md:mb-3 flex items-center justify-center">
+          <div className="group bg-white rounded-xl px-3 pt-6 md:p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
+            <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
               <div className="relative z-10 w-24 h-24 bg-white/25 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-indigo-500/20 border border-indigo-500 rounded-md flex items-center justify-center transition-all duration-300 transform scale-110 shadow-lg shadow-indigo-500/30">
@@ -97,8 +97,8 @@ const HowItWorksSection: React.FC = () => {
           </div>
 
           {/* Step 4: Add Content */}
-          <div className="group bg-white rounded-xl px-3 py-4 md:p-6 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
-            <div className="h-24 md:h-32 relative mb-2 md:mb-3 flex items-center justify-center">
+          <div className="group bg-white rounded-xl px-3 pt-6 md:p-6 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
+            <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
               <div className="relative z-10 w-24 h-24 bg-white/25 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
                 <div className="w-16 h-16 border-2 border-dashed border-indigo-500/50 rounded-xl bg-white/10 flex flex-col items-center justify-center gap-1">
                   <HeartPlus size={24} color="#6366F1" strokeWidth={1.80} />
@@ -115,8 +115,8 @@ const HowItWorksSection: React.FC = () => {
         </div>
 
         {/* Step 5: Set Schedule */}
-        <div className="group bg-white rounded-xl px-3 py-4 md:p-6 shadow-lg border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
-          <div className="h-24 md:h-32 relative mb-2 md:mb-3 flex items-center justify-center">
+        <div className="group bg-white rounded-xl px-3 pt-6 md:p-6 shadow-lg border border-gray-100 hover:shadow-lg transition-all duration-300 text-center relative overflow-hidden">
+          <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
             <div className="relative z-10 w-24 h-24 bg-white/25 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
               <div className="w-16 h-16 bg-white/20 rounded-xl flex flex-col items-center justify-center gap-1">
                 <div className="text-xs text-indigo-600 ">2025</div>

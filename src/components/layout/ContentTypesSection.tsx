@@ -99,7 +99,7 @@ const ContentTypesSection: React.FC = () => {
         })}
       </div>
 
-      <div className="text-center mt-16">
+      <div className="text-center">
         <div className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white/60 backdrop-blur-md border border-white/30 rounded-full">
           <div className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-400 to-purple-500 animate-pulse"></div>
           <p className="text-sm text-slate-600 font-medium">Mix and match to create your perfect message</p>
