@@ -43,6 +43,7 @@ export const MessageCreator = () => {
   const [isSurpriseMode, setIsSurpriseMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldNavigate, setShouldNavigate] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   // Her message type için ayrı dosya listesi
@@ -70,6 +71,17 @@ export const MessageCreator = () => {
 
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Handle navigation after message is saved
+  useEffect(() => {
+    if (shouldNavigate) {
+      // Get the message ID from localStorage to scroll to it
+      const messageId = localStorage.getItem("newMessageId");
+      // Use window.location to ensure proper navigation with message fragment
+      window.location.href = messageId ? `/?view=dashboard#message-${messageId}` : "/?view=dashboard";
+      setShouldNavigate(false);
+    }
+  }, [shouldNavigate, navigate]);
 
   // Load saved form state on component mount
   useEffect(() => {
@@ -255,6 +267,7 @@ export const MessageCreator = () => {
       mediaFiles: Object.keys(mediaFiles).length > 0 ? mediaFiles : undefined,
     };
 
+    // Simulate processing time while staying on current page
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const existingMessages = JSON.parse(
@@ -268,10 +281,14 @@ export const MessageCreator = () => {
 
     toast({
       title: "Message scheduled successfully!",
-      description: "Taking you to dashboard...",
+      description: "Redirecting to dashboard...",
     });
 
-    navigate("/?view=dashboard", { replace: true });
+    // Trigger a custom event to notify dashboard of new message
+    window.dispatchEvent(new CustomEvent('newMessageCreated', { detail: { messageId: message.id } }));
+
+    // Trigger navigation using modern React approach
+    setShouldNavigate(true);
   };
 
   const renderStepContent = () => {
@@ -535,24 +552,7 @@ export const MessageCreator = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Loading Overlay */}
-        {isLoading && (
-          <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div className="bg-background/95 backdrop-blur border border-border/50 rounded-2xl p-8 shadow-2xl">
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative">
-                  <div className="w-12 h-12 border-4 border-primary/20 rounded-full animate-spin">
-                    <div className="absolute top-0 left-0 w-12 h-12 border-4 border-transparent border-t-primary rounded-full animate-spin"></div>
-                  </div>
-                </div>
-                <p className="text-lg font-medium">Creating your message...</p>
-                <p className="text-sm text-muted-foreground text-center">
-                  This will just take a moment
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );

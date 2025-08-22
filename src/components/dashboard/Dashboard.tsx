@@ -89,7 +89,7 @@ export const Dashboard = () => {
         createdAt: message.createdAt ? new Date(message.createdAt) : null,
       }));
       setSentMessages(processedMessages);
-      
+
       // Save the migrated data back to localStorage
       localStorage.setItem("sentMessages", JSON.stringify(processedMessages));
     }
@@ -100,12 +100,63 @@ export const Dashboard = () => {
       setNewMessageId(messageId);
       localStorage.removeItem("newMessageId");
 
-      // Clear the new message ID after 3 seconds
+      // Clear the new message ID after 5 seconds
       setTimeout(() => {
         setNewMessageId(null);
-      }, 3000);
+      }, 5000);
     }
+
+    // Listen for new message creation events
+    const handleNewMessage = (event: CustomEvent) => {
+      const { messageId } = event.detail;
+
+      // Reload messages from localStorage
+      const updatedMessages = localStorage.getItem("sentMessages");
+      if (updatedMessages) {
+        const messages = JSON.parse(updatedMessages);
+        const processedMessages = messages.map((message: LegacyMessage) => ({
+          ...message,
+          type: message.type || (message.types && message.types.length > 0 ? message.types[0] : "text"),
+          deliveryDate: message.deliveryDate
+            ? new Date(message.deliveryDate)
+            : null,
+          createdAt: message.createdAt ? new Date(message.createdAt) : null,
+        }));
+        setSentMessages(processedMessages);
+      }
+
+      // Set the new message ID for animation
+      setNewMessageId(messageId);
+
+      // Clear the animation after 5 seconds
+      setTimeout(() => {
+        setNewMessageId(null);
+      }, 5000);
+    };
+
+    window.addEventListener('newMessageCreated', handleNewMessage as EventListener);
+
+    return () => {
+      window.removeEventListener('newMessageCreated', handleNewMessage as EventListener);
+    };
   }, []);
+
+  // Handle auto-scrolling to specific message
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#message-')) {
+      const messageId = hash.replace('#message-', '');
+      const messageElement = document.getElementById(`message-${messageId}`);
+      if (messageElement) {
+        setTimeout(() => {
+          messageElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }, 100); // Small delay to ensure DOM is ready
+      }
+    }
+  }, [sentMessages]); // Re-run when messages are loaded
 
   // Mock data for demonstration
   const receivedMessages: Message[] = [
@@ -158,12 +209,12 @@ export const Dashboard = () => {
 
   const getMessageTypes = (message: Message) => {
     const types = [];
-    
+
     // Check for text content
     if (message.content && message.content.trim()) {
       types.push('text');
     }
-    
+
     // Check for media files
     if (message.mediaFiles) {
       if (message.mediaFiles.images && message.mediaFiles.images.length > 0) {
@@ -176,25 +227,25 @@ export const Dashboard = () => {
         types.push('audio');
       }
     }
-    
+
     // Fallback to the original type if no content detected
     if (types.length === 0) {
       types.push(message.type || 'text');
     }
-    
+
     return types;
   };
 
   const renderMessageCard = (message: Message, type: 'sent' | 'received') => {
     const messageTypes = getMessageTypes(message);
     const isNewMessage = newMessageId === message.id;
-    
+
     return (
       <div
         key={message.id}
-        className={`group relative bg-gradient-to-br from-white/80 to-blue-50/40 border border-blue-200/30 rounded-xl p-8 cursor-pointer transition-all duration-500 hover:bg-gradient-to-br hover:from-white/90 hover:to-purple-50/40 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-100/20 ${
-          isNewMessage ? "bg-gradient-to-br from-white/95 to-blue-100/50 border-blue-400/60 shadow-lg shadow-blue-200/30" : ""
-        }`}
+        id={`message-${message.id}`}
+        className={`group relative bg-gradient-to-br from-white/80 to-blue-50/40 border border-blue-200/30 rounded-xl p-8 cursor-pointer transition-all duration-500 hover:bg-gradient-to-br hover:from-white/90 hover:to-purple-50/40 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-100/20 ${isNewMessage ? "animate-new-message" : ""
+          }`}
         onClick={() => handleViewMessage(message, type)}
       >
         {/* Zen Header - Minimal */}
@@ -238,11 +289,10 @@ export const Dashboard = () => {
 
         {/* Subtle Status Indicator */}
         <div className="absolute top-4 right-4">
-          <div className={`w-2 h-2 rounded-full ${
-            message.status === 'delivered' ? 'bg-gradient-to-br from-emerald-400 to-emerald-500' :
-            message.status === 'scheduled' ? 'bg-gradient-to-br from-blue-400 to-purple-500' :
-            'bg-gradient-to-br from-slate-400 to-slate-500'
-          }`}></div>
+          <div className={`w-2 h-2 rounded-full ${message.status === 'delivered' ? 'bg-gradient-to-br from-emerald-400 to-emerald-500' :
+              message.status === 'scheduled' ? 'bg-gradient-to-br from-blue-400 to-purple-500' :
+                'bg-gradient-to-br from-slate-400 to-slate-500'
+            }`}></div>
         </div>
       </div>
     );
@@ -298,12 +348,12 @@ export const Dashboard = () => {
         {/* Medium bubbles */}
         <div className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-yellow-200/30 to-orange-300/30 bottom-1/3 right-10" style={{ borderRadius: '30% 70% 40% 60%' }}></div>
         <div className="absolute w-18 h-18 rounded-full bg-gradient-to-br from-amber-300/22 to-yellow-400/22 top-2/3 left-1/2" style={{ borderRadius: '55% 45% 35% 65%' }}></div>
-        
+
         {/* Small bubbles */}
         <div className="absolute w-16 h-16 rounded-full bg-gradient-to-br from-emerald-200/25 to-green-300/25 top-1/2 right-1/4" style={{ borderRadius: '65% 35% 45% 55%' }}></div>
         <div className="absolute w-14 h-14 rounded-full bg-gradient-to-br from-rose-200/20 to-pink-300/20 bottom-1/2 left-1/4" style={{ borderRadius: '40% 60% 30% 70%' }}></div>
       </div>
-      
+
       <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
         {/* Header - Zen minimalist style */}
         <div className="text-center mb-12">
@@ -313,14 +363,14 @@ export const Dashboard = () => {
               <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-br from-cyan-500 to-blue-600 opacity-70">Through Time</span>
             </h1>
-            
+
             <div className="w-16 h-px bg-slate-300 mx-auto"></div>
-            
+
             <p className="text-lg md:text-xl text-slate-600 leading-relaxed font-light max-w-2xl mx-auto">
               Every message is a bridge between moments, connecting your past, present, and future.
             </p>
           </div>
-          
+
           <div className="mt-8">
             <Button
               onClick={() => navigate("/create-message")}
@@ -481,11 +531,11 @@ export const Dashboard = () => {
               </h3>
             </div>
             <div className="p-6">
-                {receivedMessages.length > 0 ? (
-                  <div className="space-y-12">
-                    {receivedMessages.map((message) => renderMessageCard(message, 'received'))}
-                  </div>
-                ) : (
+              {receivedMessages.length > 0 ? (
+                <div className="space-y-12">
+                  {receivedMessages.map((message) => renderMessageCard(message, 'received'))}
+                </div>
+              ) : (
                 <div className="p-12 text-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-100/30">
                     <Inbox className="h-8 w-8 text-blue-600" />
@@ -507,11 +557,11 @@ export const Dashboard = () => {
               </h3>
             </div>
             <div className="p-6">
-                {sentMessages.length > 0 ? (
-                  <div className="space-y-12">
-                    {sentMessages.map((message) => renderMessageCard(message, 'sent'))}
-                  </div>
-                ) : (
+              {sentMessages.length > 0 ? (
+                <div className="space-y-12">
+                  {sentMessages.map((message) => renderMessageCard(message, 'sent'))}
+                </div>
+              ) : (
                 <div className="p-6 border-2 border-dashed border-purple-200/50 rounded-xl text-center bg-gradient-to-br from-blue-50/50 to-purple-50/50">
                   <p className="text-purple-700/70 text-sm mb-3 font-light">
                     Ready to send another message through time?
