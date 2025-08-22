@@ -71,11 +71,10 @@ const Index = () => {
                         id === "hero" ? "/" : `/?view=${id}`
                       );
                     }}
-                    className={`font-light tracking-wide transition-all duration-300 rounded-xl px-4 py-2 ${
-                      currentView === id
+                    className={`font-light tracking-wide transition-all duration-300 rounded-xl px-4 py-2 ${currentView === id
                         ? "bg-gradient-to-br from-blue-300 to-purple-600 text-white shadow-md"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                    }`}
+                      }`}
                   >
                     <Icon className="w-4 h-4 mr-2" />
                     {label}
@@ -93,11 +92,10 @@ const Index = () => {
                 <Button
                   variant="ghost"
                   onClick={() => setCurrentView("signin")}
-                  className={`font-light tracking-wide transition-all duration-300 rounded-xl px-4 py-2 ${
-                    currentView === "signin"
+                  className={`font-light tracking-wide transition-all duration-300 rounded-xl px-4 py-2 ${currentView === "signin"
                       ? "bg-gradient-to-br from-blue-300 to-purple-600 text-white shadow-md"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                  }`}
+                    }`}
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   Sign In
@@ -131,11 +129,10 @@ const Index = () => {
                   id === "hero" ? "/" : `/?view=${id}`
                 );
               }}
-              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${
-                currentView === id
+              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${currentView === id
                   ? "text-primary bg-primary/10"
                   : "text-muted-foreground"
-              }`}
+                }`}
             >
               <Icon className="w-5 h-5" />
               <span className="text-xs font-medium">
@@ -146,11 +143,10 @@ const Index = () => {
           <Button
             variant="ghost"
             onClick={() => setCurrentView("signin")}
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${
-              currentView === "signin"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-1 ${currentView === "signin"
                 ? "text-primary bg-primary/10"
                 : "text-muted-foreground"
-            }`}
+              }`}
           >
             <LogIn className="w-5 h-5" />
             <span className="text-xs font-medium">Sign In</span>

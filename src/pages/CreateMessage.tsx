@@ -8,13 +8,13 @@ const CreateMessage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // Get editing message from navigation state
   const editingMessage = location.state?.editingMessage || null;
-  
+
   // Check if user came from a button (not navbar) - detect if there's a referrer or specific navigation state
   const isFromButton = location.state?.fromButton || false;
-  
+
   // Get the original source to avoid payment page loops
   const originalSource = location.state?.originalSource || '/';
 
@@ -32,7 +32,7 @@ const CreateMessage = () => {
   useEffect(() => {
     // Update document title based on mode
     document.title = editingMessage ? "Edit Message - Message to the Future" : "Create Message - Message to the Future";
-    
+
     // Cleanup on unmount
     return () => {
       document.title = "Message to the Future";
@@ -91,9 +91,8 @@ const CreateMessage = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleViewChange(item.view)}
-                className={`flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs ${
-                  item.view === "create" ? "text-primary" : ""
-                }`}
+                className={`flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs ${item.view === "create" ? "text-primary" : ""
+                  }`}
               >
                 <item.icon className="h-4 w-4" />
                 {item.name}

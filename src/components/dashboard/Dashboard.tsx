@@ -147,34 +147,34 @@ export const Dashboard = () => {
   // Handle auto-scrolling to specific message
   useEffect(() => {
     const hash = window.location.hash;
-    
+
     if (hash && hash.startsWith('#message-')) {
       const messageId = hash.replace('#message-', '');
-      
+
       // Switch to sent tab when there's a message fragment
       setActiveTab('sent');
-      
+
       const messageElement = document.getElementById(`message-${messageId}`);
-      
+
       if (messageElement) {
         // Detect mobile device and viewport
         const isMobile = window.innerWidth < 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const delay = isMobile ? 1200 : 500; // Increased mobile delay
-        
+
         const scrollToMessage = () => {
           messageElement.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
             inline: 'nearest'
           });
-          
+
           // Additional mobile-specific scroll adjustment
           if (isMobile) {
             setTimeout(() => {
               const rect = messageElement.getBoundingClientRect();
               const viewportHeight = window.innerHeight;
               const offset = viewportHeight * 0.15; // 15% offset from top for mobile nav/status bars
-              
+
               window.scrollBy({
                 top: -offset,
                 behavior: 'smooth'
@@ -182,16 +182,16 @@ export const Dashboard = () => {
             }, 300);
           }
         };
-        
+
         setTimeout(scrollToMessage, delay);
-        
+
         // Handle orientation changes on mobile
         if (isMobile) {
           const handleOrientationChange = () => {
             setTimeout(scrollToMessage, 300);
           };
           window.addEventListener('orientationchange', handleOrientationChange);
-          
+
           return () => {
             window.removeEventListener('orientationchange', handleOrientationChange);
           };
@@ -303,12 +303,12 @@ export const Dashboard = () => {
         className="group relative bg-gradient-to-br from-white/80 to-blue-50/40 border border-blue-200/30 rounded-xl p-8 cursor-pointer transition-all duration-500 hover:bg-gradient-to-br hover:from-white/90 hover:to-purple-50/40 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-100/20"
         onClick={() => handleViewMessage(message, type)}
         initial={isNewMessage ? { opacity: 0.6, scale: 0.98, backgroundColor: "rgba(255, 255, 255, 0.8)" } : false}
-        animate={isNewMessage ? { 
-          opacity: [0.6, 1, 0.6, 1, 1], 
+        animate={isNewMessage ? {
+          opacity: [0.6, 1, 0.6, 1, 1],
           scale: [0.98, 1, 0.98, 1, 1],
           backgroundColor: [
             "rgba(255, 255, 255, 0.8)",
-            "rgba(219, 234, 254, 0.9)", 
+            "rgba(219, 234, 254, 0.9)",
             "rgba(255, 255, 255, 0.8)",
             "rgba(219, 234, 254, 0.9)",
             "rgba(255, 255, 255, 0.8)"
@@ -358,8 +358,8 @@ export const Dashboard = () => {
         {/* Subtle Status Indicator */}
         <div className="absolute top-4 right-4">
           <div className={`w-2 h-2 rounded-full ${message.status === 'delivered' ? 'bg-gradient-to-br from-emerald-400 to-emerald-500' :
-              message.status === 'scheduled' ? 'bg-gradient-to-br from-blue-400 to-purple-500' :
-                'bg-gradient-to-br from-slate-400 to-slate-500'
+            message.status === 'scheduled' ? 'bg-gradient-to-br from-blue-400 to-purple-500' :
+              'bg-gradient-to-br from-slate-400 to-slate-500'
             }`}></div>
         </div>
       </motion.div>

@@ -140,7 +140,7 @@ export const MessageDetailsDialog = ({
       content: editedContent,
       preview: editedContent
         ? editedContent.substring(0, 100) +
-          (editedContent.length > 100 ? "..." : "")
+        (editedContent.length > 100 ? "..." : "")
         : `${message.type} message`,
     };
 
@@ -171,151 +171,151 @@ export const MessageDetailsDialog = ({
 
   return (
     <>
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <span className="text-2xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-slate-600 to-slate-800">Message Details</span>
-          </DialogTitle>
-        </DialogHeader>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <span className="text-2xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-slate-600 to-slate-800">Message Details</span>
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-8">
-          {/* Recipient & Delivery Info */}
-          <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-blue-50/30 to-purple-50/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-100/50 rounded-xl border border-blue-200/40">
-                  <User className="w-5 h-5 text-blue-500" />
-                </div>
-                <div>
-                  <h4 className="font-light text-lg text-slate-700">
-                    {isEditable ? message.recipientName : (message.senderName || "Unknown Sender")}
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm text-slate-500 font-light">
-                      {isEditable ? "Message recipient" : "Message sender"}
-                    </p>
-                    {message.isSurprise && (
-                      <Badge variant="secondary" className="text-xs bg-blue-100/50 text-blue-600 border-blue-200/40">
-                        <Gift className="w-3 h-3 mr-1" />
-                        Surprise
-                      </Badge>
-                    )}
+          <div className="space-y-8">
+            {/* Recipient & Delivery Info */}
+            <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-blue-50/30 to-purple-50/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-blue-100/50 rounded-xl border border-blue-200/40">
+                    <User className="w-5 h-5 text-blue-500" />
                   </div>
-                </div>
-              </div>
-              
-              <div className="text-right">
-                <div className="flex flex-col items-end gap-1">
-                  <div className="flex items-center gap-1 text-sm font-light text-slate-600">
-                    <span className="text-blue-500">From </span>
-                    {format(new Date(message.createdAt), "MM.dd.yyyy")}
-                  </div>
-                  <div className="flex items-center gap-1 text-sm font-light text-slate-600">
-                    <span className="text-blue-500">To </span>
-                    {message.deliveryDate && format(new Date(message.deliveryDate), "MM.dd.yyyy")}
-                  </div>
-                </div>
-                <div className="text-xs text-slate-400 mt-1 font-light">
-                  {message.deliveryDate ? (() => {
-                    const daysFromNow = Math.ceil((new Date(message.deliveryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                    return daysFromNow <= 0 ? 'Delivered' : `${daysFromNow} days from now`;
-                  })() : '...days from now'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Subject */}
-          <div className="text-center">
-            {isEditing ? (
-              <Input
-                value={editedSubject}
-                onChange={(e) => setEditedSubject(e.target.value)}
-                className="text-xl md:text-2xl font-light border-none p-0 h-auto focus-visible:ring-0 bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight text-center bg-transparent"
-                placeholder="Message subject..."
-              />
-            ) : (
-              <h3 className="text-xl md:text-2xl font-light bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight">
-                {message.subject}
-              </h3>
-            )}
-          </div>
-
-          {/* Text Content */}
-          {message.isSurprise && !isEditing ? (
-            <div className="p-6 border-2 border-dashed border-blue-200/40 rounded-2xl bg-gradient-to-br from-blue-50/30 to-purple-50/30 text-center">
-              <Gift className="h-12 w-12 text-blue-500 mx-auto mb-3" />
-              <p className="text-blue-600 font-light mb-2">
-                Surprise Message
-              </p>
-              <p className="text-sm text-slate-500 font-light">
-                This is a surprise message. The content is hidden to preserve
-                the surprise!
-              </p>
-            </div>
-          ) : isEditing ? (
-            <div className="p-6 rounded-2xl border border-slate-200/60 bg-white/50">
-              <Textarea
-                value={editedContent}
-                onChange={(e) => setEditedContent(e.target.value)}
-                className="min-h-[200px] resize-none border-none bg-transparent text-slate-700 font-light leading-relaxed focus-visible:ring-0 p-0"
-                placeholder="Your message content..."
-              />
-              </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Text Content */}
-              {message.content && (
-                <div className="p-6 rounded-2xl border border-slate-200/60 bg-white/50">
-                  <div className="text-center">
-                    <div className="text-sm text-slate-600 font-light leading-relaxed italic break-all whitespace-pre-wrap max-w-full overflow-hidden line-clamp-3">
-                      "{message.content}"
+                  <div>
+                    <h4 className="font-light text-lg text-slate-700">
+                      {isEditable ? message.recipientName : (message.senderName || "Unknown Sender")}
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-slate-500 font-light">
+                        {isEditable ? "Message recipient" : "Message sender"}
+                      </p>
+                      {message.isSurprise && (
+                        <Badge variant="secondary" className="text-xs bg-blue-100/50 text-blue-600 border-blue-200/40">
+                          <Gift className="w-3 h-3 mr-1" />
+                          Surprise
+                        </Badge>
+                      )}
                     </div>
-                    {message.content.length > 150 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setPreviewFile(
-                            new File([message.content || ""], "message.txt", {
-                              type: "text/plain",
-                            })
-                          );
-                          setIsPreviewOpen(true);
-                        }}
-                        className="h-auto p-0 text-xs text-blue-500 hover:text-blue-600 font-light underline mt-2"
-                      >
-                        See more
-                      </Button>
-                    )}
                   </div>
                 </div>
-              )}
 
-              {/* Media Content */}
-              {(() => {
-                const hasMediaFiles = message.mediaFiles && (
-                  (message.mediaFiles.images && message.mediaFiles.images.length > 0) ||
-                  (message.mediaFiles.videos && message.mediaFiles.videos.length > 0) ||
-                  (message.mediaFiles.audios && message.mediaFiles.audios.length > 0)
-                );
-                
-                if (hasMediaFiles) {
-                  const allMediaFiles = [
-                    ...(message.mediaFiles.images || []).map((file, index) => ({ file, type: "image" as const, index })),
-                    ...(message.mediaFiles.videos || []).map((file, index) => ({ file, type: "video" as const, index })),
-                    ...(message.mediaFiles.audios || []).map((file, index) => ({ file, type: "audio" as const, index }))
-                  ];
-                  
-                  return (
-                    <div className="space-y-4">
-                      <div className="text-center">
-                        <h4 className="text-sm font-light text-slate-600">
-                          Media Files ({allMediaFiles.length})
-                        </h4>
+                <div className="text-right">
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex items-center gap-1 text-sm font-light text-slate-600">
+                      <span className="text-blue-500">From </span>
+                      {format(new Date(message.createdAt), "MM.dd.yyyy")}
+                    </div>
+                    <div className="flex items-center gap-1 text-sm font-light text-slate-600">
+                      <span className="text-blue-500">To </span>
+                      {message.deliveryDate && format(new Date(message.deliveryDate), "MM.dd.yyyy")}
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1 font-light">
+                    {message.deliveryDate ? (() => {
+                      const daysFromNow = Math.ceil((new Date(message.deliveryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                      return daysFromNow <= 0 ? 'Delivered' : `${daysFromNow} days from now`;
+                    })() : '...days from now'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Subject */}
+            <div className="text-center">
+              {isEditing ? (
+                <Input
+                  value={editedSubject}
+                  onChange={(e) => setEditedSubject(e.target.value)}
+                  className="text-xl md:text-2xl font-light border-none p-0 h-auto focus-visible:ring-0 bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight text-center bg-transparent"
+                  placeholder="Message subject..."
+                />
+              ) : (
+                <h3 className="text-xl md:text-2xl font-light bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight">
+                  {message.subject}
+                </h3>
+              )}
+            </div>
+
+            {/* Text Content */}
+            {message.isSurprise && !isEditing ? (
+              <div className="p-6 border-2 border-dashed border-blue-200/40 rounded-2xl bg-gradient-to-br from-blue-50/30 to-purple-50/30 text-center">
+                <Gift className="h-12 w-12 text-blue-500 mx-auto mb-3" />
+                <p className="text-blue-600 font-light mb-2">
+                  Surprise Message
+                </p>
+                <p className="text-sm text-slate-500 font-light">
+                  This is a surprise message. The content is hidden to preserve
+                  the surprise!
+                </p>
+              </div>
+            ) : isEditing ? (
+              <div className="p-6 rounded-2xl border border-slate-200/60 bg-white/50">
+                <Textarea
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  className="min-h-[200px] resize-none border-none bg-transparent text-slate-700 font-light leading-relaxed focus-visible:ring-0 p-0"
+                  placeholder="Your message content..."
+                />
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Text Content */}
+                {message.content && (
+                  <div className="p-6 rounded-2xl border border-slate-200/60 bg-white/50">
+                    <div className="text-center">
+                      <div className="text-sm text-slate-600 font-light leading-relaxed italic break-all whitespace-pre-wrap max-w-full overflow-hidden line-clamp-3">
+                        "{message.content}"
                       </div>
-                      <div className="flex flex-wrap justify-center gap-3">
+                      {message.content.length > 150 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setPreviewFile(
+                              new File([message.content || ""], "message.txt", {
+                                type: "text/plain",
+                              })
+                            );
+                            setIsPreviewOpen(true);
+                          }}
+                          className="h-auto p-0 text-xs text-blue-500 hover:text-blue-600 font-light underline mt-2"
+                        >
+                          See more
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Media Content */}
+                {(() => {
+                  const hasMediaFiles = message.mediaFiles && (
+                    (message.mediaFiles.images && message.mediaFiles.images.length > 0) ||
+                    (message.mediaFiles.videos && message.mediaFiles.videos.length > 0) ||
+                    (message.mediaFiles.audios && message.mediaFiles.audios.length > 0)
+                  );
+
+                  if (hasMediaFiles) {
+                    const allMediaFiles = [
+                      ...(message.mediaFiles.images || []).map((file, index) => ({ file, type: "image" as const, index })),
+                      ...(message.mediaFiles.videos || []).map((file, index) => ({ file, type: "video" as const, index })),
+                      ...(message.mediaFiles.audios || []).map((file, index) => ({ file, type: "audio" as const, index }))
+                    ];
+
+                    return (
+                      <div className="space-y-4">
+                        <div className="text-center">
+                          <h4 className="text-sm font-light text-slate-600">
+                            Media Files ({allMediaFiles.length})
+                          </h4>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-3">
                           {allMediaFiles.map(({ file, type, index }, globalIndex) => (
                             <div
                               key={globalIndex}
@@ -393,198 +393,198 @@ export const MessageDetailsDialog = ({
                           ))}
                         </div>
                       </div>
-                     );
-                   } else {
-                     // No media files to display
-                     return null;
-                   }
-                 })()}
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex justify-between items-center pt-6 border-t border-border/50">
-            <div className="flex gap-3">
-              {!message.isSurprise && isEditable &&
-                (isEditing ? (
-                  <>
-                    <Button 
-                      onClick={handleSave} 
-                      size="sm"
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-sm transition-all duration-200 hover:shadow-md"
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Changes
-                    </Button>
-                    <Button 
-                      onClick={handleCancel} 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Cancel
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    onClick={() => {
-                      navigate('/create-message', {
-                        state: {
-                          editingMessage: message,
-                          fromButton: true
-                        }
-                      });
-                    }}
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-950/30 border border-blue-200 dark:border-blue-800 transition-all duration-200 hover:shadow-sm"
-                  >
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    Edit Message
-                  </Button>
-                ))}
-            </div>
-
-            {isEditable && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-800 transition-all duration-200 hover:shadow-sm w-10 h-10 p-0"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-destructive" />
-                    Delete Message
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete this message? This action
-                    cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="gap-3">
-                  <AlertDialogCancel className="border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200">
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 shadow-sm transition-all duration-200 hover:shadow-md"
-                  >
-                    Delete Message
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-
-    {/* Media Preview Dialog */}
-    <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {previewFile?.type.startsWith("image/")
-              ? "Your Image"
-              : previewFile?.type.startsWith("video/")
-                ? "Your Video"
-                : previewFile?.type.startsWith("audio/")
-                  ? "Your Audio"
-                  : previewFile?.type === "text/plain"
-                    ? "Your Text"
-                    : "File Preview"}
-          </DialogTitle>
-        </DialogHeader>
-        {previewFile && (
-          <div className="space-y-4">
-            {previewFile.type.startsWith("image/") ? (
-              <img
-                src={URL.createObjectURL(previewFile)}
-                alt={previewFile.name}
-                className="w-full h-[70vh] object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                onClick={() =>
-                  window.open(URL.createObjectURL(previewFile), "_blank")
-                }
-              />
-            ) : previewFile.type.startsWith("video/") ? (
-              <div
-                className="w-full h-[70vh] rounded-lg overflow-hidden flex items-center justify-center"
-                style={{
-                  background: "rgba(255, 255, 255, 0.1)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
-                }}
-              >
-                <video
-                  src={URL.createObjectURL(previewFile)}
-                  controls
-                  className="max-w-full max-h-full rounded-lg shadow-lg"
-                />
-              </div>
-            ) : previewFile.type.startsWith("audio/") ? (
-              <div className="w-full h-[70vh] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex flex-col items-center justify-center gap-8 p-8">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
-                    <Mic className="w-12 h-12 text-white" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                      Audio File
-                    </h3>
-                    <p className="text-gray-600 text-sm truncate max-w-md">
-                      {previewFile.name}
-                    </p>
-                  </div>
-                </div>
-                <div className="w-full max-w-lg">
-                  <audio
-                    src={URL.createObjectURL(previewFile)}
-                    controls
-                    className="w-full h-12 rounded-lg shadow-md"
-                  />
-                </div>
-              </div>
-            ) : previewFile.type === "text/plain" ? (
-              <div className="w-full h-[70vh] bg-white rounded-lg border border-gray-200">
-                <div
-                  className="w-full h-full resize-none border-none outline-none text-base leading-relaxed text-gray-800 bg-transparent overflow-y-auto p-4"
-                  style={{
-                    wordBreak: "break-word",
-                    overflowWrap: "break-word",
-                    maxWidth: "100%",
-                  }}
-                >
-                  {message?.content || ""}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center p-8">
-                <p>Preview not available for this file type</p>
+                    );
+                  } else {
+                    // No media files to display
+                    return null;
+                  }
+                })()}
               </div>
             )}
-            <div className="text-sm text-muted-foreground">
-              <p>
-                <strong>File:</strong> {previewFile.name}
-              </p>
-              {previewFile.type !== "text/plain" && (
-                <p>
-                  <strong>Size:</strong>{" "}
-                  {(previewFile.size / (1024 * 1024)).toFixed(2)} MB
-                </p>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center pt-6 border-t border-border/50">
+              <div className="flex gap-3">
+                {!message.isSurprise && isEditable &&
+                  (isEditing ? (
+                    <>
+                      <Button
+                        onClick={handleSave}
+                        size="sm"
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-sm transition-all duration-200 hover:shadow-md"
+                      >
+                        <Save className="h-4 w-4 mr-2" />
+                        Save Changes
+                      </Button>
+                      <Button
+                        onClick={handleCancel}
+                        variant="ghost"
+                        size="sm"
+                        className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        navigate('/create-message', {
+                          state: {
+                            editingMessage: message,
+                            fromButton: true
+                          }
+                        });
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-950/30 border border-blue-200 dark:border-blue-800 transition-all duration-200 hover:shadow-sm"
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Edit Message
+                    </Button>
+                  ))}
+              </div>
+
+              {isEditable && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-800 transition-all duration-200 hover:shadow-sm w-10 h-10 p-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-destructive" />
+                        Delete Message
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this message? This action
+                        cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-3">
+                      <AlertDialogCancel className="border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0 shadow-sm transition-all duration-200 hover:shadow-md"
+                      >
+                        Delete Message
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </div>
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {/* Media Preview Dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {previewFile?.type.startsWith("image/")
+                ? "Your Image"
+                : previewFile?.type.startsWith("video/")
+                  ? "Your Video"
+                  : previewFile?.type.startsWith("audio/")
+                    ? "Your Audio"
+                    : previewFile?.type === "text/plain"
+                      ? "Your Text"
+                      : "File Preview"}
+            </DialogTitle>
+          </DialogHeader>
+          {previewFile && (
+            <div className="space-y-4">
+              {previewFile.type.startsWith("image/") ? (
+                <img
+                  src={URL.createObjectURL(previewFile)}
+                  alt={previewFile.name}
+                  className="w-full h-[70vh] object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() =>
+                    window.open(URL.createObjectURL(previewFile), "_blank")
+                  }
+                />
+              ) : previewFile.type.startsWith("video/") ? (
+                <div
+                  className="w-full h-[70vh] rounded-lg overflow-hidden flex items-center justify-center"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.1)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                  }}
+                >
+                  <video
+                    src={URL.createObjectURL(previewFile)}
+                    controls
+                    className="max-w-full max-h-full rounded-lg shadow-lg"
+                  />
+                </div>
+              ) : previewFile.type.startsWith("audio/") ? (
+                <div className="w-full h-[70vh] bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex flex-col items-center justify-center gap-8 p-8">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+                      <Mic className="w-12 h-12 text-white" />
+                    </div>
+                    <div className="text-center">
+                      <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                        Audio File
+                      </h3>
+                      <p className="text-gray-600 text-sm truncate max-w-md">
+                        {previewFile.name}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-full max-w-lg">
+                    <audio
+                      src={URL.createObjectURL(previewFile)}
+                      controls
+                      className="w-full h-12 rounded-lg shadow-md"
+                    />
+                  </div>
+                </div>
+              ) : previewFile.type === "text/plain" ? (
+                <div className="w-full h-[70vh] bg-white rounded-lg border border-gray-200">
+                  <div
+                    className="w-full h-full resize-none border-none outline-none text-base leading-relaxed text-gray-800 bg-transparent overflow-y-auto p-4"
+                    style={{
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      maxWidth: "100%",
+                    }}
+                  >
+                    {message?.content || ""}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center p-8">
+                  <p>Preview not available for this file type</p>
+                </div>
+              )}
+              <div className="text-sm text-muted-foreground">
+                <p>
+                  <strong>File:</strong> {previewFile.name}
+                </p>
+                {previewFile.type !== "text/plain" && (
+                  <p>
+                    <strong>Size:</strong>{" "}
+                    {(previewFile.size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
