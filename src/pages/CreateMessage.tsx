@@ -13,7 +13,10 @@ const CreateMessage = () => {
   const editingMessage = location.state?.editingMessage || null;
   
   // Check if user came from a button (not navbar) - detect if there's a referrer or specific navigation state
-  const isFromButton = location.state?.fromButton || document.referrer.includes(window.location.origin);
+  const isFromButton = location.state?.fromButton || false;
+  
+  // Get the original source to avoid payment page loops
+  const originalSource = location.state?.originalSource || '/';
 
   useEffect(() => {
     const checkMobile = () => {
@@ -57,7 +60,7 @@ const CreateMessage = () => {
         <div className="max-w-4xl mx-auto flex gap-4">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(originalSource)}
             className="gap-2"
           >
             {isFromButton ? (
