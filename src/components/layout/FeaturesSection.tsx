@@ -3,11 +3,11 @@ import { Clock, Layers, Shield } from "lucide-react";
 export const FeaturesSection: React.FC = () => {
   return (
     <div className="h-full flex flex-col justify-center">
-      <div className="text-center mb-20 md:mb-16">
+      <div className="text-center mb-8 md:mb-16">
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight mb-6 md:mb-4">
           Why Choose Our Platform
         </h2>
-        <p className="hidden md:block text-lg md:text-xl text-slate-600 leading-relaxed font-light">
+        <p className="text-lg md:text-xl text-slate-600 leading-relaxed font-light">
           Trusted by thousands to deliver their most precious messages
         </p>
       </div>
@@ -18,7 +18,7 @@ export const FeaturesSection: React.FC = () => {
             <Clock className="w-8 h-8 text-blue-600" />
           </div>
           <h3 className="text-xl font-medium text-slate-800 mb-4">Perfect Timing</h3>
-          <p className="hidden md:block text-slate-600 leading-relaxed">
+          <p className="text-slate-600 leading-relaxed">
             Deliver your messages from tomorrow to decades ahead, exactly when they're needed most
           </p>
         </div>
@@ -28,7 +28,7 @@ export const FeaturesSection: React.FC = () => {
             <Layers className="w-8 h-8 text-purple-600" />
           </div>
           <h3 className="text-xl font-medium text-slate-800 mb-4">Rich Content</h3>
-          <p className="hidden md:block text-slate-600 leading-relaxed">
+          <p className="text-slate-600 leading-relaxed">
             Combine voice recordings, photos, videos, and heartfelt words in one beautiful message
           </p>
         </div>
@@ -38,7 +38,7 @@ export const FeaturesSection: React.FC = () => {
             <Shield className="w-8 h-8 text-green-600" />
           </div>
           <h3 className="text-xl font-medium text-slate-800 mb-4">Secure & Reliable</h3>
-          <p className="hidden md:block text-slate-600 leading-relaxed">
+          <p className="text-slate-600 leading-relaxed">
             Your precious thoughts are encrypted and safely stored until the perfect moment
           </p>
         </div>
