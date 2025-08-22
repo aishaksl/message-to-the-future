@@ -181,10 +181,10 @@ export const MessageDetailsDialog = ({
 
           <div className="space-y-8">
             {/* Recipient & Delivery Info */}
-            <div className="p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-blue-50/30 to-purple-50/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100/50 rounded-xl border border-blue-200/40">
+            <div className="p-4 md:p-6 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-blue-50/30 to-purple-50/30">
+              <div className="flex items-center justify-between gap-4 md:gap-6">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="p-2 md:p-3 bg-blue-100/50 rounded-xl border border-blue-200/40">
                     <User className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
