@@ -81,7 +81,7 @@ const Index = () => {
                       );
                     }}
                     className={`font-light tracking-wide rounded-xl px-4 py-2 ${currentView === id
-                      ? "bg-[#938ef6] text-white shadow-md hover:text-white"
+                      ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                       }`}
                   >
@@ -102,7 +102,7 @@ const Index = () => {
                   variant="ghost"
                   onClick={() => setCurrentView("signin")}
                   className={`font-light tracking-wide rounded-xl px-4 py-2 ${currentView === "signin"
-                    ? "bg-[#938ef6] text-white shadow-md hover:text-white"
+                    ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                 >
@@ -139,7 +139,7 @@ const Index = () => {
                 );
               }}
               className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${currentView === id
-                ? "bg-[#938ef6] text-white shadow-md hover:text-white"
+                ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 }`}
             >
@@ -153,7 +153,7 @@ const Index = () => {
             variant="ghost"
             onClick={() => setCurrentView("signin")}
             className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${currentView === "signin"
-              ? "bg-[#938ef6] text-white shadow-md hover:text-white"
+              ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
           >
