@@ -47,7 +47,7 @@ const Index = () => {
       {/* Mobile App Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50">
         <div className="flex items-center justify-center py-3">
-          <span className="text-xl font-light tracking-wide bg-gradient-to-br from-blue-300 to-purple-600 bg-clip-text text-transparent">
+          <span className="text-xl font-light tracking-wide bg-[#938ef6] bg-clip-text text-transparent">
             TimeCapsule
           </span>
         </div>
@@ -60,8 +60,8 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-gradient-to-br from-purple-300 to-purple-400"></div>
-                  <span className="text-xl font-light tracking-wide bg-gradient-to-br from-purple-300 to-purple-400 bg-clip-text text-transparent">
+                  <div className="w-2 h-2 rounded-full bg-[#938ef6]"></div>
+                  <span className="text-xl font-light tracking-wide bg-[#938ef6] bg-clip-text text-transparent">
                     TimeCapsule
                   </span>
                 </div>
@@ -81,7 +81,7 @@ const Index = () => {
                       );
                     }}
                     className={`font-light tracking-wide rounded-xl px-4 py-2 ${currentView === id
-                      ? "bg-gradient-to-br from-purple-300 to-purple-400 text-white shadow-md hover:text-white"
+                      ? "bg-[#938ef6] text-white shadow-md hover:text-white"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                       }`}
                   >
@@ -102,7 +102,7 @@ const Index = () => {
                   variant="ghost"
                   onClick={() => setCurrentView("signin")}
                   className={`font-light tracking-wide rounded-xl px-4 py-2 ${currentView === "signin"
-                    ? "bg-gradient-to-br from-purple-300 to-purple-400 text-white shadow-md hover:text-white"
+                    ? "bg-[#938ef6] text-white shadow-md hover:text-white"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                 >
@@ -139,7 +139,7 @@ const Index = () => {
                 );
               }}
               className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${currentView === id
-                ? "bg-gradient-to-br from-purple-300 to-purple-400 text-white shadow-md hover:text-white"
+                ? "bg-[#938ef6] text-white shadow-md hover:text-white"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 }`}
             >
@@ -153,7 +153,7 @@ const Index = () => {
             variant="ghost"
             onClick={() => setCurrentView("signin")}
             className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${currentView === "signin"
-              ? "bg-gradient-to-br from-purple-300 to-purple-400 text-white shadow-md hover:text-white"
+              ? "bg-[#938ef6] text-white shadow-md hover:text-white"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
           >

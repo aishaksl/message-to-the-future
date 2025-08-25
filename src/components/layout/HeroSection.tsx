@@ -72,9 +72,9 @@ export const HeroSection: React.FC = () => {
           onClick={() => navigate('/create-message', { state: { fromButton: true } })}
           size="lg"
           className="text-white font-bold px-6 py-3 rounded-lg 
-               bg-gradient-to-r from-purple-300 to-purple-400 
-               hover:brightness-110 hover:shadow- 
-               transition-all duration-200"
+               bg-[#938EF6]
+               hover:bg-[#8279E6] hover:shadow- 
+               transition-all"
         >
           <MessageSquarePlus className="w-4 h-4 mr-3" />
           Create Your Message
@@ -85,8 +85,8 @@ export const HeroSection: React.FC = () => {
           variant="ghost"
           size="lg"
           className="text-white font-bold px-6 py-3 rounded-lg 
-               bg-gradient-to-r from-cyan-200 to-blue-300 
-               hover:brightness-110 hover:shadow- 
+               bg-[#7bb9f3]
+               hover:bg-[#51a5f5] hover:shadow- 
                transition-all duration-50 hover:text-white"
         >
           Watch Demo

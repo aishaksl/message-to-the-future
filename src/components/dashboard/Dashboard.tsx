@@ -456,7 +456,7 @@ export const Dashboard = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
           <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-blue-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
                 <Send className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -470,7 +470,7 @@ export const Dashboard = () => {
 
           <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-purple-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
                 <Clock className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -484,7 +484,7 @@ export const Dashboard = () => {
 
           <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-blue-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
                 <CheckCircle className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -498,7 +498,7 @@ export const Dashboard = () => {
 
           <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-purple-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-blue-400 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
                 <Inbox className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -558,7 +558,7 @@ export const Dashboard = () => {
                         Ready to send another message through time?
                       </p>
                       <button
-                        className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
+                        className="bg-purple-400 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
                         onClick={() => navigate("/create-message", { state: { fromButton: true } })}
                       >
                         <Plus className="h-4 w-4" />
