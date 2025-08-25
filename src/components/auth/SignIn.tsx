@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Sparkles } from "lucide-react";
 
 export const SignIn = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -29,49 +29,73 @@ export const SignIn = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] md:min-h-screen bg-background flex items-center justify-center py-4 md:py-12 px-6 relative overflow-hidden">
-      {/* Animated background elements */}
+    <div className="h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center px-4 relative overflow-hidden -mt-16 md:mt-0">
+      {/* Enhanced animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-primary/10 to-secondary/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        {/* Full background coverage */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/80 to-purple-200/80"></div>
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-300/40 to-purple-600/40 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-purple-600/30 to-blue-300/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-blue-300/20 to-purple-600/20 rounded-full blur-2xl animate-pulse delay-500"></div>
+        {/* Complete mobile coverage */}
+        <div className="absolute -top-40 left-0 right-0 h-60 bg-gradient-to-b from-blue-200/50 to-transparent"></div>
+        <div className="absolute -bottom-40 left-0 right-0 h-60 bg-gradient-to-t from-purple-200/50 to-transparent"></div>
       </div>
-      
+
+      {/* Decorative Background Bubbles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Large bubbles */}
+        <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-500/20 top-10 left-10" style={{ borderRadius: '50% 30% 70% 40%' }}></div>
+        <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-pink-300/20 to-purple-400/20 top-32 right-16" style={{ borderRadius: '60% 40% 30% 70%' }}></div>
+        <div className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-cyan-300/15 to-blue-400/15 bottom-20 left-20" style={{ borderRadius: '40% 60% 70% 30%' }}></div>
+        <div className="absolute w-28 h-28 rounded-full bg-gradient-to-br from-violet-300/18 to-purple-500/18 top-16 right-1/3" style={{ borderRadius: '45% 55% 65% 35%' }}></div>
+
+        {/* Medium bubbles */}
+        <div className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-yellow-200/30 to-orange-300/30 bottom-1/3 right-10" style={{ borderRadius: '30% 70% 40% 60%' }}></div>
+        <div className="absolute w-18 h-18 rounded-full bg-gradient-to-br from-amber-300/22 to-yellow-400/22 top-2/3 left-1/2" style={{ borderRadius: '55% 45% 35% 65%' }}></div>
+
+        {/* Small bubbles */}
+        <div className="absolute w-12 h-12 rounded-full bg-gradient-to-br from-emerald-200/25 to-teal-300/25 top-1/4 left-1/4" style={{ borderRadius: '65% 35% 45% 55%' }}></div>
+        <div className="absolute w-14 h-14 rounded-full bg-gradient-to-br from-rose-200/20 to-pink-300/20 bottom-1/4 right-1/4" style={{ borderRadius: '35% 65% 55% 45%' }}></div>
+        <div className="absolute w-10 h-10 rounded-full bg-gradient-to-br from-sky-200/30 to-cyan-300/30 top-3/4 right-3/4" style={{ borderRadius: '50% 50% 30% 70%' }}></div>
+      </div>
+
       <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-3">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-300 to-purple-600 bg-clip-text text-transparent mb-3 md:mt-12">
             {isSignUp ? "Create Account" : "Welcome Back"}
           </h1>
-          <p className="text-muted-foreground text-lg">
-            {isSignUp 
-              ? "Start your journey through time" 
+          <p className="text-muted-foreground text-lg font-light">
+            {isSignUp
+              ? "Start your journey through time"
               : "Continue your journey through time"
             }
           </p>
         </div>
 
-        <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-8">
+        <div className="bg-white/90 dark:bg-card/50 backdrop-blur-xl border border-slate-200/50 dark:border-border/50 rounded-2xl shadow-lg shadow-slate-900/5 dark:shadow-2xl p-6 md:p-8 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/10">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-semibold">
+            <h2 className="text-2xl font-semibold bg-gradient-to-r from-slate-700 to-slate-600 dark:from-foreground dark:to-foreground/70 bg-clip-text text-transparent">
               {isSignUp ? "Sign Up" : "Sign In"}
             </h2>
           </div>
-          
-          <form onSubmit={handleSubmit} className="space-y-5">
+
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
             {isSignUp && (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Input
                   id="name"
                   name="name"
                   placeholder="Full Name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="h-12 bg-background/50 border-border/50 rounded-xl"
+                  className="h-10 md:h-12 bg-white/50 dark:bg-background/50 border-slate-200/50 dark:border-border/50 rounded-xl focus-visible:outline-none focus-visible:ring-0 focus-visible:border-blue-400 hover:border-slate-300 dark:hover:border-border"
                   required={isSignUp}
                 />
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Input
                 id="email"
                 name="email"
@@ -79,12 +103,12 @@ export const SignIn = () => {
                 placeholder="Email Address"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="h-12 bg-background/50 border-border/50 rounded-xl"
+                className="h-10 md:h-12 bg-white/50 dark:bg-background/50 border-slate-200/50 rounded-xl focus-visible:outline-none focus-visible:ring-0 focus-visible:border-blue-400 hover:border-blue-300"
                 required
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <div className="relative">
                 <Input
                   id="password"
@@ -93,13 +117,13 @@ export const SignIn = () => {
                   placeholder="Password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="h-12 bg-background/50 border-border/50 rounded-xl pr-12"
+                  className="h-10 md:h-12 bg-white/50 dark:bg-background/50 border-slate-200/50 dark:border-border/50 rounded-xl pr-12 focus-visible:outline-none focus-visible:ring-0 focus-visible:border-blue-400 hover:border-blue-300"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-blue-300 transition-colors duration-200"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -118,12 +142,12 @@ export const SignIn = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-medium">
+            <Button type="submit" className="w-full h-10 md:h-12 rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500  text-white font-medium shadow-lg shadow-blue-300/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-300/30 hover:scale-[1.02]">
               {isSignUp ? "Create Account" : "Sign In"}
             </Button>
           </form>
 
-          <div className="relative my-6">
+          <div className="relative my-4 md:my-6">
             <div className="absolute inset-0 flex items-center">
               <Separator />
             </div>
@@ -133,7 +157,7 @@ export const SignIn = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="h-12 rounded-xl bg-background/50 border-border/50">
+            <Button variant="outline" className="h-10 md:h-12 rounded-xl bg-white/50 dark:bg-background/50 border-slate-200/50 dark:border-border/50 transition-all duration-200 hover:bg-white dark:hover:bg-background/70 hover:border-slate-300 dark:hover:border-border hover:shadow-md">
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
@@ -152,22 +176,22 @@ export const SignIn = () => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Google
+              <span className="font-medium">Google</span>
             </Button>
-            <Button variant="outline" className="h-12 rounded-xl bg-background/50 border-border/50">
+            <Button variant="outline" className="h-10 md:h-12 rounded-xl bg-white/50 dark:bg-background/50 border-slate-200/50 dark:border-border/50 transition-all duration-200 hover:bg-white dark:hover:bg-background/70 hover:border-slate-300 dark:hover:border-border hover:shadow-md">
               <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
-              Facebook
+              <span className="font-medium">Facebook</span>
             </Button>
           </div>
 
-          <div className="text-center mt-6">
+          <div className="text-center mt-4 md:mt-6">
             <p className="text-sm text-muted-foreground">
               {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
               <Button
                 variant="link"
-                className="px-0 text-sm font-medium"
+                className="px-0 text-sm font-medium text-blue-300 hover:text-purple-600 transition-colors duration-200"
                 onClick={() => setIsSignUp(!isSignUp)}
               >
                 {isSignUp ? "Sign in" : "Sign up"}
@@ -176,13 +200,13 @@ export const SignIn = () => {
           </div>
 
           {isSignUp && (
-            <p className="text-xs text-muted-foreground text-center mt-4">
+            <p className="text-xs text-muted-foreground text-center mt-3 md:mt-4">
               By creating an account, you agree to our{" "}
-              <Button variant="link" className="px-0 text-xs">
+              <Button variant="link" className="px-0 text-xs text-blue-300 hover:text-purple-600 transition-colors duration-200">
                 Terms of Service
               </Button>{" "}
               and{" "}
-              <Button variant="link" className="px-0 text-xs">
+              <Button variant="link" className="px-0 text-xs text-blue-300 hover:text-purple-600 transition-colors duration-200">
                 Privacy Policy
               </Button>
             </p>
