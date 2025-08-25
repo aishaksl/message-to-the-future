@@ -30,17 +30,7 @@ export const SignIn = () => {
 
   return (
     <div className="h-screen bg-white flex items-center justify-center px-4 relative overflow-hidden -mt-16 md:mt-0">
-      {/* Enhanced animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Full background coverage */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/80 to-purple-200/80"></div>
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-300/40 to-purple-600/40 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-purple-600/30 to-blue-300/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-blue-300/20 to-purple-600/20 rounded-full blur-2xl animate-pulse delay-500"></div>
-        {/* Complete mobile coverage */}
-        <div className="absolute -top-40 left-0 right-0 h-60 bg-gradient-to-b from-blue-200/50 to-transparent"></div>
-        <div className="absolute -bottom-40 left-0 right-0 h-60 bg-gradient-to-t from-purple-200/50 to-transparent"></div>
-      </div>
+
 
       {/* Decorative Background Bubbles */}
       <div className="absolute inset-0 pointer-events-none">
