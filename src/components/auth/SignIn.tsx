@@ -29,7 +29,7 @@ export const SignIn = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center px-4 relative overflow-hidden -mt-16 md:mt-0">
+    <div className="h-screen bg-white flex items-center justify-center px-4 relative overflow-hidden -mt-16 md:mt-0">
       {/* Enhanced animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Full background coverage */}

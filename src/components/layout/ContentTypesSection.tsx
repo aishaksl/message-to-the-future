@@ -65,7 +65,7 @@ const ContentTypesSection: React.FC = () => {
 
               <div className="relative bg-white/80 backdrop-blur-sm border border-white/30 rounded-3xl p-8 text-center transition-all duration-500 ease-out md:group-hover:bg-white/95 md:group-hover:translate-y-[-4px] md:group-hover:border-white/50">
                 <div className="relative mb-6 flex items-center justify-center">
-                  <div className={`absolute w-20 h-20 rounded-full bg-gradient-to-br ${type.gradient} opacity-10 md:group-hover:opacity-20 transition-all duration-500 md:group-hover:scale-110`}></div>
+                  <div className={`absolute w-24 h-24 rounded-full bg-gradient-to-br ${type.gradient} opacity-10 md:group-hover:opacity-20 transition-all duration-500 md:group-hover:scale-110`}></div>
 
                   <div className="relative z-10 w-16 h-16 bg-white/90 backdrop-blur-md border border-white/40 rounded-2xl flex items-center justify-center shadow-lg md:group-hover:shadow-md transition-all duration-500 md:group-hover:scale-105">
                     <IconComponent
