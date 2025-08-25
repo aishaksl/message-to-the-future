@@ -264,7 +264,9 @@ export const MessagePreview = ({
         <Button
           onClick={onComplete}
           disabled={isLoading}
-          className="bg-gradient-to-r hover:from-cyan-200 hover:to-blue-300 from-blue-300 to-purple-500 text-white px-12 py-4 rounded-2xl font-light text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+          className=" hover:bg-[#8279E6]
+                bg-[#938ef6]
+                 text-white px-12 py-4 rounded-2xl font-light text-lg shadow-lg hover:shadow-xl transition-all duration-300"
           size="lg"
         >
           {isLoading ? (

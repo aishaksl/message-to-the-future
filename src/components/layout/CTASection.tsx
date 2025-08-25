@@ -18,8 +18,8 @@ export const CTASection: React.FC = () => {
           <Button
             onClick={() => navigate('/create-message', { state: { fromButton: true } })}
             size="lg"
-            className="bg-gradient-to-r hover:from-cyan-200 hover:to-blue-300 
-                 from-blue-200 to-purple-300 
+            className=" hover:bg-[#8279E6]
+                bg-[#938ef6]
                  text-white px-12 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
           >
             <MessageSquarePlus className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />

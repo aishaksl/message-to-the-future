@@ -100,10 +100,10 @@ const ContentTypesSection: React.FC = () => {
       </div>
 
       <div className="text-center">
-        <div className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white/60 backdrop-blur-md border border-white/30 rounded-full">
-          <div className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-400 to-purple-500 animate-pulse"></div>
+        <div className="hidden md:inline-flex items-center gap-2 pt-24 py-3 bg-white/60 backdrop-blur-md border border-white/30 rounded-full">
+          <div className="w-2 h-2 rounded-full bg-[#938ef6] "></div>
           <p className="text-sm text-slate-600 font-medium">Mix and match to create your perfect message</p>
-          <div className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-400 to-purple-500 animate-pulse delay-500"></div>
+          <div className="w-2 h-2 rounded-full bg-[#938ef6]"></div>
         </div>
       </div>
     </div>

@@ -443,7 +443,7 @@ export const Dashboard = () => {
             <Button
               onClick={() => navigate("/create-message", { state: { fromButton: true } })}
               size="lg"
-              className="text-white font-bold px-8 py-4 rounded-xl bg-gradient-to-r from-purple-300 to-purple-400 hover:brightness-110 hover:shadow-lg transition-all duration-200 border-0"
+              className="text-white font-bold px-8 py-4 rounded-xl bg-[#938ef6] hover:bg-[#8279E6] border-0"
             >
               <Plus className="w-5 h-5 mr-3" />
               Create New Message
@@ -456,13 +456,13 @@ export const Dashboard = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
           <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-blue-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
+              <div className="w-12 h-12 bg-[#938ef6] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
                 <Send className="h-6 w-6 text-white" />
               </div>
               <div>
                 <p className="text-2xl md:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-400 to-purple-600">{sentMessages.length}</p>
                 <p className="text-sm text-blue-600/70 font-light">
-                  Messages Sent
+                  Sent
                 </p>
               </div>
             </div>
@@ -470,7 +470,7 @@ export const Dashboard = () => {
 
           <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-purple-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
+              <div className="w-12 h-12 bg-[#938ef6] rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
                 <Clock className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -484,7 +484,7 @@ export const Dashboard = () => {
 
           <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-blue-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
+              <div className="w-12 h-12 bg-[#938ef6] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/30">
                 <CheckCircle className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -498,7 +498,7 @@ export const Dashboard = () => {
 
           <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-purple-200/30 p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-300 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
+              <div className="w-12 h-12 bg-[#938ef6] rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200/30">
                 <Inbox className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -592,7 +592,7 @@ export const Dashboard = () => {
           <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 overflow-hidden">
             <div className="p-6 border-b border-blue-200/30">
               <h3 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-600 to-purple-700 flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-300 to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200/30">
+                <div className="w-8 h-8 bg-[#938ef6] rounded-xl flex items-center justify-center shadow-lg shadow-blue-200/30">
                   <Inbox className="h-4 w-4 text-white" />
                 </div>
                 Received Messages
@@ -618,7 +618,7 @@ export const Dashboard = () => {
           <div className="bg-gradient-to-br from-white/90 to-purple-50/50 backdrop-blur-xl border border-purple-200/40 rounded-2xl shadow-lg shadow-purple-100/20 overflow-hidden">
             <div className="p-6 border-b border-purple-200/30">
               <h3 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-600 to-purple-700 flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-300 to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200/30">
+                <div className="w-8 h-8 bg-[#938ef6] rounded-xl flex items-center justify-center shadow-lg shadow-purple-200/30">
                   <Send className="h-4 w-4 text-white" />
                 </div>
                 Sent Messages
