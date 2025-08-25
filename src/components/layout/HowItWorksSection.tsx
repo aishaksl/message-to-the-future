@@ -27,7 +27,7 @@ const HowItWorksSection: React.FC = () => {
           {/* First 4 cards in normal grid flow */}
           {/* Step 1: Choose Recipient */}
           <div className="group px-3 pt-6 md:p-6 transition-all duration-300 text-center relative overflow-hidden">
-            <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
+            <div className="h-16 md:h-32 relative mb-3 md:mb-3 flex items-center justify-center">
               <div className="relative z-10 w-28 h-28 bg-white/25 border border-white/30 rounded-2xl flex items-center justify-center shadow-md">
                 <div className="flex flex-col gap-2 items-center">
                   <div className="flex items-center gap-1 px-2 py-1 rounded-xl bg-white/30 border border-white/40 transition-all duration-300">
@@ -55,7 +55,7 @@ const HowItWorksSection: React.FC = () => {
 
           {/* Step 2: Choose Platform */}
           <div className="group px-3 pt-6 md:p-6 transition-all duration-300 text-center relative overflow-hidden">
-            <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
+            <div className="h-16 md:h-32 relative mb-3 md:mb-3 flex items-center justify-center">
               <div className="relative z-10 w-28 h-28 bg-white/25 border border-white/30 rounded-2xl flex items-center justify-center shadow-md">
                 <div className="flex gap-3 items-center">
                   <div className="rounded-lg bg-indigo-500/20 border border-indigo-500 flex items-center justify-center transition-all duration-300 transform scale-110 shadow-lg shadow-indigo-500/30">
@@ -74,7 +74,7 @@ const HowItWorksSection: React.FC = () => {
 
           {/* Step 3: Content Type */}
           <div className="group px-3 pt-6 md:p-6 transition-all duration-300 text-center relative overflow-hidden">
-            <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
+            <div className="h-16 md:h-32 relative mb-3 md:mb-3 flex items-center justify-center">
               <div className="relative z-10 w-28 h-28 bg-white/25 border border-white/30 rounded-2xl flex items-center justify-center shadow-md">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-indigo-500/20 border border-indigo-500 rounded-md flex items-center justify-center transition-all duration-300 transform scale-110 shadow-lg shadow-indigo-500/30">
@@ -96,7 +96,7 @@ const HowItWorksSection: React.FC = () => {
 
           {/* Step 4: Add Content */}
           <div className="group px-3 pt-6 md:p-6 transition-all duration-300 text-center relative overflow-hidden">
-            <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
+            <div className="h-16 md:h-32 relative mb-3 md:mb-3 flex items-center justify-center">
               <div className="relative z-10 w-28 h-28 bg-white/25 border border-white/30 rounded-2xl flex items-center justify-center shadow-md">
                 <div className="w-16 h-16 border-2 border-dashed border-indigo-500/50 rounded-xl bg-white/10 flex flex-col items-center justify-center gap-1">
                   <HeartPlus size={28} color="#6366F1" strokeWidth={1.80} />
@@ -114,7 +114,7 @@ const HowItWorksSection: React.FC = () => {
 
         {/* Step 5: Set Schedule */}
         <div className="group px-3 pt-6 md:p-6 transition-all duration-300 text-center relative overflow-hidden">
-          <div className="h-16 md:h-32 relative mb-1 md:mb-3 flex items-center justify-center">
+          <div className="h-16 md:h-32 relative mb-3 md:mb-3 flex items-center justify-center">
             <div className="relative z-10 w-28 h-28 bg-white/25 border border-white/30 rounded-2xl flex items-center justify-center shadow-md">
               <div className="w-16 h-16 bg-white/20 rounded-xl flex flex-col items-center justify-center gap-1">
                 <div className="text-xs text-indigo-600 ">2025</div>
