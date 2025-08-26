@@ -445,9 +445,8 @@ export const Dashboard = () => {
               size="lg"
               className="text-white font-bold px-8 py-4 rounded-xl bg-[#938ef6] hover:bg-[#8279E6] border-0"
             >
-              <Plus className="w-5 h-5 mr-3" />
+              <Plus className="w-5 h-5" />
               Create New Message
-              <Sparkles className="w-5 h-5 ml-3" />
             </Button>
           </div>
         </div>
