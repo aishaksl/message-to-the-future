@@ -48,7 +48,7 @@ const Index = () => {
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50">
         <div className="flex items-center justify-center py-3">
           <span className="text-xl font-light tracking-wide bg-[#938ef6] bg-clip-text text-transparent">
-            TimeCapsule
+            YourTimeDrawer
           </span>
         </div>
       </div>
@@ -62,7 +62,7 @@ const Index = () => {
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 rounded-full bg-[#938ef6]"></div>
                   <span className="text-xl font-light tracking-wide bg-[#938ef6] bg-clip-text text-transparent">
-                    TimeCapsule
+                    YourTimeDrawer
                   </span>
                 </div>
               </div>
