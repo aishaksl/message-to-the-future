@@ -115,6 +115,9 @@ interface DesktopLayoutProps {
 
   // Edit mode props
   editingMessage?: Message;
+
+  // Mobile detection prop
+  isMobile?: boolean;
 }
 
 export const DesktopLayout = ({
@@ -147,6 +150,7 @@ export const DesktopLayout = ({
   isLoading,
   onComplete,
   editingMessage,
+  isMobile,
 }: DesktopLayoutProps) => {
   const messageTypes = [
     {
@@ -522,7 +526,7 @@ export const DesktopLayout = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-1 md:gap-4">
             {messageTypes.map(({ type, icon: Icon, label, description }) => {
               const isSelected = selectedTypes.includes(type);
 
@@ -608,7 +612,8 @@ export const DesktopLayout = ({
                       }
                     }}
                     className={cn(
-                      "w-full p-6 rounded-2xl border transition-all duration-300 text-left relative min-h-[120px] md:h-[140px] flex flex-col bg-white/60 backdrop-blur-sm shadow-sm hover:shadow-md",
+                      "w-full p-1 md:p-6 rounded-2xl border transition-all duration-300 text-left relative min-h-[80px] md:min-h-[120px] md:h-[140px] flex flex-col bg-white/60 backdrop-blur-sm shadow-sm hover:shadow-md",
+                      isMobile ? "justify-center" : "",
                       isSelected
                         ? currentType === type
                           ? "border-purple-300 bg-gradient-to-br from-purple-50 to-blue-50 shadow-lg"
@@ -618,24 +623,32 @@ export const DesktopLayout = ({
                   >
                     <Icon
                       className={cn(
-                        "w-7 h-7 mb-3 flex-shrink-0 text-purple-600"
+                        "mb-1 md:mb-3 flex-shrink-0 text-purple-600",
+                        isMobile ? "w-5 h-5 mx-auto" : "w-7 h-7"
                       )}
                       strokeWidth={1.5}
                     />
-                    <h4 className="font-light text-sm mb-1 md:whitespace-nowrap text-slate-700">
-                      {label}
-                    </h4>
-                    <p className="text-xs text-slate-500 leading-relaxed font-light">
-                      {description}
-                    </p>
+                    {!isMobile && (
+                      <h4 className="font-light mb-1 md:whitespace-nowrap text-slate-700 text-sm">
+                        {label}
+                      </h4>
+                    )}
+                    {!isMobile && (
+                      <p className="text-xs text-slate-500 leading-relaxed font-light">
+                        {description}
+                      </p>
+                    )}
 
                     {/* Content status indicator - minimal yeşil tik, sağ alt köşe */}
                     {isSelected && typeHasContent && (
                       <div
-                        className="absolute bottom-3 right-3"
+                        className={cn(
+                          "absolute text-green-600",
+                          isMobile ? "bottom-2 right-2" : "bottom-3 right-3"
+                        )}
                         title="Content added"
                       >
-                        <Check className="w-5 h-5 text-green-600" />
+                        <Check className={cn(isMobile ? "w-4 h-4" : "w-5 h-5")} />
                       </div>
                     )}
                   </button>
@@ -644,10 +657,18 @@ export const DesktopLayout = ({
                   {isSelected && typeHasContent && (
                     <button
                       onClick={handleRemoveType}
-                      className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center hover:bg-purple-100 rounded-full transition-colors duration-300"
+                      className={cn(
+                        "absolute flex items-center justify-center hover:bg-purple-100 rounded-full transition-colors duration-300",
+                        isMobile 
+                          ? "top-2 right-2 w-5 h-5" 
+                          : "top-3 right-3 w-6 h-6"
+                      )}
                       title={`Remove ${type}`}
                     >
-                      <X className="w-4 h-4 text-slate-500 hover:text-purple-600" />
+                      <X className={cn(
+                        "text-slate-500 hover:text-purple-600",
+                        isMobile ? "w-3 h-3" : "w-4 h-4"
+                      )} />
                     </button>
                   )}
                 </div>

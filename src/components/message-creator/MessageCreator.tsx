@@ -544,6 +544,7 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
           isLoading={isLoading}
           onComplete={handleComplete}
           editingMessage={editingMessage}
+          isMobile={isMobile}
         />
 
         {/* File Preview Modal */}
