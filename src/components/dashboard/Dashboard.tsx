@@ -518,14 +518,14 @@ export const Dashboard = () => {
                 <TabsList className="grid w-full grid-cols-2 h-14 bg-transparent rounded-none p-0">
                   <TabsTrigger
                     value="received"
-                    className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-300 data-[state=active]:to-purple-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-200/30 transition-all font-light text-blue-600/70 hover:text-blue-800"
+                    className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:text-black data-[state=active]:border-b-2 data-[state=active]:border-[#938ef6] data-[state=active]:shadow-lg data-[state=active]:shadow-blue-200/30 transition-all font-light text-blue-600/70 hover:text-blue-800"
                   >
                     <Inbox className="h-4 w-4" />
                     <span className="text-sm">Received</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="sent"
-                    className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-300 data-[state=active]:to-purple-400 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-purple-400 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-200/30 transition-all font-light text-blue-600/70 hover:text-blue-800"
+                    className="flex items-center justify-center gap-2 h-full rounded-none data-[state=active]:text-black data-[state=active]:border-b-2 data-[state=active]:border-[#938ef6] data-[state=active]:shadow-lg data-[state=active]:shadow-blue-200/30 transition-all font-light text-blue-600/70 hover:text-blue-800"
                   >
                     <Send className="h-4 w-4" />
                     <span className="text-sm">Sent</span>
