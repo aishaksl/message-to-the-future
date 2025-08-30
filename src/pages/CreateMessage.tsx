@@ -56,7 +56,8 @@ const CreateMessage = () => {
 
   return (
     <div className="min-h-[calc(100vh-5rem)] flex flex-col">
-      <div className="hidden md:block p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Desktop Header */}
+      <div className="hidden md:block p-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-4xl mx-auto flex gap-4">
           <Button
             variant="ghost"
@@ -65,8 +66,8 @@ const CreateMessage = () => {
           >
             {isFromButton ? (
               <>
-                <ArrowLeft className="h-4 w-4 text-purple-600" />
-                <span className="text-purple-600">Back</span>
+                <ArrowLeft className="h-5 w-5" style={{color: '#938ef6'}} />
+                <span className="text-base font-normal" style={{color: '#938ef6'}}>Back</span>
               </>
             ) : (
               <>
@@ -77,30 +78,26 @@ const CreateMessage = () => {
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-hidden">
-        <MessageCreator editingMessage={editingMessage} />
-      </div>
 
-      {/* Mobile Bottom Navigation */}
+      {/* Mobile Header */}
       {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
-          <div className="grid grid-cols-4 gap-1 p-2">
-            {navigation.map((item) => (
-              <Button
-                key={item.name}
-                variant="ghost"
-                size="sm"
-                onClick={() => handleViewChange(item.view)}
-                className={`flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs ${item.view === "create" ? "text-primary" : ""
-                  }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.name}
-              </Button>
-            ))}
+        <div className="md:hidden p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex gap-4">
+            <Button
+               variant="ghost"
+               onClick={() => navigate(originalSource)}
+               className="gap-2"
+             >
+               <ArrowLeft className="h-5 w-5" style={{color: '#938ef6'}} />
+               <span className="text-base font-normal" style={{color: '#938ef6'}}>Back</span>
+             </Button>
           </div>
         </div>
       )}
+
+      <div className="flex-1 overflow-hidden">
+        <MessageCreator editingMessage={editingMessage} />
+      </div>
     </div>
   );
 };

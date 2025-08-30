@@ -224,7 +224,7 @@ export const DesktopLayout = ({
 
   return (
     <div className="space-y-8">
-      <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight text-center mb-12 pb-1">
+      <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight text-center md:mt-10 pb-1">
         {editingMessage ? "Edit Your Message" : "Create Your Message"}
       </h2>
 
