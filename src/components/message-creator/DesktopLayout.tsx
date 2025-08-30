@@ -623,7 +623,7 @@ export const DesktopLayout = ({
                   >
                     <Icon
                       className={cn(
-                        "mb-1 md:mb-3 flex-shrink-0 text-purple-600",
+                        "mb-1 md:mb-3 flex-shrink-0 text-[#817bf3]",
                         isMobile ? "w-5 h-5 mx-auto" : "w-7 h-7"
                       )}
                       strokeWidth={1.5}
@@ -659,8 +659,8 @@ export const DesktopLayout = ({
                       onClick={handleRemoveType}
                       className={cn(
                         "absolute flex items-center justify-center hover:bg-purple-100 rounded-full transition-colors duration-300",
-                        isMobile 
-                          ? "top-2 right-2 w-5 h-5" 
+                        isMobile
+                          ? "top-2 right-2 w-5 h-5"
                           : "top-3 right-3 w-6 h-6"
                       )}
                       title={`Remove ${type}`}
@@ -827,7 +827,7 @@ export const DesktopLayout = ({
                               <X className="w-4 h-4 text-slate-500 transition-colors duration-300" />
                             </button>
                           </div>
-                          <div className="flex justify-center mt-4">
+                          <div className="flex justify-center mt-6">
                             <div className="w-full max-w-md space-y-4">
                               {selectedFiles[
                                 currentType as keyof typeof selectedFiles
