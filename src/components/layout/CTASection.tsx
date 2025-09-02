@@ -5,6 +5,14 @@ import { useNavigate } from "react-router-dom";
 export const CTASection: React.FC = () => {
   const navigate = useNavigate();
 
+  const handleCreateMessage = () => {
+    navigate("/create-message", { state: { fromButton: true } });
+    // Scroll to top after navigation
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
+
   return (
     <div className="h-full flex flex-col justify-center">
       <div className="text-center rounded-3xl p-16 backdrop-blur-sm border border-white/30">
@@ -16,7 +24,7 @@ export const CTASection: React.FC = () => {
         </p>
         <div className="flex justify-center">
           <Button
-            onClick={() => navigate('/create-message', { state: { fromButton: true } })}
+            onClick={handleCreateMessage}
             size="lg"
             className=" hover:bg-[#8279E6]
                 bg-[#938ef6]
