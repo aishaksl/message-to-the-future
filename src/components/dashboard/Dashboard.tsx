@@ -78,6 +78,19 @@ export const Dashboard = () => {
   >("sent");
   const [activeTab, setActiveTab] = useState<string>("received");
 
+  // Handle tab change with scroll position preservation
+  const handleTabChange = (newTab: string) => {
+    // Store current scroll position
+    const currentScrollY = window.scrollY;
+
+    setActiveTab(newTab);
+
+    // Restore scroll position after tab change
+    requestAnimationFrame(() => {
+      window.scrollTo(0, currentScrollY);
+    });
+  };
+
   useEffect(() => {
     // Load sent messages from localStorage
     const storedMessages = localStorage.getItem("sentMessages");
@@ -168,7 +181,13 @@ export const Dashboard = () => {
       const messageId = hash.replace("#message-", "");
 
       // Switch to sent tab when there's a message fragment
+      const currentScrollY = window.scrollY;
       setActiveTab("sent");
+
+      // Restore scroll position immediately after tab change
+      requestAnimationFrame(() => {
+        window.scrollTo(0, currentScrollY);
+      });
 
       const messageElement = document.getElementById(`message-${messageId}`);
 
@@ -602,7 +621,7 @@ export const Dashboard = () => {
           <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 overflow-hidden">
             <Tabs
               value={activeTab}
-              onValueChange={setActiveTab}
+              onValueChange={handleTabChange}
               className="w-full"
             >
               <div className="border-b border-blue-200/30">
