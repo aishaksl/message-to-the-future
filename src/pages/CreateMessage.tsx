@@ -16,7 +16,7 @@ const CreateMessage = () => {
   const isFromButton = location.state?.fromButton || false;
 
   // Get the original source to avoid payment page loops
-  const originalSource = location.state?.originalSource || '/';
+  const originalSource = location.state?.originalSource || "/";
 
   useEffect(() => {
     const checkMobile = () => {
@@ -31,7 +31,9 @@ const CreateMessage = () => {
 
   useEffect(() => {
     // Update document title based on mode
-    document.title = editingMessage ? "Edit Message - Message to the Future" : "Create Message - Message to the Future";
+    document.title = editingMessage
+      ? "Edit Message - Message to the Future"
+      : "Create Message - Message to the Future";
 
     // Cleanup on unmount
     return () => {
@@ -52,6 +54,10 @@ const CreateMessage = () => {
     } else {
       navigate(`/?view=${view}`);
     }
+    // Scroll to top after navigation
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
   };
 
   return (
@@ -66,8 +72,13 @@ const CreateMessage = () => {
           >
             {isFromButton ? (
               <>
-                <ArrowLeft className="h-5 w-5" style={{color: '#938ef6'}} />
-                <span className="text-base font-normal" style={{color: '#938ef6'}}>Back</span>
+                <ArrowLeft className="h-5 w-5" style={{ color: "#938ef6" }} />
+                <span
+                  className="text-base font-normal"
+                  style={{ color: "#938ef6" }}
+                >
+                  Back
+                </span>
               </>
             ) : (
               <>
@@ -84,13 +95,18 @@ const CreateMessage = () => {
         <div className="md:hidden p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex gap-4">
             <Button
-               variant="ghost"
-               onClick={() => navigate(originalSource)}
-               className="gap-2"
-             >
-               <ArrowLeft className="h-5 w-5" style={{color: '#938ef6'}} />
-               <span className="text-base font-normal" style={{color: '#938ef6'}}>Back</span>
-             </Button>
+              variant="ghost"
+              onClick={() => navigate(originalSource)}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-5 w-5" style={{ color: "#938ef6" }} />
+              <span
+                className="text-base font-normal"
+                style={{ color: "#938ef6" }}
+              >
+                Back
+              </span>
+            </Button>
           </div>
         </div>
       )}

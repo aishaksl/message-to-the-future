@@ -12,7 +12,6 @@ const Index = () => {
     "hero" | "create" | "dashboard" | "signin"
   >("hero");
 
-
   useEffect(() => {
     // Check URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -41,6 +40,15 @@ const Index = () => {
     { id: "create", label: "Create Message", icon: MessageSquarePlus },
     { id: "dashboard", label: "Dashboard", icon: BarChart3 },
   ];
+
+  const handleNavigation = (id: string) => {
+    setCurrentView(id as "hero" | "create" | "dashboard" | "signin");
+    window.history.pushState({}, "", id === "hero" ? "/" : `/?view=${id}`);
+    // Scroll to top after navigation
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,18 +80,12 @@ const Index = () => {
                   <Button
                     key={id}
                     variant="ghost"
-                    onClick={() => {
-                      setCurrentView(id as "hero" | "create" | "dashboard" | "signin");
-                      window.history.pushState(
-                        {},
-                        "",
-                        id === "hero" ? "/" : `/?view=${id}`
-                      );
-                    }}
-                    className={`font-light tracking-wide rounded-xl px-4 py-2 ${currentView === id
-                      ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                      }`}
+                    onClick={() => handleNavigation(id)}
+                    className={`font-light tracking-wide rounded-xl px-4 py-2 ${
+                      currentView === id
+                        ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    }`}
                   >
                     <Icon className="w-4 h-4" />
                     {label}
@@ -100,11 +102,12 @@ const Index = () => {
               <div className="hidden md:block">
                 <Button
                   variant="ghost"
-                  onClick={() => setCurrentView("signin")}
-                  className={`font-light tracking-wide rounded-xl px-4 py-2 ${currentView === "signin"
-                    ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                    }`}
+                  onClick={() => handleNavigation("signin")}
+                  className={`font-light tracking-wide rounded-xl px-4 py-2 ${
+                    currentView === "signin"
+                      ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  }`}
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   Sign In
@@ -130,18 +133,12 @@ const Index = () => {
             <Button
               key={id}
               variant="ghost"
-              onClick={() => {
-                setCurrentView(id as "hero" | "create" | "dashboard" | "signin");
-                window.history.pushState(
-                  {},
-                  "",
-                  id === "hero" ? "/" : `/?view=${id}`
-                );
-              }}
-              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${currentView === id
-                ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                }`}
+              onClick={() => handleNavigation(id)}
+              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${
+                currentView === id
+                  ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
             >
               <Icon className="w-4 h-4" />
               <span className="text-xs font-medium">
@@ -151,11 +148,12 @@ const Index = () => {
           ))}
           <Button
             variant="ghost"
-            onClick={() => setCurrentView("signin")}
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${currentView === "signin"
-              ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              }`}
+            onClick={() => handleNavigation("signin")}
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${
+              currentView === "signin"
+                ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
           >
             <LogIn className="w-4 h-4" />
             <span className="text-xs font-medium">Sign In</span>
