@@ -27,6 +27,8 @@ interface MessageContentCreatorProps {
   onExpandText: () => void;
   recipientType: "self" | "other";
   recipientName: string;
+  totalFileSize?: number;
+  maxFileSize?: number;
 }
 
 // Video thumbnail component
@@ -155,8 +157,22 @@ export const MessageContentCreator = ({
   onExpandText,
   recipientType,
   recipientName,
+  totalFileSize = 0,
+  maxFileSize = 60 * 1024 * 1024,
 }: MessageContentCreatorProps) => {
   const [isWriting, setIsWriting] = useState(false);
+
+  // Format file size for display
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 MB";
+    const mb = bytes / (1024 * 1024);
+    return `${mb.toFixed(1)} MB`;
+  };
+
+  // Calculate percentage for progress bar
+  const getUsagePercentage = () => {
+    return Math.min((totalFileSize / maxFileSize) * 100, 100);
+  };
 
   const removeFile = (fileIndex: number) => {
     setSelectedFiles((prev) => ({
@@ -170,9 +186,37 @@ export const MessageContentCreator = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
+      const fileArray = Array.from(files);
+
+      // Calculate total size of new files
+      const newFilesSize = fileArray.reduce((sum, file) => sum + file.size, 0);
+
+      // Check if adding these files would exceed the limit
+      if (totalFileSize + newFilesSize > maxFileSize) {
+        alert(
+          `Adding these files would exceed the 60MB limit. Current size: ${formatFileSize(
+            totalFileSize
+          )}, New files: ${formatFileSize(newFilesSize)}`
+        );
+        return;
+      }
+
+      // Check individual file sizes
+      const oversizedFiles = fileArray.filter(
+        (file) => file.size > maxFileSize
+      );
+      if (oversizedFiles.length > 0) {
+        alert(
+          `Some files exceed the 60MB limit: ${oversizedFiles
+            .map((f) => `${f.name} (${formatFileSize(f.size)})`)
+            .join(", ")}`
+        );
+        return;
+      }
+
       setSelectedFiles((prev) => ({
         ...prev,
-        [messageType]: Array.from(files),
+        [messageType]: fileArray,
       }));
     }
   };
@@ -198,6 +242,38 @@ export const MessageContentCreator = ({
           className="mt-2"
         />
       </div>
+
+      {/* File Size Indicator */}
+      {totalFileSize > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-blue-900">
+              Content Size: {formatFileSize(totalFileSize)} /{" "}
+              {formatFileSize(maxFileSize)}
+            </span>
+            <span className="text-xs text-blue-600">
+              {getUsagePercentage().toFixed(0)}% used
+            </span>
+          </div>
+          <div className="w-full bg-blue-200 rounded-full h-2">
+            <div
+              className={`h-2 rounded-full transition-all duration-300 ${
+                getUsagePercentage() > 90
+                  ? "bg-red-500"
+                  : getUsagePercentage() > 70
+                  ? "bg-yellow-500"
+                  : "bg-blue-500"
+              }`}
+              style={{ width: `${getUsagePercentage()}%` }}
+            />
+          </div>
+          {getUsagePercentage() > 90 && (
+            <p className="text-xs text-red-600 mt-1">
+              ⚠️ Approaching size limit. Consider removing some files.
+            </p>
+          )}
+        </div>
+      )}
 
       <div>
         <div className="flex items-center justify-between mb-2">

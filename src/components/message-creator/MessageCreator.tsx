@@ -13,6 +13,13 @@ import { differenceInDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  createMessage,
+  updateMessage,
+  deleteMessage,
+} from "@/firebase/firestore";
+import { uploadMultipleFiles } from "@/firebase/storage";
 
 // Import new components
 import { RecipientSelector } from "./RecipientSelector";
@@ -52,6 +59,7 @@ interface MessageCreatorProps {
 export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [messageText, setMessageText] = useState("");
@@ -87,6 +95,30 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  // Calculate total file size
+  const getTotalFileSize = () => {
+    const allFiles = [
+      ...selectedFiles.image,
+      ...selectedFiles.video,
+      ...selectedFiles.audio,
+    ];
+    return allFiles.reduce((sum, file) => sum + file.size, 0);
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 MB";
+    const mb = bytes / (1024 * 1024);
+    return `${mb.toFixed(1)} MB`;
+  };
+
+  // Handle navigation after successful message creation
+  useEffect(() => {
+    if (shouldNavigate) {
+      navigate("/?view=dashboard");
+      setShouldNavigate(false);
+    }
+  }, [shouldNavigate, navigate]);
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -104,7 +136,9 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
       // Get the message ID from localStorage to scroll to it
       const messageId = localStorage.getItem("newMessageId");
       // Use window.location to ensure proper navigation with message fragment
-      window.location.href = messageId ? `/?view=dashboard#message-${messageId}` : "/?view=dashboard";
+      window.location.href = messageId
+        ? `/?view=dashboard#message-${messageId}`
+        : "/?view=dashboard";
       setShouldNavigate(false);
     }
   }, [shouldNavigate, navigate]);
@@ -114,12 +148,18 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
     if (editingMessage) {
       // Pre-populate form with editing message data
       setRecipientType(editingMessage.recipientType || "self");
-      setRecipientName(editingMessage.recipientName === "Future Me" ? "" : editingMessage.recipientName);
+      setRecipientName(
+        editingMessage.recipientName === "Future Me"
+          ? ""
+          : editingMessage.recipientName
+      );
       setRecipientEmail(editingMessage.recipientEmail || "");
       setRecipientPhone(editingMessage.recipientPhone || "");
       setDeliveryMethod(editingMessage.deliveryMethod);
       setIsSurpriseMode(editingMessage.isSurprise);
-      setSelectedTypes([editingMessage.type as "text" | "image" | "video" | "audio"]);
+      setSelectedTypes([
+        editingMessage.type as "text" | "image" | "video" | "audio",
+      ]);
       setSubject(editingMessage.subject);
       setMessageText(editingMessage.content);
       setCurrentStep(1); // Start from first step when editing
@@ -131,7 +171,7 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
 
       // Handle media files if they exist
       if (editingMessage.mediaFiles) {
-        // Note: We can't restore actual File objects from base64, 
+        // Note: We can't restore actual File objects from base64,
         // but we can show that media exists in the preview
         // This is a limitation of the current implementation
       }
@@ -260,125 +300,227 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
   // Helper function to convert file to base64
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
+      console.log("Converting file to base64:", file.name, file.size);
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
+      reader.onload = () => {
+        console.log("File conversion successful:", file.name);
+        resolve(reader.result as string);
+      };
+      reader.onerror = (error) => {
+        console.error("File conversion failed:", file.name, error);
+        reject(error);
+      };
     });
   };
 
   const handleDelete = async () => {
-    if (!editingMessage) return;
+    if (!editingMessage || !user) return;
 
-    const existingMessages = JSON.parse(
-      localStorage.getItem("sentMessages") || "[]"
-    );
+    try {
+      const { error } = await deleteMessage(editingMessage.id!);
 
-    const updatedMessages = existingMessages.filter((msg: Message) => msg.id !== editingMessage.id);
-    localStorage.setItem("sentMessages", JSON.stringify(updatedMessages));
+      if (error) {
+        toast({
+          title: "Error deleting message",
+          description: error,
+          variant: "destructive",
+        });
+        return;
+      }
 
-    toast({
-      title: "Message deleted successfully!",
-      description: "Redirecting to dashboard...",
-    });
+      toast({
+        title: "Message deleted successfully!",
+        description: "Redirecting to dashboard...",
+      });
 
-    // Trigger a custom event to notify dashboard of deleted message
-    window.dispatchEvent(new CustomEvent('newMessageCreated', { detail: { messageId: editingMessage.id } }));
+      // Trigger a custom event to notify dashboard of deleted message
+      window.dispatchEvent(
+        new CustomEvent("newMessageCreated", {
+          detail: { messageId: editingMessage.id },
+        })
+      );
 
-    // Navigate back to dashboard
-    navigate("/dashboard");
+      // Navigate back to dashboard
+      navigate("/?view=dashboard");
+    } catch (error) {
+      toast({
+        title: "Error deleting message",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleComplete = async () => {
     setIsLoading(true);
 
-    // Convert all selected files to base64
-    const mediaFiles: {
-      images?: string[];
-      videos?: string[];
-      audios?: string[];
-    } = {};
-
-    try {
-      if (selectedFiles.image.length > 0) {
-        mediaFiles.images = await Promise.all(
-          selectedFiles.image.map(file => fileToBase64(file))
-        );
-      }
-      if (selectedFiles.video.length > 0) {
-        mediaFiles.videos = await Promise.all(
-          selectedFiles.video.map(file => fileToBase64(file))
-        );
-      }
-      if (selectedFiles.audio.length > 0) {
-        mediaFiles.audios = await Promise.all(
-          selectedFiles.audio.map(file => fileToBase64(file))
-        );
-      }
-    } catch (error) {
-      console.error('Error converting files to base64:', error);
+    if (!user) {
       toast({
-        title: "Error processing files",
-        description: "There was an error processing your media files.",
+        title: "Authentication required",
+        description: "Please sign in to create messages.",
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    const message = {
-      id: editingMessage ? editingMessage.id : Date.now().toString(),
-      subject,
-      content: messageText,
-      type: selectedTypes.length > 0 ? selectedTypes[0] : "text",
-      deliveryDate: selectedDate,
-      recipientType,
-      recipientName: recipientType === "self" ? "Future Me" : recipientName,
-      recipientEmail,
-      recipientPhone,
-      deliveryMethod,
-      status: "scheduled",
-      createdAt: editingMessage ? editingMessage.createdAt : new Date(),
-      isSurprise: isSurpriseMode,
-      preview: messageText
-        ? messageText.substring(0, 100) +
-        (messageText.length > 100 ? "..." : "")
-        : `${selectedTypes.join(", ")} message`,
-      mediaFiles: Object.keys(mediaFiles).length > 0 ? mediaFiles : undefined,
-    };
+    // Check total file size limit (60MB)
+    const MAX_TOTAL_SIZE = 60 * 1024 * 1024; // 60MB in bytes
+    const allFiles = [
+      ...selectedFiles.image,
+      ...selectedFiles.video,
+      ...selectedFiles.audio,
+    ];
 
-    // Simulate processing time while staying on current page
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const totalSize = allFiles.reduce((sum, file) => sum + file.size, 0);
 
-    const existingMessages = JSON.parse(
-      localStorage.getItem("sentMessages") || "[]"
-    );
-
-    if (editingMessage) {
-      // Update existing message
-      const messageIndex = existingMessages.findIndex((msg: Message) => msg.id === editingMessage.id);
-      if (messageIndex !== -1) {
-        existingMessages[messageIndex] = message;
-      }
-    } else {
-      // Create new message
-      existingMessages.unshift(message);
+    if (totalSize > MAX_TOTAL_SIZE) {
+      const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(1);
+      toast({
+        title: "Content too large",
+        description: `Total content size is ${totalSizeMB}MB. Maximum allowed is 60MB.`,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
     }
 
-    localStorage.setItem("sentMessages", JSON.stringify(existingMessages));
-    localStorage.setItem("newMessageId", message.id);
+    // Upload media files to Firebase Storage (requires Blaze plan)
+    const mediaUrls: string[] = [];
+
+    try {
+      console.log("Uploading files to Firebase Storage...");
+
+      // Upload images
+      if (selectedFiles.image.length > 0) {
+        console.log("Uploading images...", selectedFiles.image.length);
+        const { urls, errors } = await uploadMultipleFiles(
+          selectedFiles.image,
+          `messages/${user.uid}/images`
+        );
+        mediaUrls.push(...urls);
+
+        if (errors.length > 0) {
+          throw new Error(`Image upload failed: ${errors.join(", ")}`);
+        }
+      }
+
+      // Upload videos
+      if (selectedFiles.video.length > 0) {
+        console.log("Uploading videos...", selectedFiles.video.length);
+        const { urls, errors } = await uploadMultipleFiles(
+          selectedFiles.video,
+          `messages/${user.uid}/videos`
+        );
+        mediaUrls.push(...urls);
+
+        if (errors.length > 0) {
+          throw new Error(`Video upload failed: ${errors.join(", ")}`);
+        }
+      }
+
+      // Upload audio files
+      if (selectedFiles.audio.length > 0) {
+        console.log("Uploading audio files...", selectedFiles.audio.length);
+        const { urls, errors } = await uploadMultipleFiles(
+          selectedFiles.audio,
+          `messages/${user.uid}/audios`
+        );
+        mediaUrls.push(...urls);
+
+        if (errors.length > 0) {
+          throw new Error(`Audio upload failed: ${errors.join(", ")}`);
+        }
+      }
+
+      console.log(
+        "All files uploaded successfully. Total URLs:",
+        mediaUrls.length
+      );
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      toast({
+        title: "Storage not available",
+        description:
+          "Please upgrade to Blaze plan to use Firebase Storage for media files.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const messageData: unknown = {
+      senderId: user.uid,
+      recipientEmail:
+        recipientType === "self" ? user.email || "" : recipientEmail,
+      recipientName: recipientType === "self" ? "Future Me" : recipientName,
+      recipientType,
+      subject,
+      content: messageText,
+      type: (selectedTypes.length > 0 ? selectedTypes[0] : "text") as
+        | "text"
+        | "image"
+        | "video"
+        | "audio",
+      deliveryDate: selectedDate || new Date(),
+      deliveryMethod,
+      status: "scheduled" as const,
+      isSurprise: isSurpriseMode,
+    };
+
+    // Only add optional fields if they have values
+    if (recipientType === "self") {
+      messageData.recipientId = user.uid;
+    }
+    if (recipientPhone && recipientPhone.trim()) {
+      messageData.recipientPhone = recipientPhone;
+    }
+
+    // Only add mediaUrls if there are any
+    if (mediaUrls.length > 0) {
+      messageData.mediaUrls = mediaUrls;
+    }
+
+    let result;
+    if (editingMessage) {
+      // Update existing message
+      result = await updateMessage(editingMessage.id!, messageData);
+    } else {
+      // Create new message
+      result = await createMessage(messageData);
+    }
+
+    if (result.error) {
+      toast({
+        title: "Error saving message",
+        description: result.error,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const messageId = result.id || editingMessage?.id;
+    localStorage.setItem("newMessageId", messageId || "");
 
     setIsLoading(false);
 
     toast({
-      title: editingMessage ? "Message updated successfully!" : "Message scheduled successfully!",
+      title: editingMessage
+        ? "Message updated successfully!"
+        : "Message scheduled successfully!",
       description: "Redirecting to dashboard...",
     });
 
     // Trigger a custom event to notify dashboard of new/updated message
-    window.dispatchEvent(new CustomEvent('newMessageCreated', { detail: { messageId: message.id } }));
+    window.dispatchEvent(
+      new CustomEvent("newMessageCreated", {
+        detail: { messageId },
+      })
+    );
 
-    // Trigger navigation using modern React approach
+    // Trigger navigation using state
     setShouldNavigate(true);
   };
 
@@ -440,6 +582,8 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
             }}
             recipientType={recipientType}
             recipientName={recipientName}
+            totalFileSize={getTotalFileSize()}
+            maxFileSize={60 * 1024 * 1024}
           />
         );
 
@@ -493,19 +637,44 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
       {/* Decorative Background Bubbles */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Large bubbles */}
-        <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-500/20 top-10 left-10" style={{ borderRadius: '50% 30% 70% 40%' }}></div>
-        <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-pink-300/20 to-purple-400/20 top-32 right-16" style={{ borderRadius: '60% 40% 30% 70%' }}></div>
-        <div className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-cyan-300/15 to-blue-400/15 bottom-20 left-20" style={{ borderRadius: '40% 60% 70% 30%' }}></div>
-        <div className="absolute w-28 h-28 rounded-full bg-gradient-to-br from-violet-300/18 to-purple-500/18 top-16 right-1/3" style={{ borderRadius: '45% 55% 65% 35%' }}></div>
+        <div
+          className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-500/20 top-10 left-10"
+          style={{ borderRadius: "50% 30% 70% 40%" }}
+        ></div>
+        <div
+          className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-pink-300/20 to-purple-400/20 top-32 right-16"
+          style={{ borderRadius: "60% 40% 30% 70%" }}
+        ></div>
+        <div
+          className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-cyan-300/15 to-blue-400/15 bottom-20 left-20"
+          style={{ borderRadius: "40% 60% 70% 30%" }}
+        ></div>
+        <div
+          className="absolute w-28 h-28 rounded-full bg-gradient-to-br from-violet-300/18 to-purple-500/18 top-16 right-1/3"
+          style={{ borderRadius: "45% 55% 65% 35%" }}
+        ></div>
 
         {/* Medium bubbles */}
-        <div className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-yellow-200/30 to-orange-300/30 bottom-1/3 right-10" style={{ borderRadius: '30% 70% 40% 60%' }}></div>
-        <div className="absolute w-18 h-18 rounded-full bg-gradient-to-br from-amber-300/22 to-yellow-400/22 top-2/3 left-1/2" style={{ borderRadius: '55% 45% 35% 65%' }}></div>
-        <div className="absolute w-22 h-22 rounded-full bg-gradient-to-br from-sky-300/20 to-cyan-400/20 bottom-1/2 right-1/3" style={{ borderRadius: '40% 60% 50% 50%' }}></div>
-
+        <div
+          className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-yellow-200/30 to-orange-300/30 bottom-1/3 right-10"
+          style={{ borderRadius: "30% 70% 40% 60%" }}
+        ></div>
+        <div
+          className="absolute w-18 h-18 rounded-full bg-gradient-to-br from-amber-300/22 to-yellow-400/22 top-2/3 left-1/2"
+          style={{ borderRadius: "55% 45% 35% 65%" }}
+        ></div>
+        <div
+          className="absolute w-22 h-22 rounded-full bg-gradient-to-br from-sky-300/20 to-cyan-400/20 bottom-1/2 right-1/3"
+          style={{ borderRadius: "40% 60% 50% 50%" }}
+        ></div>
       </div>
 
-      <div className={cn("mx-auto relative z-10", isMobile ? "max-w-md" : "max-w-4xl")}>
+      <div
+        className={cn(
+          "mx-auto relative z-10",
+          isMobile ? "max-w-md" : "max-w-4xl"
+        )}
+      >
         {/* Both Mobile and Desktop: Use same layout */}
         <DesktopLayout
           recipientType={recipientType}
@@ -555,12 +724,12 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
                 {previewFile?.type.startsWith("image/")
                   ? "Your Image"
                   : previewFile?.type.startsWith("video/")
-                    ? "Your Video"
-                    : previewFile?.type.startsWith("audio/")
-                      ? "Your Audio"
-                      : previewFile?.type === "text/plain"
-                        ? "Your Text"
-                        : "File Preview"}
+                  ? "Your Video"
+                  : previewFile?.type.startsWith("audio/")
+                  ? "Your Audio"
+                  : previewFile?.type === "text/plain"
+                  ? "Your Text"
+                  : "File Preview"}
               </DialogTitle>
             </DialogHeader>
             {previewFile && (
@@ -646,8 +815,6 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
             )}
           </DialogContent>
         </Dialog>
-
-
       </div>
     </div>
   );

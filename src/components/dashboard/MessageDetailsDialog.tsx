@@ -42,25 +42,30 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface Message {
-  id: string;
+  id?: string;
+  senderId: string;
+  recipientId?: string;
+  recipientEmail?: string;
+  recipientPhone?: string;
+  recipientName: string;
+  recipientType: 'self' | 'other';
   subject: string;
   content: string;
   type: "text" | "image" | "video" | "audio";
-  deliveryDate?: Date | string;
-  recipientName: string;
-  recipientEmail?: string;
-  recipientPhone?: string;
+  deliveryDate: Date;
   deliveryMethod: "email" | "whatsapp" | "both";
-  status: string;
-  createdAt: Date | string;
+  status: "scheduled" | "delivered" | "failed";
   isSurprise: boolean;
-  preview: string;
+  mediaUrls?: string[];
+  createdAt: Date;
+  deliveredAt?: Date;
+  preview?: string;
   senderName?: string;
-  // Media file data
+  // Legacy media file data for backward compatibility
   mediaFiles?: {
-    images?: string[]; // base64 encoded images
-    videos?: string[]; // base64 encoded videos
-    audios?: string[]; // base64 encoded audio files
+    images?: string[];
+    videos?: string[];
+    audios?: string[];
   };
 }
 

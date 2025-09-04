@@ -20,32 +20,45 @@ import {
   Eye,
   Gift,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageDetailsDialog } from "@/components/dashboard/MessageDetailsDialog";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  getUserMessages,
+  getReceivedMessages,
+  Message as FirebaseMessage,
+} from "@/firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
-  id: string;
+  id?: string;
+  senderId: string;
+  recipientId?: string;
+  recipientEmail?: string;
+  recipientPhone?: string;
+  recipientName: string;
+  recipientType: 'self' | 'other';
   subject: string;
   content: string;
   type: "text" | "image" | "video" | "audio";
-  deliveryDate?: Date | string;
-  recipientName: string;
-  recipientEmail?: string;
-  recipientPhone?: string;
+  deliveryDate: Date;
   deliveryMethod: "email" | "whatsapp" | "both";
-  status: string;
-  createdAt: Date | string;
+  status: "scheduled" | "delivered" | "failed";
   isSurprise: boolean;
-  preview: string;
+  mediaUrls?: string[];
+  createdAt: Date;
+  deliveredAt?: Date;
+  preview?: string; // Optional field for UI display
   senderName?: string;
-  // Media file data
+  // Legacy media file data for backward compatibility
   mediaFiles?: {
-    images?: string[]; // base64 encoded images
-    videos?: string[]; // base64 encoded videos
-    audios?: string[]; // base64 encoded audio files
+    images?: string[];
+    videos?: string[];
+    audios?: string[];
   };
 }
 
@@ -69,7 +82,11 @@ interface LegacyMessage {
 
 export const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [sentMessages, setSentMessages] = useState<Message[]>([]);
+  const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newMessageId, setNewMessageId] = useState<string | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
@@ -91,29 +108,62 @@ export const Dashboard = () => {
     });
   };
 
-  useEffect(() => {
-    // Load sent messages from localStorage
-    const storedMessages = localStorage.getItem("sentMessages");
-    if (storedMessages) {
-      const messages = JSON.parse(storedMessages);
-      // Convert date strings back to Date objects and fix any legacy data structure
-      const processedMessages = messages.map((message: LegacyMessage) => ({
-        ...message,
-        // Fix legacy 'types' field to 'type' field
-        type:
-          message.type ||
-          (message.types && message.types.length > 0
-            ? message.types[0]
-            : "text"),
-        deliveryDate: message.deliveryDate
-          ? new Date(message.deliveryDate)
-          : null,
-        createdAt: message.createdAt ? new Date(message.createdAt) : null,
-      }));
-      setSentMessages(processedMessages);
+  // Load messages from Firebase
+  const loadMessages = async () => {
+    if (!user) return;
 
-      // Save the migrated data back to localStorage
-      localStorage.setItem("sentMessages", JSON.stringify(processedMessages));
+    setLoading(true);
+    try {
+      // Load sent messages
+      const { messages: sent, error: sentError } = await getUserMessages(
+        user.uid
+      );
+      if (sentError) {
+        toast({
+          title: "Error loading sent messages",
+          description: sentError,
+          variant: "destructive",
+        });
+      } else {
+        // Add preview field to Firebase messages
+        const messagesWithPreview = (sent || []).map((msg: FirebaseMessage) => ({
+          ...msg,
+          preview: msg.content ? msg.content.substring(0, 100) + (msg.content.length > 100 ? '...' : '') : ''
+        }));
+        setSentMessages(messagesWithPreview);
+      }
+
+      // Load received messages
+      const { messages: received, error: receivedError } =
+        await getReceivedMessages(user.email || "");
+      if (receivedError) {
+        toast({
+          title: "Error loading received messages",
+          description: receivedError,
+          variant: "destructive",
+        });
+      } else {
+        // Add preview field to Firebase messages
+        const receivedWithPreview = (received || []).map((msg: FirebaseMessage) => ({
+          ...msg,
+          preview: msg.content ? msg.content.substring(0, 100) + (msg.content.length > 100 ? '...' : '') : ''
+        }));
+        setReceivedMessages(receivedWithPreview);
+      }
+    } catch (error) {
+      toast({
+        title: "Error loading messages",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      loadMessages();
     }
 
     // Check for newly created message ID
@@ -132,23 +182,9 @@ export const Dashboard = () => {
     const handleNewMessage = (event: CustomEvent) => {
       const { messageId } = event.detail;
 
-      // Reload messages from localStorage
-      const updatedMessages = localStorage.getItem("sentMessages");
-      if (updatedMessages) {
-        const messages = JSON.parse(updatedMessages);
-        const processedMessages = messages.map((message: LegacyMessage) => ({
-          ...message,
-          type:
-            message.type ||
-            (message.types && message.types.length > 0
-              ? message.types[0]
-              : "text"),
-          deliveryDate: message.deliveryDate
-            ? new Date(message.deliveryDate)
-            : null,
-          createdAt: message.createdAt ? new Date(message.createdAt) : null,
-        }));
-        setSentMessages(processedMessages);
+      // Reload messages from Firebase
+      if (user) {
+        loadMessages();
       }
 
       // Set the new message ID for animation
@@ -171,7 +207,7 @@ export const Dashboard = () => {
         handleNewMessage as EventListener
       );
     };
-  }, []);
+  }, [user]);
 
   // Handle auto-scrolling to specific message
   useEffect(() => {
@@ -254,41 +290,7 @@ export const Dashboard = () => {
     }
   }, [sentMessages]); // Re-run when messages are loaded
 
-  // Mock data for demonstration
-  const receivedMessages: Message[] = [
-    {
-      id: "1",
-      subject: "Birthday Message",
-      content: "Happy birthday! I hope you achieved everything you wanted...",
-      type: "text",
-      deliveryDate: new Date(2023, 5, 15),
-      recipientName: "You",
-      recipientEmail: "user@example.com",
-      recipientPhone: "",
-      deliveryMethod: "email",
-      status: "delivered",
-      createdAt: new Date(2023, 5, 15),
-      isSurprise: false,
-      preview: "Happy birthday! I hope you achieved everything you wanted...",
-      senderName: "Past You",
-    },
-    {
-      id: "2",
-      subject: "New Year Wishes",
-      content: "A special video message from your past self",
-      type: "video",
-      deliveryDate: new Date(2023, 8, 22),
-      recipientName: "You",
-      recipientEmail: "user@example.com",
-      recipientPhone: "",
-      deliveryMethod: "email",
-      status: "delivered",
-      createdAt: new Date(2023, 8, 22),
-      isSurprise: false,
-      preview: "A special video message from your past self",
-      senderName: "Your Past Self",
-    },
-  ];
+  // receivedMessages is now loaded from Firebase in useEffect
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -347,25 +349,25 @@ export const Dashboard = () => {
         initial={
           isNewMessage
             ? {
-                opacity: 0.6,
-                scale: 0.98,
-                backgroundColor: "rgba(255, 255, 255, 0.8)",
-              }
+              opacity: 0.6,
+              scale: 0.98,
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
+            }
             : false
         }
         animate={
           isNewMessage
             ? {
-                opacity: [0.6, 1, 0.6, 1, 1],
-                scale: [0.98, 1, 0.98, 1, 1],
-                backgroundColor: [
-                  "rgba(255, 255, 255, 0.8)",
-                  "rgba(219, 234, 254, 0.9)",
-                  "rgba(255, 255, 255, 0.8)",
-                  "rgba(219, 234, 254, 0.9)",
-                  "rgba(255, 255, 255, 0.8)",
-                ],
-              }
+              opacity: [0.6, 1, 0.6, 1, 1],
+              scale: [0.98, 1, 0.98, 1, 1],
+              backgroundColor: [
+                "rgba(255, 255, 255, 0.8)",
+                "rgba(219, 234, 254, 0.9)",
+                "rgba(255, 255, 255, 0.8)",
+                "rgba(219, 234, 254, 0.9)",
+                "rgba(255, 255, 255, 0.8)",
+              ],
+            }
             : {}
         }
         transition={
@@ -415,13 +417,12 @@ export const Dashboard = () => {
         {/* Subtle Status Indicator */}
         <div className="absolute top-4 right-4">
           <div
-            className={`w-2 h-2 rounded-full ${
-              message.status === "delivered"
-                ? "bg-gradient-to-br from-emerald-400 to-emerald-500"
-                : message.status === "scheduled"
+            className={`w-2 h-2 rounded-full ${message.status === "delivered"
+              ? "bg-gradient-to-br from-emerald-400 to-emerald-500"
+              : message.status === "scheduled"
                 ? "bg-gradient-to-br from-blue-400 to-purple-500"
                 : "bg-gradient-to-br from-slate-400 to-slate-500"
-            }`}
+              }`}
           ></div>
         </div>
       </motion.div>
@@ -469,6 +470,36 @@ export const Dashboard = () => {
     }
     // For received messages, we don't delete anything since they're read-only
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white relative overflow-hidden flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading your messages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show sign in prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-white relative overflow-hidden flex items-center justify-center">
+        <div className="text-center">
+          <MessageSquare className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-2xl font-light mb-2">
+            Sign in to view your messages
+          </h2>
+          <p className="text-muted-foreground mb-4">
+            Access your dashboard and manage your time messages
+          </p>
+          <Button onClick={() => navigate("/?view=signin")}>Sign In</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -651,11 +682,11 @@ export const Dashboard = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="p-12 text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-100/30">
-                      <Inbox className="h-8 w-8 text-blue-600" />
+                  <div className="flex flex-col justify-center items-center p-6 border-2 border-dashed border-purple-200/50 rounded-xl text-center bg-gradient-to-br from-blue-50/50 to-purple-50/50 space-y-4">
+                    <div >
+                      <Inbox className="w-8 h-8 text-[#938ef6]" />
                     </div>
-                    <p className="text-blue-700/70 font-light">
+                    <p className="text-black/50 text-sm mb-3 font-light">
                       No received messages yet
                     </p>
                   </div>
@@ -686,15 +717,12 @@ export const Dashboard = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-12 text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-100/30">
-                      <Send className="h-8 w-8 text-purple-600" />
-                    </div>
-                    <p className="text-purple-700/70 font-light mb-4">
+                  <div className="p-6 border-2 border-dashed border-purple-200/50 rounded-xl text-center">
+                    <p className="text-black/50 text-sm mb-3 font-light">
                       No sent messages yet
                     </p>
                     <button
-                      className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
+                      className="bg-purple-400 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
                       onClick={() =>
                         navigate("/create-message", {
                           state: { fromButton: true },
@@ -714,7 +742,7 @@ export const Dashboard = () => {
         {/* Desktop Side-by-Side Layout - Zen Design */}
         <div className="hidden lg:grid lg:grid-cols-2 gap-8">
           {/* Received Messages */}
-          <div className="bg-gradient-to-br from-white/90 to-blue-50/50 backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 overflow-hidden">
+          <div className="backdrop-blur-xl border border-blue-200/40 rounded-2xl shadow-lg shadow-blue-100/20 overflow-hidden">
             <div className="p-6 border-b border-blue-200/30">
               <h3 className="text-xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-600 to-purple-700 flex items-center gap-3">
                 <div className="w-8 h-8 bg-[#938ef6] rounded-xl flex items-center justify-center shadow-lg shadow-blue-200/30">
@@ -731,11 +759,11 @@ export const Dashboard = () => {
                   )}
                 </div>
               ) : (
-                <div className="p-12 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-100/30">
-                    <Inbox className="h-8 w-8 text-blue-600" />
+                <div className="flex flex-col justify-center items-center p-6 border-2 border-dashed border-purple-200/50 rounded-xl text-center bg-gradient-to-br from-blue-50/50 to-purple-50/50 space-y-4">
+                  <div>
+                    <Inbox className="h-8 w-8 text-[#938ef6]" />
                   </div>
-                  <p className="text-blue-700/70 font-light">
+                  <p className="text-slate-600 font-light">
                     No received messages yet
                   </p>
                 </div>
@@ -761,12 +789,12 @@ export const Dashboard = () => {
                   )}
                 </div>
               ) : (
-                <div className="p-6 border-2 border-dashed border-purple-200/50 rounded-xl text-center bg-gradient-to-br from-blue-50/50 to-purple-50/50">
-                  <p className="text-purple-700/70 text-sm mb-3 font-light">
+                <div className="p-6 border-2 border-dashed border-slate-200 rounded-xl text-center bg-slate-50">
+                  <p className="text-slate-600 text-sm mb-3 font-light">
                     Ready to send another message through time?
                   </p>
                   <button
-                    className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-light transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto"
+                    className="bg-[#938ef6] hover:bg-[#8279E6] text-white px-4 py-2 rounded-xl font-light transition-all duration-300 flex items-center justify-center gap-2 mx-auto"
                     onClick={() =>
                       navigate("/create-message", {
                         state: { fromButton: true },

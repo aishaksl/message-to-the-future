@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Lock, User, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { createUserProfile } from "@/firebase/firestore";
 
 export const SignIn = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     name: "",
   });
+
+  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { toast } = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -22,32 +27,152 @@ export const SignIn = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle authentication logic here
-    console.log("Form submitted:", formData);
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        // Sign Up
+        const { user, error } = await signUp(
+          formData.email,
+          formData.password,
+          formData.name
+        );
+
+        if (error) {
+          toast({
+            title: "Sign up failed",
+            description: error,
+            variant: "destructive",
+          });
+        } else if (user) {
+          // Create user profile in Firestore
+          await createUserProfile(user.uid, {
+            email: formData.email,
+            displayName: formData.name,
+            preferences: {
+              notifications: true,
+              emailUpdates: true,
+            },
+          });
+
+          toast({
+            title: "Account created successfully!",
+            description: "Welcome to YourTimeDrawer!",
+          });
+        }
+      } else {
+        // Sign In
+        const { user, error } = await signIn(formData.email, formData.password);
+
+        if (error) {
+          toast({
+            title: "Sign in failed",
+            description: error,
+            variant: "destructive",
+          });
+        } else if (user) {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+          });
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "An error occurred",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const { user, error } = await signInWithGoogle();
+
+      if (error) {
+        toast({
+          title: "Google sign in failed",
+          description: error,
+          variant: "destructive",
+        });
+      } else if (user) {
+        // Create/update user profile
+        await createUserProfile(user.uid, {
+          email: user.email || "",
+          displayName: user.displayName || "",
+          preferences: {
+            notifications: true,
+            emailUpdates: true,
+          },
+        });
+
+        toast({
+          title: "Welcome!",
+          description: "You have successfully signed in with Google.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "An error occurred",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="h-screen bg-white flex items-center justify-center px-4 relative overflow-hidden -mt-16 md:mt-0">
-
-
       {/* Decorative Background Bubbles */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Large bubbles */}
-        <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-500/20 top-10 left-10" style={{ borderRadius: '50% 30% 70% 40%' }}></div>
-        <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-pink-300/20 to-purple-400/20 top-32 right-16" style={{ borderRadius: '60% 40% 30% 70%' }}></div>
-        <div className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-cyan-300/15 to-blue-400/15 bottom-20 left-20" style={{ borderRadius: '40% 60% 70% 30%' }}></div>
-        <div className="absolute w-28 h-28 rounded-full bg-gradient-to-br from-violet-300/18 to-purple-500/18 top-16 right-1/3" style={{ borderRadius: '45% 55% 65% 35%' }}></div>
+        <div
+          className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-500/20 top-10 left-10"
+          style={{ borderRadius: "50% 30% 70% 40%" }}
+        ></div>
+        <div
+          className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-pink-300/20 to-purple-400/20 top-32 right-16"
+          style={{ borderRadius: "60% 40% 30% 70%" }}
+        ></div>
+        <div
+          className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-cyan-300/15 to-blue-400/15 bottom-20 left-20"
+          style={{ borderRadius: "40% 60% 70% 30%" }}
+        ></div>
+        <div
+          className="absolute w-28 h-28 rounded-full bg-gradient-to-br from-violet-300/18 to-purple-500/18 top-16 right-1/3"
+          style={{ borderRadius: "45% 55% 65% 35%" }}
+        ></div>
 
         {/* Medium bubbles */}
-        <div className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-yellow-200/30 to-orange-300/30 bottom-1/3 right-10" style={{ borderRadius: '30% 70% 40% 60%' }}></div>
-        <div className="absolute w-18 h-18 rounded-full bg-gradient-to-br from-amber-300/22 to-yellow-400/22 top-2/3 left-1/2" style={{ borderRadius: '55% 45% 35% 65%' }}></div>
+        <div
+          className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-yellow-200/30 to-orange-300/30 bottom-1/3 right-10"
+          style={{ borderRadius: "30% 70% 40% 60%" }}
+        ></div>
+        <div
+          className="absolute w-18 h-18 rounded-full bg-gradient-to-br from-amber-300/22 to-yellow-400/22 top-2/3 left-1/2"
+          style={{ borderRadius: "55% 45% 35% 65%" }}
+        ></div>
 
         {/* Small bubbles */}
-        <div className="absolute w-12 h-12 rounded-full bg-gradient-to-br from-emerald-200/25 to-teal-300/25 top-1/4 left-1/4" style={{ borderRadius: '65% 35% 45% 55%' }}></div>
-        <div className="absolute w-14 h-14 rounded-full bg-gradient-to-br from-rose-200/20 to-pink-300/20 bottom-1/4 right-1/4" style={{ borderRadius: '35% 65% 55% 45%' }}></div>
-        <div className="absolute w-10 h-10 rounded-full bg-gradient-to-br from-sky-200/30 to-cyan-300/30 top-3/4 right-3/4" style={{ borderRadius: '50% 50% 30% 70%' }}></div>
+        <div
+          className="absolute w-12 h-12 rounded-full bg-gradient-to-br from-emerald-200/25 to-teal-300/25 top-1/4 left-1/4"
+          style={{ borderRadius: "65% 35% 45% 55%" }}
+        ></div>
+        <div
+          className="absolute w-14 h-14 rounded-full bg-gradient-to-br from-rose-200/20 to-pink-300/20 bottom-1/4 right-1/4"
+          style={{ borderRadius: "35% 65% 55% 45%" }}
+        ></div>
+        <div
+          className="absolute w-10 h-10 rounded-full bg-gradient-to-br from-sky-200/30 to-cyan-300/30 top-3/4 right-3/4"
+          style={{ borderRadius: "50% 50% 30% 70%" }}
+        ></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
@@ -58,8 +183,7 @@ export const SignIn = () => {
           <p className="text-muted-foreground text-lg font-light">
             {isSignUp
               ? "Start your journey through time"
-              : "Continue your journey through time"
-            }
+              : "Continue your journey through time"}
           </p>
         </div>
 
@@ -115,7 +239,11 @@ export const SignIn = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-blue-300 transition-colors duration-200"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -132,8 +260,21 @@ export const SignIn = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full h-10 md:h-12 rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500  text-white font-medium shadow-lg shadow-blue-300/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-300/30 hover:scale-[1.02]">
-              {isSignUp ? "Create Account" : "Sign In"}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-10 md:h-12 rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500  text-white font-medium shadow-lg shadow-blue-300/25 transition-all duration-300 hover:shadow-xl hover:shadow-blue-300/30 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isSignUp ? "Creating Account..." : "Signing In..."}
+                </>
+              ) : isSignUp ? (
+                "Create Account"
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
 
@@ -142,12 +283,21 @@ export const SignIn = () => {
               <Separator />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="h-10 md:h-12 rounded-xl bg-white/50 dark:bg-background/50 border-slate-200/50 dark:border-border/50 transition-all duration-200 hover:bg-white dark:hover:bg-background/70 hover:border-slate-300 dark:hover:border-border hover:shadow-md">
+          <Button
+            variant="outline"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full h-10 md:h-12 rounded-xl bg-white/50 dark:bg-background/50 border-slate-200/50 dark:border-border/50 transition-all duration-200 hover:bg-white dark:hover:bg-background/70 hover:border-slate-300 dark:hover:border-border hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -166,18 +316,9 @@ export const SignIn = () => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span className="font-medium">Google</span>
-            </Button>
-            <Button variant="outline" className="h-10 md:h-12 rounded-xl bg-white/50 dark:bg-background/50 border-slate-200/50 dark:border-border/50 transition-all duration-200 hover:bg-white dark:hover:bg-background/70 hover:border-slate-300 dark:hover:border-border hover:shadow-md">
-              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                <path
-                  fill="#1877F2"
-                  d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-                />
-              </svg>
-              <span className="font-medium">Facebook</span>
-            </Button>
-          </div>
+            )}
+            <span className="font-medium">Continue with Google</span>
+          </Button>
 
           <div className="text-center mt-4 md:mt-6">
             <p className="text-sm text-muted-foreground">
@@ -195,11 +336,17 @@ export const SignIn = () => {
           {isSignUp && (
             <p className="text-xs text-muted-foreground text-center mt-3 md:mt-4">
               By creating an account, you agree to our{" "}
-              <Button variant="link" className="px-0 text-xs text-blue-300 hover:text-purple-600 transition-colors duration-200">
+              <Button
+                variant="link"
+                className="px-0 text-xs text-blue-300 hover:text-purple-600 transition-colors duration-200"
+              >
                 Terms of Service
               </Button>{" "}
               and{" "}
-              <Button variant="link" className="px-0 text-xs text-blue-300 hover:text-purple-600 transition-colors duration-200">
+              <Button
+                variant="link"
+                className="px-0 text-xs text-blue-300 hover:text-purple-600 transition-colors duration-200"
+              >
                 Privacy Policy
               </Button>
             </p>

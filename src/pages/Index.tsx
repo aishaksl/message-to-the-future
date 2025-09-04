@@ -5,9 +5,30 @@ import { Dashboard } from "@/components/dashboard/Dashboard";
 import { SignIn } from "@/components/auth/SignIn";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { Home, MessageSquarePlus, BarChart3, LogIn } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Home,
+  MessageSquarePlus,
+  BarChart3,
+  LogIn,
+  LogOut,
+  Settings,
+  ChevronDown,
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
+  const { user, logout } = useAuth();
+  const { toast } = useToast();
   const [currentView, setCurrentView] = useState<
     "hero" | "create" | "dashboard" | "signin"
   >("hero");
@@ -34,6 +55,13 @@ const Index = () => {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+
+  // Auto-redirect to dashboard after successful login
+  useEffect(() => {
+    if (user && currentView === "signin") {
+      handleNavigation("dashboard");
+    }
+  }, [user, currentView]);
 
   const navigation = [
     { id: "hero", label: "Home", icon: Home },
@@ -81,11 +109,10 @@ const Index = () => {
                     key={id}
                     variant="ghost"
                     onClick={() => handleNavigation(id)}
-                    className={`font-light tracking-wide rounded-xl px-4 py-2 ${
-                      currentView === id
+                    className={`font-light tracking-wide rounded-xl px-4 py-2 ${currentView === id
                         ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                    }`}
+                      }`}
                   >
                     <Icon className="w-4 h-4" />
                     {label}
@@ -98,20 +125,79 @@ const Index = () => {
                 <ThemeToggle />
               </div>
 
-              {/* Desktop Sign In */}
+              {/* Desktop User Menu */}
               <div className="hidden md:block">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleNavigation("signin")}
-                  className={`font-light tracking-wide rounded-xl px-4 py-2 ${
-                    currentView === "signin"
-                      ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                  }`}
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="font-light tracking-wide rounded-xl px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center gap-2"
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.photoURL || ""} />
+                          <AvatarFallback className="bg-[#938ef6] text-white text-sm">
+                            {(user.displayName || user.email || "U")
+                              .charAt(0)
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm max-w-32 truncate">
+                          {user.displayName || user.email}
+                        </span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="center"
+                      className="w-48 bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-xl shadow-lg"
+                    >
+                      <DropdownMenuLabel className="font-light text-slate-600 text-sm">
+                        {user.displayName || user.email}
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer rounded-lg mx-1 focus:bg-slate-100">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="cursor-pointer rounded-lg mx-1 focus:bg-red-50 focus:text-red-600 text-red-600"
+                        onClick={async () => {
+                          const { error } = await logout();
+                          if (error) {
+                            toast({
+                              title: "Logout failed",
+                              description: error,
+                              variant: "destructive",
+                            });
+                          } else {
+                            toast({
+                              title: "Logged out successfully",
+                              description: "See you next time!",
+                            });
+                            setCurrentView("hero");
+                          }
+                        }}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleNavigation("signin")}
+                    className={`font-light tracking-wide rounded-xl px-4 py-2 ${currentView === "signin"
+                        ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                      }`}
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -134,11 +220,10 @@ const Index = () => {
               key={id}
               variant="ghost"
               onClick={() => handleNavigation(id)}
-              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${
-                currentView === id
+              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${currentView === id
                   ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              }`}
+                }`}
             >
               <Icon className="w-4 h-4" />
               <span className="text-xs font-medium">
@@ -146,18 +231,75 @@ const Index = () => {
               </span>
             </Button>
           ))}
-          <Button
-            variant="ghost"
-            onClick={() => handleNavigation("signin")}
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${
-              currentView === "signin"
-                ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            }`}
-          >
-            <LogIn className="w-4 h-4" />
-            <span className="text-xs font-medium">Sign In</span>
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="flex flex-col items-center justify-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                >
+                  <Avatar className="h-4 w-4">
+                    <AvatarImage src={user.photoURL || ""} />
+                    <AvatarFallback className="bg-[#938ef6] text-white text-xs">
+                      {(user.displayName || user.email || "U")
+                        .charAt(0)
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs font-medium">Account</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="center"
+                side="top"
+                className="w-44 bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-xl shadow-lg mb-2"
+              >
+                <DropdownMenuLabel className="font-light text-slate-600 text-xs">
+                  {user.displayName || user.email}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer rounded-lg mx-1 focus:bg-slate-100 text-sm">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-lg mx-1 focus:bg-red-50 focus:text-red-600 text-red-600 text-sm"
+                  onClick={async () => {
+                    const { error } = await logout();
+                    if (error) {
+                      toast({
+                        title: "Logout failed",
+                        description: error,
+                        variant: "destructive",
+                      });
+                    } else {
+                      toast({
+                        title: "Logged out successfully",
+                        description: "See you next time!",
+                      });
+                      setCurrentView("hero");
+                    }
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("signin")}
+              className={`flex flex-col items-center gap-1 h-auto py-2 px-1 font-light tracking-wide rounded-xl ${currentView === "signin"
+                  ? "bg-[#938ef6] text-white shadow-md hover:text-white hover:bg-[#938ef6]"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                }`}
+            >
+              <LogIn className="w-4 h-4" />
+              <span className="text-xs font-medium">Sign In</span>
+            </Button>
+          )}
         </div>
       </div>
     </div>
