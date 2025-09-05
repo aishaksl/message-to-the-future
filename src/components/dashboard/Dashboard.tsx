@@ -315,7 +315,20 @@ export const Dashboard = () => {
       types.push("text");
     }
 
-    // Check for media files
+    // Check for media URLs (new format)
+    if (message.mediaUrls && message.mediaUrls.length > 0) {
+      message.mediaUrls.forEach(url => {
+        if (url.includes('/images/')) {
+          if (!types.includes('image')) types.push('image');
+        } else if (url.includes('/videos/')) {
+          if (!types.includes('video')) types.push('video');
+        } else if (url.includes('/audios/')) {
+          if (!types.includes('audio')) types.push('audio');
+        }
+      });
+    }
+
+    // Check for legacy media files format
     if (message.mediaFiles) {
       if (message.mediaFiles.images && message.mediaFiles.images.length > 0) {
         types.push("image");

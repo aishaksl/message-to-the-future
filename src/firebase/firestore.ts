@@ -55,16 +55,17 @@ export const createMessage = async (messageData: Omit<Message, 'id' | 'createdAt
         const cleanData = Object.fromEntries(
             Object.entries(messageData).filter(([_, value]) => value !== undefined)
         );
-
+        
         const docRef = await addDoc(collection(db, 'messages'), {
             ...cleanData,
             createdAt: serverTimestamp(),
         });
 
         return { id: docRef.id, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error creating message:', error);
-        return { id: null, error: error.message };
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { id: null, error: errorMessage };
     }
 };
 
@@ -94,9 +95,10 @@ export const getUserMessages = async (userId: string) => {
         messages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         return { messages, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error getting messages:', error);
-        return { messages: [], error: error.message };
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { messages: [], error: errorMessage };
     }
 };
 
@@ -109,7 +111,8 @@ export const getReceivedMessages = async (userEmail: string) => {
         return { messages: [], error: null };
     } catch (error: unknown) {
         console.error('Error getting received messages:', error);
-        return { messages: [], error: error.message };
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { messages: [], error: errorMessage };
     }
 };
 
@@ -125,7 +128,8 @@ export const updateMessage = async (messageId: string, updates: Partial<Message>
         return { error: null };
     } catch (error: unknown) {
         console.error('Error updating message:', error);
-        return { error: error.message };
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { error: errorMessage };
     }
 };
 
@@ -136,7 +140,8 @@ export const deleteMessage = async (messageId: string) => {
         return { error: null };
     } catch (error: unknown) {
         console.error('Error deleting message:', error);
-        return { error: error.message };
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { error: errorMessage };
     }
 };
 
@@ -161,7 +166,8 @@ export const createUserProfile = async (userId: string, profileData: Omit<UserPr
             return { error: null };
         } catch (createError: unknown) {
             console.error('Error creating user profile:', createError);
-            return { error: createError.message };
+            const errorMessage = createError instanceof Error ? createError.message : String(createError);
+            return { error: errorMessage };
         }
     }
 };
@@ -187,6 +193,7 @@ export const getUserProfile = async (userId: string) => {
         }
     } catch (error: unknown) {
         console.error('Error getting user profile:', error);
-        return { profile: null, error: error.message };
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return { profile: null, error: errorMessage };
     }
 };

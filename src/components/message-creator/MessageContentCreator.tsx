@@ -2,8 +2,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, CheckCircle, Expand, X, Video, Mic } from "lucide-react";
+import { Upload, CheckCircle, Expand, X, Video, Mic, Plus } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { getFilePreview, formatFileSize } from "@/utils/filePreview";
 
 interface MessageContentCreatorProps {
   messageType: "text" | "image" | "video" | "audio";
@@ -31,84 +32,53 @@ interface MessageContentCreatorProps {
   maxFileSize?: number;
 }
 
-// Video thumbnail component
-const VideoThumbnail = ({
+// Enhanced file preview component
+const FilePreview = ({
   file,
   onClick,
 }: {
   file: File;
   onClick: () => void;
 }) => {
-  const [thumbnail, setThumbnail] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const generateThumbnail = () => {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-
-      if (!video || !canvas) return;
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const handleLoadedData = () => {
-        // Video boyutlarını ayarla
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        // 1 saniyeye git veya video süresinin 1/4'üne
-        video.currentTime = Math.min(1, video.duration / 4);
-      };
-
-      const handleSeeked = () => {
-        // Canvas'a video frame'ini çiz
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Canvas'ı base64'e çevir
-        const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.8);
-        setThumbnail(thumbnailUrl);
+    const generatePreview = async () => {
+      try {
+        const previewUrl = await getFilePreview(file, {
+          thumbnailSize: { width: 200, height: 200 },
+          quality: 0.7
+        });
+        setPreview(previewUrl);
+      } catch (error) {
+        console.error('Error generating preview:', error);
+        // Fallback to file URL for images
+        if (file.type.startsWith('image/')) {
+          setPreview(URL.createObjectURL(file));
+        }
+      } finally {
         setIsLoading(false);
-      };
-
-      const handleError = () => {
-        console.log("Video thumbnail oluşturulamadı");
-        setIsLoading(false);
-      };
-
-      video.addEventListener("loadeddata", handleLoadedData);
-      video.addEventListener("seeked", handleSeeked);
-      video.addEventListener("error", handleError);
-
-      video.src = URL.createObjectURL(file);
-
-      return () => {
-        video.removeEventListener("loadeddata", handleLoadedData);
-        video.removeEventListener("seeked", handleSeeked);
-        video.removeEventListener("error", handleError);
-        URL.revokeObjectURL(video.src);
-      };
+      }
     };
 
-    generateThumbnail();
+    generatePreview();
   }, [file]);
+
+  useEffect(() => {
+    // Cleanup function
+    return () => {
+      if (preview && preview.startsWith('blob:')) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   return (
     <div
-      className="relative w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group cursor-pointer"
+      className="relative w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group cursor-pointer rounded-lg overflow-hidden"
       onClick={onClick}
     >
-      {/* Hidden video element for thumbnail generation */}
-      <video
-        ref={videoRef}
-        style={{ display: "none" }}
-        muted
-        preload="metadata"
-      />
-      <canvas ref={canvasRef} style={{ display: "none" }} />
-
       {/* Loading state */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -116,24 +86,39 @@ const VideoThumbnail = ({
         </div>
       )}
 
-      {/* Thumbnail image */}
-      {thumbnail && !isLoading && (
+      {/* Preview image/thumbnail */}
+      {preview && !isLoading && (
         <img
-          src={thumbnail}
-          alt="Video thumbnail"
+          src={preview}
+          alt={`${file.type.split('/')[0]} preview`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
       )}
 
-      {/* Fallback when no thumbnail */}
-      {!thumbnail && !isLoading && (
+      {/* Fallback when no preview */}
+      {!preview && !isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <Video className="w-16 h-16 text-white/60 mx-auto mb-2" />
-            <p className="text-white/60 text-sm">Video Preview</p>
+            {file.type.startsWith('video/') && <Video className="w-16 h-16 text-white/60 mx-auto mb-2" />}
+            {file.type.startsWith('audio/') && <Mic className="w-16 h-16 text-white/60 mx-auto mb-2" />}
+            {file.type.startsWith('image/') && <Upload className="w-16 h-16 text-white/60 mx-auto mb-2" />}
+            <p className="text-white/60 text-sm">{file.type.split('/')[0]} Preview</p>
           </div>
         </div>
       )}
+
+      {/* File info overlay */}
+      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-xs">
+        <p className="truncate">{file.name}</p>
+        <p>{formatFileSize(file.size)}</p>
+      </div>
+
+      {/* Expand button */}
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
+          <Expand className="h-4 w-4" />
+        </Button>
+      </div>
 
       {/* Play button overlay */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -257,13 +242,12 @@ export const MessageContentCreator = ({
           </div>
           <div className="w-full bg-blue-200 rounded-full h-2">
             <div
-              className={`h-2 rounded-full transition-all duration-300 ${
-                getUsagePercentage() > 90
-                  ? "bg-red-500"
-                  : getUsagePercentage() > 70
+              className={`h-2 rounded-full transition-all duration-300 ${getUsagePercentage() > 90
+                ? "bg-red-500"
+                : getUsagePercentage() > 70
                   ? "bg-yellow-500"
                   : "bg-blue-500"
-              }`}
+                }`}
               style={{ width: `${getUsagePercentage()}%` }}
             />
           </div>
@@ -291,53 +275,53 @@ export const MessageContentCreator = ({
             0 &&
             messageType !== "text") ||
             (messageType === "text" && messageText.trim().length > 0)) && (
-            <div className="flex gap-2">
-              {messageType === "text" ? (
-                <>
-                  <button
-                    onClick={onExpandText}
-                    className="p-1 transition-transform duration-200 hover:scale-125"
-                    title="Büyüt"
-                  >
-                    <Expand className="w-4 h-4 text-blue-500" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMessageText("");
-                      setIsWriting(false);
-                    }}
-                    className="p-1 transition-transform duration-200 hover:scale-125"
-                    title="Temizle"
-                  >
-                    <X className="w-4 h-4 text-red-500" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() =>
-                      onExpandFile(
-                        selectedFiles[
+              <div className="flex gap-2">
+                {messageType === "text" ? (
+                  <>
+                    <button
+                      onClick={onExpandText}
+                      className="p-1 transition-transform duration-200 hover:scale-125"
+                      title="Büyüt"
+                    >
+                      <Expand className="w-4 h-4 text-blue-500" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMessageText("");
+                        setIsWriting(false);
+                      }}
+                      className="p-1 transition-transform duration-200 hover:scale-125"
+                      title="Temizle"
+                    >
+                      <X className="w-4 h-4 text-red-500" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() =>
+                        onExpandFile(
+                          selectedFiles[
                           messageType as keyof typeof selectedFiles
-                        ][0]
-                      )
-                    }
-                    className="p-1 transition-transform duration-200 hover:scale-125"
-                    title="Büyüt"
-                  >
-                    <Expand className="w-4 h-4 text-blue-500" />
-                  </button>
-                  <button
-                    onClick={() => removeFile(0)}
-                    className="p-1 transition-transform duration-200 hover:scale-125"
-                    title="Sil"
-                  >
-                    <X className="w-4 h-4 text-red-500" />
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+                          ][0]
+                        )
+                      }
+                      className="p-1 transition-transform duration-200 hover:scale-125"
+                      title="Büyüt"
+                    >
+                      <Expand className="w-4 h-4 text-blue-500" />
+                    </button>
+                    <button
+                      onClick={() => removeFile(0)}
+                      className="p-1 transition-transform duration-200 hover:scale-125"
+                      title="Sil"
+                    >
+                      <X className="w-4 h-4 text-red-500" />
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
         </div>
 
         {messageType === "text" ? (
@@ -371,8 +355,8 @@ export const MessageContentCreator = ({
                         recipientType === "self"
                           ? "Dear future me, today I want to remember... I hope you know that... I'm grateful for... I dream that..."
                           : recipientName
-                          ? `Dear ${recipientName}, I want you to know... I hope you remember... I'm grateful for...`
-                          : "Dear friend, I want you to know... I hope you remember... I'm grateful for..."
+                            ? `Dear ${recipientName}, I want you to know... I hope you remember... I'm grateful for...`
+                            : "Dear friend, I want you to know... I hope you remember... I'm grateful for..."
                       }
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
@@ -393,10 +377,10 @@ export const MessageContentCreator = ({
                 messageType === "image"
                   ? "image/*"
                   : messageType === "video"
-                  ? "video/*"
-                  : messageType === "audio"
-                  ? "audio/*"
-                  : "*/*"
+                    ? "video/*"
+                    : messageType === "audio"
+                      ? "audio/*"
+                      : "*/*"
               }
               onChange={handleFileChange}
               style={{ display: "none" }}
@@ -405,110 +389,108 @@ export const MessageContentCreator = ({
 
             {selectedFiles[messageType as keyof typeof selectedFiles]
               ?.length === 0 && (
-              <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
-                <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm mb-2">Upload your {messageType}</p>
-                <p className="text-muted-foreground text-xs mb-4">
-                  Drag and drop or click to select files
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const input = document.getElementById(
-                      `fileInput-${messageType}`
-                    ) as HTMLInputElement;
-                    if (input) input.click();
-                  }}
-                  type="button"
-                >
-                  Choose Files
-                </Button>
-              </div>
-            )}
+                <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center bg-background/20">
+                  <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm mb-2">Upload your {messageType}</p>
+                  <p className="text-muted-foreground text-xs mb-4">
+                    Drag and drop or click to select files
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const input = document.getElementById(
+                        `fileInput-${messageType}`
+                      ) as HTMLInputElement;
+                      if (input) input.click();
+                    }}
+                    type="button"
+                  >
+                    Choose Files
+                  </Button>
+                </div>
+              )}
 
             {selectedFiles[messageType as keyof typeof selectedFiles]?.length >
               0 && (
-              <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl">
-                <div className="flex justify-center">
-                  <div className="w-full max-w-md space-y-4">
-                    {selectedFiles[
-                      messageType as keyof typeof selectedFiles
-                    ].map((file, index) => (
-                      <div key={index} className="group">
-                        <div
-                          className={`w-full h-40 bg-muted rounded-xl border-2 border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300 ${
-                            messageType === "audio"
+                <div className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-background border border-primary/20 rounded-xl">
+                  <div className="flex justify-center">
+                    <div className="w-full max-w-md space-y-4">
+                      {selectedFiles[
+                        messageType as keyof typeof selectedFiles
+                      ].map((file, index) => (
+                        <div key={index} className="group">
+                          <div
+                            className={`w-full h-40 bg-muted rounded-xl border-2 border-primary/20 shadow-sm overflow-hidden relative transition-all duration-300 ${messageType === "audio"
                               ? ""
                               : "cursor-pointer hover:border-primary/40"
-                          }`}
-                          onClick={
-                            messageType === "audio"
-                              ? undefined
-                              : () => onExpandFile(file)
-                          }
-                        >
-                          {messageType === "image" ? (
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : messageType === "video" ? (
-                            <VideoThumbnail
-                              file={file}
-                              onClick={() => onExpandFile(file)}
-                            />
-                          ) : (
-                            <div
-                              className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 p-4 cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const audio = e.currentTarget.querySelector(
-                                  "audio"
-                                ) as HTMLAudioElement;
-                                if (audio) {
-                                  if (audio.paused) {
-                                    audio.play();
-                                  } else {
-                                    audio.pause();
-                                  }
-                                }
-                              }}
-                            >
-                              <div className="flex flex-col items-center gap-3 mb-4">
-                                <Mic className="w-8 h-8 text-primary" />
-                                <span className="text-sm font-medium text-primary">
-                                  Audio File
-                                </span>
-                              </div>
-                              <audio
-                                src={URL.createObjectURL(file)}
-                                controls
-                                className="w-full max-w-sm h-10"
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                          )}
-                        </div>
-                        <div className="mt-2 text-center">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {file.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {(file.size / (1024 * 1024)).toFixed(1)} MB
-                            {messageType !== "image" &&
-                              ` • ${
-                                messageType === "video" ? "Video" : "Audio"
                               }`}
-                          </p>
+                            onClick={
+                              messageType === "audio"
+                                ? undefined
+                                : () => onExpandFile(file)
+                            }
+                          >
+                            {messageType === "image" ? (
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : messageType === "video" ? (
+                              <FilePreview
+                                file={file}
+                                onClick={() => onExpandFile(file)}
+                              />
+                            ) : (
+                              <div
+                                className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20 p-4 cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const audio = e.currentTarget.querySelector(
+                                    "audio"
+                                  ) as HTMLAudioElement;
+                                  if (audio) {
+                                    if (audio.paused) {
+                                      audio.play();
+                                    } else {
+                                      audio.pause();
+                                    }
+                                  }
+                                }}
+                              >
+                                <div className="flex flex-col items-center gap-3 mb-4">
+                                  <Mic className="w-8 h-8 text-primary" />
+                                  <span className="text-sm font-medium text-primary">
+                                    Audio File
+                                  </span>
+                                </div>
+                                <audio
+                                  src={URL.createObjectURL(file)}
+                                  controls
+                                  className="w-full max-w-sm h-10"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-2 text-center">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {(file.size / (1024 * 1024)).toFixed(1)} MB
+                              {messageType !== "image" &&
+                                ` • ${messageType === "video" ? "Video" : "Audio"
+                                }`}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </>
         )}
       </div>

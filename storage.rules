@@ -1,16 +1,18 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Users can upload files to their own directory with 60MB limit
-    match /messages/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && 
-                           request.auth.uid == userId &&
-                           request.resource.size < 60 * 1024 * 1024; // 60MB limit
-    }
-    
-    // Allow read access to delivered messages
-    match /messages/{userId}/delivered/{allPaths=**} {
-      allow read: if request.auth != null;
+    // Allow authenticated users to access their own message files
+    match /messages/{userId}/{mediaType}/{fileName} {
+      allow read: if request.auth != null 
+        && request.auth.uid == userId;
+      allow write: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.size < 60 * 1024 * 1024; // 60MB limit
+      allow update: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.size < 60 * 1024 * 1024; // 60MB limit
+      allow delete: if request.auth != null 
+        && request.auth.uid == userId;
     }
   }
 }

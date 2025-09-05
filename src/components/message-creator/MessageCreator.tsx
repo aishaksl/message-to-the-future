@@ -19,7 +19,10 @@ import {
   updateMessage,
   deleteMessage,
 } from "@/firebase/firestore";
-import { uploadMultipleFiles } from "@/firebase/storage";
+import { uploadMultipleFiles, uploadFile, uploadFileWithMetadata, extractDetailedMetadata, getFileBlob } from "@/firebase/storage";
+import { getDownloadURL, ref, getBlob } from "firebase/storage";
+import { storage } from "@/firebase/config";
+import { FileMetadata, ImageMetadata, VideoMetadata, AudioMetadata } from "@/utils/fileMetadata";
 
 // Import new components
 import { RecipientSelector } from "./RecipientSelector";
@@ -45,10 +48,14 @@ interface Message {
   createdAt: Date;
   isSurprise: boolean;
   preview: string;
+  mediaUrls?: string[];
   mediaFiles?: {
     image?: File[];
     video?: File[];
     audio?: File[];
+    images?: string[];
+    videos?: string[];
+    audios?: string[];
   };
 }
 
@@ -77,6 +84,13 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
   const [isSurpriseMode, setIsSurpriseMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({
+    current: 0,
+    total: 0,
+    currentFile: '',
+    percentage: 0,
+    isUploading: false
+  });
   const [shouldNavigate, setShouldNavigate] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
@@ -143,6 +157,120 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
     }
   }, [shouldNavigate, navigate]);
 
+  // Function to convert Firebase Storage URL to File object
+  const urlToFile = async (url: string, filename: string): Promise<File | null> => {
+    try {
+      console.log('🔄 Converting Firebase Storage URL to File:', url);
+
+      let storageRef;
+
+      // Check if URL is a storage path (not a download URL)
+      if (!url.includes('firebasestorage.googleapis.com') && !url.includes('storage.googleapis.com')) {
+        console.log('📍 URL is storage path, using direct storage reference...');
+        storageRef = ref(storage, url);
+      } else {
+        console.log('📍 URL is download URL, extracting storage path...');
+
+        // For Firebase Storage URLs, try to extract the file path
+        try {
+          const urlObj = new URL(url);
+          let storagePath = '';
+
+          // Check for different Firebase Storage URL patterns
+          if (urlObj.hostname.includes('firebasestorage.googleapis.com')) {
+            // Pattern: https://firebasestorage.googleapis.com/v0/b/bucket/o/path%2Fto%2Ffile.ext?alt=media&token=...
+            const pathMatch = urlObj.pathname.match(/\/v0\/b\/[^/]+\/o\/(.+)/);
+            if (pathMatch) {
+              storagePath = decodeURIComponent(pathMatch[1]);
+              console.log('📍 Extracted storage path from firebasestorage.googleapis.com:', storagePath);
+            }
+          } else if (urlObj.hostname.includes('storage.googleapis.com')) {
+            // Pattern: https://storage.googleapis.com/bucket/path/to/file.ext
+            const pathSegments = urlObj.pathname.split('/');
+            if (pathSegments.length > 2) {
+              // Remove empty first element and bucket name
+              storagePath = pathSegments.slice(2).join('/');
+              console.log('📍 Extracted storage path from storage.googleapis.com:', storagePath);
+            }
+          }
+
+          // Fallback: try to get from 'name' query parameter
+          if (!storagePath) {
+            const nameParam = urlObj.searchParams.get('name');
+            if (nameParam) {
+              storagePath = nameParam;
+              console.log('📍 Using name parameter as storage path:', storagePath);
+            }
+          }
+
+          if (!storagePath) {
+            console.error('❌ Could not extract storage path from URL:', url);
+            console.log('URL hostname:', urlObj.hostname);
+            console.log('URL pathname:', urlObj.pathname);
+            console.log('URL search params:', urlObj.searchParams.toString());
+            return null;
+          }
+
+          storageRef = ref(storage, storagePath);
+        } catch (urlError) {
+          console.error('❌ Error parsing URL:', urlError);
+          return null;
+        }
+      }
+
+      console.log('📥 Getting blob from Firebase Storage...');
+
+      try {
+        // First try using Firebase SDK's getBlob (should avoid CORS)
+        const blob = await getBlob(storageRef);
+        console.log('✅ Successfully got blob via getBlob:', blob.type, blob.size, 'bytes');
+
+        const file = new File([blob], filename, { type: blob.type });
+        console.log('✅ Created File object:', file.name, file.type, file.size, 'bytes');
+        return file;
+      } catch (blobError) {
+        console.warn('⚠️ getBlob failed, trying alternative method:', blobError);
+
+        // Fallback: try getting download URL and fetch with proper headers
+        try {
+          const downloadURL = await getDownloadURL(storageRef);
+          console.log('📥 Got download URL, fetching with CORS headers...');
+
+          const response = await fetch(downloadURL, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
+            headers: {
+              'Accept': '*/*',
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          console.log('✅ Successfully got blob via fetch:', blob.type, blob.size, 'bytes');
+
+          const file = new File([blob], filename, { type: blob.type });
+          console.log('✅ Created File object:', file.name, file.type, file.size, 'bytes');
+          return file;
+        } catch (fetchError) {
+          console.error('❌ Fetch also failed:', fetchError);
+          throw fetchError;
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error converting URL to File:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        url,
+        filename
+      });
+      return null;
+    }
+  };
+
   // Load saved form state on component mount or populate from editing message
   useEffect(() => {
     if (editingMessage) {
@@ -157,9 +285,7 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
       setRecipientPhone(editingMessage.recipientPhone || "");
       setDeliveryMethod(editingMessage.deliveryMethod);
       setIsSurpriseMode(editingMessage.isSurprise);
-      setSelectedTypes([
-        editingMessage.type as "text" | "image" | "video" | "audio",
-      ]);
+      // selectedTypes will be set after media files are loaded
       setSubject(editingMessage.subject);
       setMessageText(editingMessage.content);
       setCurrentStep(1); // Start from first step when editing
@@ -170,11 +296,147 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
       }
 
       // Handle media files if they exist
-      if (editingMessage.mediaFiles) {
-        // Note: We can't restore actual File objects from base64,
-        // but we can show that media exists in the preview
-        // This is a limitation of the current implementation
-      }
+      const loadMediaFiles = async () => {
+        const newSelectedFiles = {
+          image: [] as File[],
+          video: [] as File[],
+          audio: [] as File[],
+        };
+
+        console.log('Loading media files for editing...', {
+          mediaUrls: editingMessage.mediaUrls,
+          mediaFiles: editingMessage.mediaFiles
+        });
+
+        // DEBUG: Log actual URL format
+        if (editingMessage.mediaUrls && editingMessage.mediaUrls.length > 0) {
+          console.log('🔍 DEBUG: Actual mediaUrls format:');
+          editingMessage.mediaUrls.forEach((url, index) => {
+            console.log(`  [${index}]:`, url);
+            console.log(`  Is download URL:`, url.includes('firebasestorage.googleapis.com'));
+            console.log(`  Is storage path:`, url.startsWith('messages/'));
+          });
+        }
+
+        // Handle new mediaUrls format (Firebase Storage URLs)
+        if (editingMessage.mediaUrls && editingMessage.mediaUrls.length > 0) {
+          console.log('Loading from mediaUrls:', editingMessage.mediaUrls);
+          for (const url of editingMessage.mediaUrls) {
+            try {
+              // Determine file type from URL path and file extension
+              let type: 'image' | 'video' | 'audio' = 'image';
+              let filename = 'media_file';
+
+              // First check by folder path
+              if (url.includes('/videos/')) {
+                type = 'video';
+                filename = url.split('/').pop()?.split('?')[0] || 'video_file';
+              } else if (url.includes('/audios/')) {
+                type = 'audio';
+                filename = url.split('/').pop()?.split('?')[0] || 'audio_file';
+              } else if (url.includes('/images/')) {
+                type = 'image';
+                filename = url.split('/').pop()?.split('?')[0] || 'image_file';
+              } else {
+                // Fallback: check by file extension
+                const urlLower = url.toLowerCase();
+                filename = url.split('/').pop()?.split('?')[0] || 'media_file';
+
+                if (urlLower.includes('.mp4') || urlLower.includes('.webm') || urlLower.includes('.mov') || urlLower.includes('.avi') || urlLower.includes('.mkv')) {
+                  type = 'video';
+                } else if (urlLower.includes('.mp3') || urlLower.includes('.wav') || urlLower.includes('.ogg') || urlLower.includes('.m4a') || urlLower.includes('.aac')) {
+                  type = 'audio';
+                } else if (urlLower.includes('.jpg') || urlLower.includes('.jpeg') || urlLower.includes('.png') || urlLower.includes('.gif') || urlLower.includes('.webp')) {
+                  type = 'image';
+                }
+              }
+
+              console.log(`Converting URL to File: ${url} -> ${type}/${filename}`);
+              const file = await urlToFile(url, filename);
+              if (file) {
+                newSelectedFiles[type].push(file);
+                console.log(`Successfully loaded ${type} file:`, file.name);
+              }
+            } catch (error) {
+              console.error('Error loading media file:', error);
+            }
+          }
+        }
+
+        // Handle legacy mediaFiles format (for backward compatibility)
+        if (editingMessage.mediaFiles) {
+          console.log('Loading from legacy mediaFiles:', editingMessage.mediaFiles);
+          const { images, videos, audios } = editingMessage.mediaFiles;
+
+          if (images) {
+            console.log('Loading legacy images:', images);
+            for (const url of images) {
+              try {
+                const filename = url.split('/').pop()?.split('?')[0] || 'image_file';
+                console.log(`Converting legacy image URL to File: ${url} -> ${filename}`);
+                const file = await urlToFile(url, filename);
+                if (file) {
+                  newSelectedFiles.image.push(file);
+                  console.log(`Successfully loaded legacy image file:`, file.name);
+                }
+              } catch (error) {
+                console.error('Error loading image file:', error);
+              }
+            }
+          }
+
+          if (videos) {
+            for (const url of videos) {
+              try {
+                const filename = url.split('/').pop()?.split('?')[0] || 'video_file';
+                const file = await urlToFile(url, filename);
+                if (file) {
+                  newSelectedFiles.video.push(file);
+                }
+              } catch (error) {
+                console.error('Error loading video file:', error);
+              }
+            }
+          }
+
+          if (audios) {
+            for (const url of audios) {
+              try {
+                const filename = url.split('/').pop()?.split('?')[0] || 'audio_file';
+                const file = await urlToFile(url, filename);
+                if (file) {
+                  newSelectedFiles.audio.push(file);
+                }
+              } catch (error) {
+                console.error('Error loading audio file:', error);
+              }
+            }
+          }
+        }
+
+        console.log('Final selectedFiles to be set:', newSelectedFiles);
+        setSelectedFiles(newSelectedFiles);
+
+        // Update selectedTypes based on loaded media files
+        const typesWithContent = [];
+        if (editingMessage.content && editingMessage.content.trim()) {
+          typesWithContent.push('text');
+        }
+        if (newSelectedFiles.image.length > 0) {
+          typesWithContent.push('image');
+        }
+        if (newSelectedFiles.video.length > 0) {
+          typesWithContent.push('video');
+        }
+        if (newSelectedFiles.audio.length > 0) {
+          typesWithContent.push('audio');
+        }
+
+        console.log('Setting selectedTypes based on content:', typesWithContent);
+        setSelectedTypes(typesWithContent as ("text" | "image" | "video" | "audio")[]);
+      };
+
+      loadMediaFiles();
 
       toast({
         title: "Editing message",
@@ -297,22 +559,7 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
     setIsPreviewOpen(true);
   };
 
-  // Helper function to convert file to base64
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      console.log("Converting file to base64:", file.name, file.size);
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        console.log("File conversion successful:", file.name);
-        resolve(reader.result as string);
-      };
-      reader.onerror = (error) => {
-        console.error("File conversion failed:", file.name, error);
-        reject(error);
-      };
-    });
-  };
+
 
   const handleDelete = async () => {
     if (!editingMessage || !user) return;
@@ -386,53 +633,136 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
       return;
     }
 
-    // Upload media files to Firebase Storage (requires Blaze plan)
+    // Upload media files to Firebase Storage with progress tracking
     const mediaUrls: string[] = [];
+    const fileMetadata: (FileMetadata | ImageMetadata | VideoMetadata | AudioMetadata)[] = [];
+    const totalFiles = allFiles.length;
+    let uploadedFiles = 0;
+
+    if (totalFiles > 0) {
+      setUploadProgress({
+        current: 0,
+        total: totalFiles,
+        currentFile: '',
+        percentage: 0,
+        isUploading: true
+      });
+    }
 
     try {
       console.log("Uploading files to Firebase Storage...");
 
-      // Upload images
+      // Upload images with progress tracking
       if (selectedFiles.image.length > 0) {
         console.log("Uploading images...", selectedFiles.image.length);
-        const { urls, errors } = await uploadMultipleFiles(
-          selectedFiles.image,
-          `messages/${user.uid}/images`
-        );
-        mediaUrls.push(...urls);
 
-        if (errors.length > 0) {
-          throw new Error(`Image upload failed: ${errors.join(", ")}`);
+        for (const file of selectedFiles.image) {
+          setUploadProgress(prev => ({
+            ...prev,
+            current: uploadedFiles + 1,
+            currentFile: file.name,
+            percentage: Math.round(((uploadedFiles + 0.5) / totalFiles) * 100)
+          }));
+
+          const fileName = `${Date.now()}_${uploadedFiles}_${file.name}`;
+          const filePath = `messages/${user.uid}/images/${fileName}`;
+
+          const result = await uploadFileWithMetadata(file, filePath);
+
+          if (result.url) {
+            mediaUrls.push(result.url);
+            if (result.metadata) {
+              fileMetadata.push(result.metadata);
+            }
+          } else {
+            throw new Error(`Image upload failed: ${result.error}`);
+          }
+
+          uploadedFiles++;
+          setUploadProgress(prev => ({
+            ...prev,
+            current: uploadedFiles,
+            percentage: Math.round((uploadedFiles / totalFiles) * 100)
+          }));
         }
       }
 
-      // Upload videos
+      // Upload videos with progress tracking
       if (selectedFiles.video.length > 0) {
         console.log("Uploading videos...", selectedFiles.video.length);
-        const { urls, errors } = await uploadMultipleFiles(
-          selectedFiles.video,
-          `messages/${user.uid}/videos`
-        );
-        mediaUrls.push(...urls);
 
-        if (errors.length > 0) {
-          throw new Error(`Video upload failed: ${errors.join(", ")}`);
+        for (const file of selectedFiles.video) {
+          setUploadProgress(prev => ({
+            ...prev,
+            current: uploadedFiles + 1,
+            currentFile: file.name,
+            percentage: Math.round(((uploadedFiles + 0.5) / totalFiles) * 100)
+          }));
+
+          const fileName = `${Date.now()}_${uploadedFiles}_${file.name}`;
+          const filePath = `messages/${user.uid}/videos/${fileName}`;
+
+          const result = await uploadFileWithMetadata(file, filePath);
+
+          if (result.url) {
+            mediaUrls.push(result.url);
+            if (result.metadata) {
+              fileMetadata.push(result.metadata);
+            }
+          } else {
+            throw new Error(`Video upload failed: ${result.error}`);
+          }
+
+          uploadedFiles++;
+          setUploadProgress(prev => ({
+            ...prev,
+            current: uploadedFiles,
+            percentage: Math.round((uploadedFiles / totalFiles) * 100)
+          }));
         }
       }
 
-      // Upload audio files
+      // Upload audio files with progress tracking
       if (selectedFiles.audio.length > 0) {
         console.log("Uploading audio files...", selectedFiles.audio.length);
-        const { urls, errors } = await uploadMultipleFiles(
-          selectedFiles.audio,
-          `messages/${user.uid}/audios`
-        );
-        mediaUrls.push(...urls);
 
-        if (errors.length > 0) {
-          throw new Error(`Audio upload failed: ${errors.join(", ")}`);
+        for (const file of selectedFiles.audio) {
+          setUploadProgress(prev => ({
+            ...prev,
+            current: uploadedFiles + 1,
+            currentFile: file.name,
+            percentage: Math.round(((uploadedFiles + 0.5) / totalFiles) * 100)
+          }));
+
+          const fileName = `${Date.now()}_${uploadedFiles}_${file.name}`;
+          const filePath = `messages/${user.uid}/audios/${fileName}`;
+
+          const result = await uploadFileWithMetadata(file, filePath);
+
+          if (result.url) {
+            mediaUrls.push(result.url);
+            if (result.metadata) {
+              fileMetadata.push(result.metadata);
+            }
+          } else {
+            throw new Error(`Audio upload failed: ${result.error}`);
+          }
+
+          uploadedFiles++;
+          setUploadProgress(prev => ({
+            ...prev,
+            current: uploadedFiles,
+            percentage: Math.round((uploadedFiles / totalFiles) * 100)
+          }));
         }
       }
+
+      // Upload completed
+      setUploadProgress(prev => ({
+        ...prev,
+        isUploading: false,
+        percentage: 100
+      }));
 
       console.log(
         "All files uploaded successfully. Total URLs:",
@@ -441,16 +771,15 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
     } catch (error) {
       console.error("Error uploading files:", error);
       toast({
-        title: "Storage not available",
-        description:
-          "Please upgrade to Blaze plan to use Firebase Storage for media files.",
+        title: "File Upload Error",
+        description: error instanceof Error ? error.message : "An error occurred while uploading files. Please try again.",
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    const messageData: unknown = {
+    const messageData = {
       senderId: user.uid,
       recipientEmail:
         recipientType === "self" ? user.email || "" : recipientEmail,
@@ -467,29 +796,31 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
       deliveryMethod,
       status: "scheduled" as const,
       isSurprise: isSurpriseMode,
+      ...(recipientType === "self" && { recipientId: user.uid }),
+      ...(recipientPhone && recipientPhone.trim() && { recipientPhone }),
+      ...(mediaUrls.length > 0 && { mediaUrls }),
+      ...(fileMetadata.length > 0 && { fileMetadata })
     };
 
-    // Only add optional fields if they have values
-    if (recipientType === "self") {
-      messageData.recipientId = user.uid;
-    }
-    if (recipientPhone && recipientPhone.trim()) {
-      messageData.recipientPhone = recipientPhone;
-    }
-
-    // Only add mediaUrls if there are any
-    if (mediaUrls.length > 0) {
-      messageData.mediaUrls = mediaUrls;
-    }
+    console.log("🔍 DEBUG: Message creation started");
+    console.log("📝 Message Text:", messageText);
+    console.log("📋 Subject:", subject);
+    console.log("🎯 Selected Types:", selectedTypes);
+    console.log("📦 Message Data:", messageData);
+    console.log("👤 User:", user?.uid, user?.email);
 
     let result;
     if (editingMessage) {
       // Update existing message
+      console.log("✏️ Updating existing message:", editingMessage.id);
       result = await updateMessage(editingMessage.id!, messageData);
     } else {
       // Create new message
+      console.log("🆕 Creating new message");
       result = await createMessage(messageData);
     }
+
+    console.log("📤 Firestore result:", result);
 
     if (result.error) {
       toast({
@@ -563,28 +894,33 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
 
       case 4:
         return (
-          <MessageContentCreator
-            messageType={selectedTypes[0] || "text"}
-            subject={subject}
-            setSubject={setSubject}
-            messageText={messageText}
-            setMessageText={setMessageText}
-            selectedFiles={selectedFiles}
-            setSelectedFiles={setSelectedFiles}
-            onExpandFile={expandFile}
-            onExpandText={() => {
-              setPreviewFile(
-                new File([messageText], "message.txt", {
-                  type: "text/plain",
-                })
-              );
-              setIsPreviewOpen(true);
-            }}
-            recipientType={recipientType}
-            recipientName={recipientName}
-            totalFileSize={getTotalFileSize()}
-            maxFileSize={60 * 1024 * 1024}
-          />
+          <div className="space-y-6">
+            {selectedTypes.map((type) => (
+              <MessageContentCreator
+                key={type}
+                messageType={type}
+                subject={subject}
+                setSubject={setSubject}
+                messageText={messageText}
+                setMessageText={setMessageText}
+                selectedFiles={selectedFiles}
+                setSelectedFiles={setSelectedFiles}
+                onExpandFile={expandFile}
+                onExpandText={() => {
+                  setPreviewFile(
+                    new File([messageText], "message.txt", {
+                      type: "text/plain",
+                    })
+                  );
+                  setIsPreviewOpen(true);
+                }}
+                recipientType={recipientType}
+                recipientName={recipientName}
+                totalFileSize={getTotalFileSize()}
+                maxFileSize={60 * 1024 * 1024}
+              />
+            ))}
+          </div>
         );
 
       case 5:
@@ -716,6 +1052,44 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
           isMobile={isMobile}
         />
 
+        {/* Loading overlay with upload progress */}
+        {isLoading && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+              {uploadProgress.isUploading ? (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span className="text-gray-700 font-medium">
+                      Uploading files...
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>File {uploadProgress.current} of {uploadProgress.total}</span>
+                      <span>{uploadProgress.percentage}%</span>
+                    </div>
+                    <Progress value={uploadProgress.percentage} className="w-full" />
+                    {uploadProgress.currentFile && (
+                      <p className="text-xs text-gray-500 truncate">
+                        {uploadProgress.currentFile}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  <span className="text-gray-700">
+                    {editingMessage ? "Updating message..." : "Creating message..."}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* File Preview Modal */}
         <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
@@ -724,12 +1098,12 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
                 {previewFile?.type.startsWith("image/")
                   ? "Your Image"
                   : previewFile?.type.startsWith("video/")
-                  ? "Your Video"
-                  : previewFile?.type.startsWith("audio/")
-                  ? "Your Audio"
-                  : previewFile?.type === "text/plain"
-                  ? "Your Text"
-                  : "File Preview"}
+                    ? "Your Video"
+                    : previewFile?.type.startsWith("audio/")
+                      ? "Your Audio"
+                      : previewFile?.type === "text/plain"
+                        ? "Your Text"
+                        : "File Preview"}
               </DialogTitle>
             </DialogHeader>
             {previewFile && (

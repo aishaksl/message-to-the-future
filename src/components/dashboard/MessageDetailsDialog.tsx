@@ -95,6 +95,11 @@ export const MessageDetailsDialog = ({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
 
+  // Debug log for preview modal state
+  useEffect(() => {
+    console.log('Preview modal state changed:', { isPreviewOpen, previewFile });
+  }, [isPreviewOpen, previewFile]);
+
   useEffect(() => {
     if (message) {
       setEditedSubject(message.subject || "");
@@ -300,13 +305,156 @@ export const MessageDetailsDialog = ({
 
                 {/* Media Content */}
                 {(() => {
+                  // Check for new mediaUrls format
+                  const hasMediaUrls = message.mediaUrls && message.mediaUrls.length > 0;
+
+                  // Check for legacy mediaFiles format
                   const hasMediaFiles = message.mediaFiles && (
                     (message.mediaFiles.images && message.mediaFiles.images.length > 0) ||
                     (message.mediaFiles.videos && message.mediaFiles.videos.length > 0) ||
                     (message.mediaFiles.audios && message.mediaFiles.audios.length > 0)
                   );
 
-                  if (hasMediaFiles) {
+                  if (hasMediaUrls) {
+                    // Handle new mediaUrls format
+                    const allMediaFiles = message.mediaUrls.map((url, index) => {
+                      let type: "image" | "video" | "audio" = "image";
+
+                      // Check by folder path first
+                      if (url.includes('/videos/')) {
+                        type = "video";
+                      } else if (url.includes('/audios/')) {
+                        type = "audio";
+                      } else {
+                        // Check by file extension as fallback
+                        const urlLower = url.toLowerCase();
+                        if (urlLower.includes('.mp4') || urlLower.includes('.webm') || urlLower.includes('.mov') || urlLower.includes('.avi')) {
+                          type = "video";
+                        } else if (urlLower.includes('.mp3') || urlLower.includes('.wav') || urlLower.includes('.ogg') || urlLower.includes('.m4a')) {
+                          type = "audio";
+                        }
+                      }
+
+                      console.log('Media file detected:', { url, type, index });
+                      return { file: url, type, index };
+                    });
+
+                    return (
+                      <div className="space-y-4">
+                        <div className="text-center">
+                          <h4 className="text-sm font-light text-slate-600">
+                            Media Files ({allMediaFiles.length})
+                          </h4>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-3">
+                          {allMediaFiles.map(({ file, type, index }, globalIndex) => (
+                            <div
+                              key={globalIndex}
+                              className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-all duration-300 relative group w-32 h-32 border border-slate-200/60"
+                              onClick={() => {
+                                console.log('Media clicked:', { type, file, index });
+                                // Open all media files in preview modal instead of new tab
+                                if (type === "video") {
+                                  console.log('Opening video preview for:', file);
+                                  const videoPreview = {
+                                    name: `video-${index + 1}.mp4`,
+                                    type: 'video/mp4',
+                                    size: 0,
+                                    videoUrl: file
+                                  } as File & { videoUrl: string };
+                                  setPreviewFile(videoPreview);
+                                  setIsPreviewOpen(true);
+                                  console.log('Video preview set, modal should open');
+                                } else if (type === "image") {
+                                  console.log('Opening image preview for:', file);
+                                  const imagePreview = {
+                                    name: `image-${index + 1}`,
+                                    type: 'image/jpeg',
+                                    size: 0,
+                                    imageUrl: file
+                                  } as File & { imageUrl: string };
+                                  setPreviewFile(imagePreview);
+                                  setIsPreviewOpen(true);
+                                } else if (type === "audio") {
+                                  console.log('Opening audio preview for:', file);
+                                  const audioPreview = {
+                                    name: `audio-${index + 1}`,
+                                    type: 'audio/mp3',
+                                    size: 0,
+                                    audioUrl: file
+                                  } as File & { audioUrl: string };
+                                  setPreviewFile(audioPreview);
+                                  setIsPreviewOpen(true);
+                                }
+                              }}
+                            >
+                              {type === "image" && (
+                                <img
+                                  src={file}
+                                  alt={`Image ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    console.error('Failed to load image:', file);
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              )}
+
+                              {type === "video" && (
+                                <>
+                                  <video
+                                    src={file}
+                                    className="w-full h-full object-cover pointer-events-none"
+                                    muted
+                                    preload="metadata"
+                                    poster=""
+                                    onError={(e) => {
+                                      console.error('Failed to load video:', file);
+                                    }}
+                                    onLoadedMetadata={(e) => {
+                                      // Seek to 1 second to get a better thumbnail
+                                      const video = e.currentTarget;
+                                      if (video.duration > 1) {
+                                        video.currentTime = 1;
+                                      }
+                                    }}
+                                  />
+                                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center hover:bg-black/20 transition-colors pointer-events-none">
+                                    <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors">
+                                      <div className="w-0 h-0 border-l-[16px] border-l-black border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent ml-1"></div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+
+                              {type === "audio" && (
+                                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center">
+                                  <Mic className="w-8 h-8 text-slate-500 mb-2" />
+                                  <span className="text-xs text-slate-500 font-light">
+                                    AUDIO
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* File type indicator */}
+                              <div className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
+                                {type === "image" && (
+                                  <Image className="w-3 h-3 text-white" />
+                                )}
+                                {type === "video" && (
+                                  <Video className="w-3 h-3 text-white" />
+                                )}
+                                {type === "audio" && (
+                                  <Mic className="w-3 h-3 text-white" />
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  } else if (hasMediaFiles) {
+                    // Handle legacy mediaFiles format
                     const allMediaFiles = [
                       ...(message.mediaFiles.images || []).map((file, index) => ({ file, type: "image" as const, index })),
                       ...(message.mediaFiles.videos || []).map((file, index) => ({ file, type: "video" as const, index })),
@@ -406,6 +554,254 @@ export const MessageDetailsDialog = ({
                 })()}
               </div>
             )}
+
+            {/* Media Content for Editing Mode */}
+            {isEditing && (() => {
+              // Check for new mediaUrls format
+              const hasMediaUrls = message.mediaUrls && message.mediaUrls.length > 0;
+
+              // Check for legacy mediaFiles format
+              const hasMediaFiles = message.mediaFiles && (
+                (message.mediaFiles.images && message.mediaFiles.images.length > 0) ||
+                (message.mediaFiles.videos && message.mediaFiles.videos.length > 0) ||
+                (message.mediaFiles.audios && message.mediaFiles.audios.length > 0)
+              );
+
+              if (hasMediaUrls) {
+                // Handle new mediaUrls format
+                const allMediaFiles = message.mediaUrls.map((url, index) => {
+                  let type: "image" | "video" | "audio" = "image";
+
+                  // Check by folder path first
+                  if (url.includes('/videos/')) {
+                    type = "video";
+                  } else if (url.includes('/audios/')) {
+                    type = "audio";
+                  } else {
+                    // Check by file extension as fallback
+                    const urlLower = url.toLowerCase();
+                    if (urlLower.includes('.mp4') || urlLower.includes('.webm') || urlLower.includes('.mov') || urlLower.includes('.avi')) {
+                      type = "video";
+                    } else if (urlLower.includes('.mp3') || urlLower.includes('.wav') || urlLower.includes('.ogg') || urlLower.includes('.m4a')) {
+                      type = "audio";
+                    }
+                  }
+
+                  return { file: url, type, index };
+                });
+
+                return (
+                  <div className="space-y-4 mt-6">
+                    <div className="text-center">
+                      <h4 className="text-sm font-light text-slate-600">
+                        Media Files ({allMediaFiles.length})
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Note: Media files cannot be edited. To change media, create a new message.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {allMediaFiles.map(({ file, type, index }, globalIndex) => (
+                        <div
+                          key={globalIndex}
+                          className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-all duration-300 relative group w-32 h-32 border border-slate-200/60 opacity-75"
+                          onClick={() => {
+                            if (type === "video") {
+                              const videoPreview = {
+                                name: `video-${index + 1}.mp4`,
+                                type: 'video/mp4',
+                                size: 0,
+                                videoUrl: file
+                              } as File & { videoUrl: string };
+                              setPreviewFile(videoPreview);
+                              setIsPreviewOpen(true);
+                            } else if (type === "image") {
+                              const imagePreview = {
+                                name: `image-${index + 1}`,
+                                type: 'image/jpeg',
+                                size: 0,
+                                imageUrl: file
+                              } as File & { imageUrl: string };
+                              setPreviewFile(imagePreview);
+                              setIsPreviewOpen(true);
+                            } else if (type === "audio") {
+                              const audioPreview = {
+                                name: `audio-${index + 1}`,
+                                type: 'audio/mp3',
+                                size: 0,
+                                audioUrl: file
+                              } as File & { audioUrl: string };
+                              setPreviewFile(audioPreview);
+                              setIsPreviewOpen(true);
+                            }
+                          }}
+                        >
+                          {type === "image" && (
+                            <img
+                              src={file}
+                              alt={`Image ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                console.error('Failed to load image:', file);
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          )}
+
+                          {type === "video" && (
+                            <>
+                              <video
+                                src={file}
+                                className="w-full h-full object-cover pointer-events-none"
+                                muted
+                                preload="metadata"
+                                poster=""
+                                onError={(e) => {
+                                  console.error('Failed to load video:', file);
+                                }}
+                                onLoadedMetadata={(e) => {
+                                  const video = e.currentTarget;
+                                  if (video.duration > 1) {
+                                    video.currentTime = 1;
+                                  }
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-black/30 flex items-center justify-center hover:bg-black/20 transition-colors pointer-events-none">
+                                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors">
+                                  <div className="w-0 h-0 border-l-[16px] border-l-black border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent ml-1"></div>
+                                </div>
+                              </div>
+                            </>
+                          )}
+
+                          {type === "audio" && (
+                            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center">
+                              <Mic className="w-8 h-8 text-slate-500 mb-2" />
+                              <span className="text-xs text-slate-500 font-light">
+                                AUDIO
+                              </span>
+                            </div>
+                          )}
+
+                          {/* File type indicator */}
+                          <div className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
+                            {type === "image" && (
+                              <Image className="w-3 h-3 text-white" />
+                            )}
+                            {type === "video" && (
+                              <Video className="w-3 h-3 text-white" />
+                            )}
+                            {type === "audio" && (
+                              <Mic className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              } else if (hasMediaFiles) {
+                // Handle legacy mediaFiles format
+                const allMediaFiles = [
+                  ...(message.mediaFiles.images || []).map((file, index) => ({ file, type: "image" as const, index })),
+                  ...(message.mediaFiles.videos || []).map((file, index) => ({ file, type: "video" as const, index })),
+                  ...(message.mediaFiles.audios || []).map((file, index) => ({ file, type: "audio" as const, index }))
+                ];
+
+                return (
+                  <div className="space-y-4 mt-6">
+                    <div className="text-center">
+                      <h4 className="text-sm font-light text-slate-600">
+                        Media Files ({allMediaFiles.length})
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Note: Media files cannot be edited. To change media, create a new message.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {allMediaFiles.map(({ file, type, index }, globalIndex) => (
+                        <div
+                          key={globalIndex}
+                          className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-all duration-300 relative group w-32 h-32 border border-slate-200/60 opacity-75"
+                          onClick={() => {
+                            if (type === "image") {
+                              setPreviewFile(
+                                new File([file], `image-${index + 1}.jpg`, {
+                                  type: "image/jpeg",
+                                })
+                              );
+                              setIsPreviewOpen(true);
+                            } else if (type === "video") {
+                              setPreviewFile(
+                                new File([file], `video-${index + 1}.mp4`, {
+                                  type: "video/mp4",
+                                })
+                              );
+                              setIsPreviewOpen(true);
+                            } else if (type === "audio") {
+                              setPreviewFile(
+                                new File([file], `audio-${index + 1}.mp3`, {
+                                  type: "audio/mp3",
+                                })
+                              );
+                              setIsPreviewOpen(true);
+                            }
+                          }}
+                        >
+                          {type === "image" && (
+                            <img
+                              src={file}
+                              alt={`Image ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+
+                          {type === "video" && (
+                            <>
+                              <video
+                                src={file}
+                                className="w-full h-full object-cover"
+                                muted
+                              />
+                              <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                <div className="w-8 h-8 text-white drop-shadow-lg">
+                                  <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent ml-1"></div>
+                                </div>
+                              </div>
+                            </>
+                          )}
+
+                          {type === "audio" && (
+                            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center">
+                              <Mic className="w-8 h-8 text-slate-500 mb-2" />
+                              <span className="text-xs text-slate-500 font-light">
+                                AUDIO
+                              </span>
+                            </div>
+                          )}
+
+                          {/* File type indicator */}
+                          <div className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
+                            {type === "image" && (
+                              <Image className="w-3 h-3 text-white" />
+                            )}
+                            {type === "video" && (
+                              <Video className="w-3 h-3 text-white" />
+                            )}
+                            {type === "audio" && (
+                              <Mic className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              } else {
+                // No media files to display
+                return null;
+              }
+            })()}
 
             {/* Action Buttons */}
             <div className="flex justify-between items-center pt-6 border-t border-border/50">
@@ -512,12 +908,13 @@ export const MessageDetailsDialog = ({
             <div className="space-y-4">
               {previewFile.type.startsWith("image/") ? (
                 <img
-                  src={URL.createObjectURL(previewFile)}
+                  src={'imageUrl' in previewFile ? (previewFile as File & { imageUrl: string }).imageUrl : URL.createObjectURL(previewFile)}
                   alt={previewFile.name}
                   className="w-full h-[70vh] object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() =>
-                    window.open(URL.createObjectURL(previewFile), "_blank")
-                  }
+                  onClick={() => {
+                    const imageUrl = 'imageUrl' in previewFile ? (previewFile as File & { imageUrl: string }).imageUrl : URL.createObjectURL(previewFile);
+                    window.open(imageUrl, "_blank");
+                  }}
                 />
               ) : previewFile.type.startsWith("video/") ? (
                 <div
@@ -529,9 +926,11 @@ export const MessageDetailsDialog = ({
                   }}
                 >
                   <video
-                    src={URL.createObjectURL(previewFile)}
+                    src={'videoUrl' in previewFile ? (previewFile as File & { videoUrl: string }).videoUrl : URL.createObjectURL(previewFile)}
                     controls
                     className="max-w-full max-h-full rounded-lg shadow-lg"
+                    preload="metadata"
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                   />
                 </div>
               ) : previewFile.type.startsWith("audio/") ? (
@@ -551,7 +950,7 @@ export const MessageDetailsDialog = ({
                   </div>
                   <div className="w-full max-w-lg">
                     <audio
-                      src={URL.createObjectURL(previewFile)}
+                      src={'audioUrl' in previewFile ? (previewFile as File & { audioUrl: string }).audioUrl : URL.createObjectURL(previewFile)}
                       controls
                       className="w-full h-12 rounded-lg shadow-md"
                     />
