@@ -293,7 +293,7 @@ const Payment = () => {
                   <ul className="space-y-2 text-xs mb-6">
                     <li>• Send messages within 1 year</li>
                     <li>• All message types supported</li>
-                    <li>• Email + WhatsApp delivery</li>
+                    <li>• Email delivery</li>
                     <li>• No payment required</li>
                   </ul>
                   <Button
@@ -337,7 +337,7 @@ const Payment = () => {
                   <ul className="space-y-2 text-xs mb-6">
                     <li>• Send messages 1-5 years in future</li>
                     <li>• All message types supported</li>
-                    <li>• Email + WhatsApp delivery</li>
+                    <li>• Email delivery</li>
                     <li>• Safely protected</li>
                   </ul>
                   <Button
@@ -384,7 +384,7 @@ const Payment = () => {
                   <ul className="space-y-2 text-xs mb-6">
                     <li>• Send messages 5-10 years in future</li>
                     <li>• All message types supported</li>
-                    <li>• Email + WhatsApp delivery</li>
+                    <li>• Email delivery</li>
                     <li>• Safely protected</li>
                   </ul>
                   <Button
@@ -431,7 +431,7 @@ const Payment = () => {
                   <ul className="space-y-2 text-xs mb-6">
                     <li>• Send messages 10-50 years ahead</li>
                     <li>• All message types supported</li>
-                    <li>• Email + WhatsApp delivery</li>
+                    <li>• Email delivery</li>
                     <li>• Safely protected</li>
                   </ul>
                   <Button

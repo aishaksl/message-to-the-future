@@ -53,7 +53,7 @@ interface Message {
   content: string;
   type: "text" | "image" | "video" | "audio";
   deliveryDate: Date;
-  deliveryMethod: "email" | "whatsapp" | "both";
+  deliveryMethod: "email";
   status: "scheduled" | "delivered" | "failed";
   isSurprise: boolean;
   mediaUrls?: string[];
@@ -126,21 +126,7 @@ export const MessageDetailsDialog = ({
   };
 
   const getDeliveryIcon = (method: string) => {
-    switch (method) {
-      case "email":
-        return <Mail className="h-4 w-4" />;
-      case "whatsapp":
-        return <MessageCircle className="h-4 w-4" />;
-      case "both":
-        return (
-          <div className="flex gap-1">
-            <Mail className="h-3 w-3" />
-            <MessageCircle className="h-3 w-3" />
-          </div>
-        );
-      default:
-        return <Mail className="h-4 w-4" />;
-    }
+    return <Mail className="h-4 w-4" />;
   };
 
   const handleSave = () => {

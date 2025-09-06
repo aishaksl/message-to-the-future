@@ -43,7 +43,7 @@ interface Message {
   recipientName: string;
   recipientEmail: string;
   recipientPhone: string;
-  deliveryMethod: "email" | "whatsapp" | "both";
+  deliveryMethod: "email";
   status: string;
   createdAt: Date;
   isSurprise: boolean;
@@ -78,9 +78,7 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState<
-    "email" | "whatsapp" | "both"
-  >("email");
+  const [deliveryMethod, setDeliveryMethod] = useState<"email">("email");
   const [isSurpriseMode, setIsSurpriseMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -517,19 +515,11 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
         return recipientType === "self" || recipientName;
       case 3:
         if (recipientType === "other") {
-          if (deliveryMethod === "email" || deliveryMethod === "both") {
+          if (deliveryMethod === "email") {
             return recipientEmail && recipientEmail.includes("@");
           }
-          if (deliveryMethod === "whatsapp" || deliveryMethod === "both") {
-            return recipientPhone;
-          }
         }
-        if (
-          recipientType === "self" &&
-          (deliveryMethod === "whatsapp" || deliveryMethod === "both")
-        ) {
-          return recipientPhone;
-        }
+
         return true;
       case 4:
         return selectedTypes.length > 0;
@@ -877,8 +867,6 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
             recipientType={recipientType}
             recipientEmail={recipientEmail}
             setRecipientEmail={setRecipientEmail}
-            recipientPhone={recipientPhone}
-            setRecipientPhone={setRecipientPhone}
           />
         );
 
@@ -941,7 +929,6 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
             isSurpriseMode={isSurpriseMode}
             deliveryMethod={deliveryMethod}
             recipientEmail={recipientEmail}
-            recipientPhone={recipientPhone}
             selectedTypes={selectedTypes}
             subject={subject}
             messageText={messageText}
@@ -1023,8 +1010,6 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
           setDeliveryMethod={setDeliveryMethod}
           recipientEmail={recipientEmail}
           setRecipientEmail={setRecipientEmail}
-          recipientPhone={recipientPhone}
-          setRecipientPhone={setRecipientPhone}
           selectedTypes={selectedTypes}
           setSelectedTypes={setSelectedTypes}
           subject={subject}

@@ -27,7 +27,7 @@ export interface Message {
     content: string;
     type: 'text' | 'image' | 'video' | 'audio';
     deliveryDate: Date;
-    deliveryMethod: 'email' | 'whatsapp' | 'both';
+    deliveryMethod: 'email';
     status: 'scheduled' | 'delivered' | 'failed';
     isSurprise: boolean;
     mediaUrls?: string[];
