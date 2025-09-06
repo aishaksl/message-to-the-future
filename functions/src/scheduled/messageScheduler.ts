@@ -49,12 +49,17 @@ export const messageChecker = functions.https.onRequest(async (req, res) => {
         }
 
         try {
+          // Gönderen kullanıcının bilgilerini al
+          const userDoc = await db.collection("users").doc(senderId).get();
+          const userData = userDoc.data();
+          const senderName = userData?.displayName || userData?.name || "Kullanıcı";
+
           // Email gönder
           await sendScheduledMessage({
             messageId,
             userId: senderId,
             userEmail: messageData.recipientEmail || "",
-            userName: messageData.recipientName || "Kullanıcı",
+            userName: senderName,
             messageData: {
               content: messageData.content,
               subject: messageData.subject,
@@ -136,57 +141,149 @@ async function sendScheduledMessage({
     <html>
     <head>
       <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .message-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
-        .btn { display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 10px 0; }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          line-height: 1.7;
+          color: #2c3e50;
+          max-width: 580px;
+          margin: 0 auto;
+          padding: 40px 20px;
+          background-color: #fafbfc;
+        }
+        .container {
+          background: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+          overflow: hidden;
+          border: 1px solid #e8eaed;
+        }
+        .header {
+          background: #ffffff;
+          padding: 48px 40px 32px;
+          text-align: center;
+          border-bottom: 1px solid #f0f2f5;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 400;
+          color: #1a202c;
+          letter-spacing: -0.5px;
+        }
+        .content {
+          padding: 40px;
+        }
+        .greeting {
+          font-size: 16px;
+          color: #4a5568;
+          margin-bottom: 32px;
+          font-weight: 400;
+        }
+        .message-box {
+          background: #f8f9fa;
+          padding: 32px;
+          margin: 32px 0;
+          border-radius: 6px;
+          border: 1px solid #e9ecef;
+        }
+        .message-content {
+          font-size: 16px;
+          line-height: 1.8;
+          color: #2d3748;
+          white-space: pre-wrap;
+          margin: 0;
+        }
+        .date-info {
+          background: #f7fafc;
+          padding: 24px;
+          border-radius: 6px;
+          margin: 32px 0;
+          font-size: 14px;
+          color: #718096;
+          border: 1px solid #e2e8f0;
+        }
+        .date-info strong {
+          color: #4a5568;
+          font-weight: 500;
+        }
+        .attachments {
+          margin: 32px 0;
+        }
+        .footer {
+          background: #f8f9fa;
+          padding: 32px 40px;
+          text-align: center;
+          font-size: 13px;
+          color: #718096;
+          border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+          margin: 8px 0;
+        }
+        @media (max-width: 600px) {
+          body {
+            padding: 20px 16px;
+          }
+          .header {
+            padding: 32px 24px 24px;
+          }
+          .content {
+            padding: 24px;
+          }
+          .message-box {
+            padding: 24px;
+          }
+          .date-info {
+            padding: 20px;
+          }
+          .footer {
+            padding: 24px;
+          }
+        }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🕰️ Your Message from the Future Has Arrived!</h1>
-          <p>Hello ${userName}!</p>
+          <h1>Message from the Past</h1>
         </div>
         <div class="content">
+          <div class="greeting">
+            Hello ${userName}
+          </div>
+          <p style="margin: 0 0 24px; color: #4a5568; font-size: 15px;">You have a message that was scheduled to arrive today:</p>
           <div class="message-box">
-            <h3>📝 Your Message:</h3>
-            <p style="font-size: 16px; line-height: 1.8;">${messageData.content || "Message content not found"}</p>
-            
-            ${messageData.deliveryDate ? `
-            <p><strong>📅 Scheduled Date:</strong> ${new Date(messageData.deliveryDate.toDate()).toLocaleDateString("en-US", {
+            <div class="message-content">${messageData.content || "Message content not found"}</div>
+          </div>
+          
+          ${messageData.deliveryDate || messageData.createdAt ? `
+          <div class="date-info">
+            ${messageData.createdAt ? `<div style="margin-bottom: 8px;"><strong>Created:</strong> ${new Date(messageData.createdAt.toDate()).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}</div>` : ""}
+            ${messageData.deliveryDate ? `<div><strong>Scheduled for:</strong> ${new Date(messageData.deliveryDate.toDate()).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",
               hour: "2-digit",
               minute: "2-digit",
-            })}</p>
-            ` : ""}
-            
-            ${messageData.createdAt ? `
-            <p><strong>✍️ Written Date:</strong> ${new Date(messageData.createdAt.toDate()).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}</p>
-            ` : ""}
-          </div>
-          
-          ${attachments.length > 0 ? `
-          <div class="message-box">
-            <h3>📎 Attached Files:</h3>
-            <p>${attachments.length} file(s) were sent with this message. You can find the files in the email attachments.</p>
+            })}</div>` : ""}
           </div>
           ` : ""}
           
-          <div class="footer">
-            <p>This message was automatically sent by the <strong>Message to the Future</strong> application.</p>
-            <p>Your memories bridging past to future... 💫</p>
+          ${attachments.length > 0 ? `
+          <div class="attachments">
+            <p style="color: #4a5568; font-size: 14px; margin-bottom: 16px;">${attachments.length} file(s) were sent with this message.</p>
           </div>
+          ` : ""}
+        </div>
+        <div class="footer">
+          <p>This message was sent via <strong>Your Time Drawer</strong></p>
+          <p>A service for sending messages to your future self</p>
         </div>
       </div>
     </body>
@@ -195,9 +292,9 @@ async function sendScheduledMessage({
 
   const config = functions.config();
     const mailOptions = {
-      from: `"Message to the Future 🕰️" <${config.gmail.user}>`,
+      from: `"${userName}" <${config.gmail.user}>`,
     to: userEmail,
-    subject: `🕰️ Your Message from the Future Has Arrived! - ${new Date().toLocaleDateString("en-US")}`,
+    subject: `Your Message from the Past Has Arrived - ${new Date().toLocaleDateString("en-US")}`,
     html: emailHtml,
     attachments: attachments,
   };
@@ -213,48 +310,166 @@ export const testEmailSender = functions.https.onCall(async (data, context) => {
     try {
         logger.info("Test email sender triggered manually");
         
+        // Kullanıcı bilgilerini al
+        const userId = context.auth?.uid;
+        let userName = "Test User";
+        
+        if (userId) {
+          const userDoc = await db.collection("users").doc(userId).get();
+          const userData = userDoc.data();
+          userName = userData?.displayName || userData?.name || "Test User";
+        }
+        
         // Test email gönder
         const transporter = createEmailTransporter();
        
        const testEmailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white; margin-bottom: 20px;">
-            <h1 style="margin: 0; font-size: 28px;">🧪 Test Message</h1>
-            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">System Tested - ${new Date().toLocaleString("en-US")}</p>
-          </div>
-          
-          <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h2 style="color: #333; margin-top: 0;">✅ Test Successful!</h2>
-            <p style="color: #666; line-height: 1.6; font-size: 16px;">
-              This test message was sent to verify that the Message to the Future system's email sending feature is working properly.
-            </p>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-top: 0;">📊 Test Details:</h3>
-              <ul style="color: #6c757d; line-height: 1.8;">
-                <li>✅ Gmail SMTP connection successful</li>
-                <li>✅ Environment variables configured correctly</li>
-                <li>✅ Firebase Functions running</li>
-                <li>✅ Email template rendering properly</li>
-              </ul>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              line-height: 1.7;
+              color: #2c3e50;
+              max-width: 580px;
+              margin: 0 auto;
+              padding: 40px 20px;
+              background-color: #fafbfc;
+            }
+            .container {
+              background: #ffffff;
+              border-radius: 8px;
+              box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+              overflow: hidden;
+              border: 1px solid #e8eaed;
+            }
+            .header {
+              background: #ffffff;
+              padding: 48px 40px 32px;
+              text-align: center;
+              border-bottom: 1px solid #f0f2f5;
+            }
+            .header h1 {
+              margin: 0;
+              font-size: 24px;
+              font-weight: 400;
+              color: #1a202c;
+              letter-spacing: -0.5px;
+            }
+            .content {
+              padding: 40px;
+            }
+            .test-info {
+              background: #f0f9ff;
+              border: 1px solid #e0f2fe;
+              border-radius: 6px;
+              padding: 24px;
+              margin: 32px 0;
+            }
+            .test-info h3 {
+              color: #0369a1;
+              margin: 0 0 16px 0;
+              font-size: 16px;
+              font-weight: 500;
+            }
+            .test-info p {
+              margin: 8px 0;
+              font-size: 14px;
+              color: #475569;
+            }
+            .test-info strong {
+              color: #334155;
+            }
+            .status-list {
+              background: #f8f9fa;
+              padding: 24px;
+              border-radius: 6px;
+              margin: 24px 0;
+              border: 1px solid #e9ecef;
+            }
+            .status-list ul {
+              margin: 0;
+              padding-left: 20px;
+            }
+            .status-list li {
+              margin: 8px 0;
+              color: #4a5568;
+              font-size: 14px;
+            }
+            .footer {
+              background: #f8f9fa;
+              padding: 32px 40px;
+              text-align: center;
+              font-size: 13px;
+              color: #718096;
+              border-top: 1px solid #e9ecef;
+            }
+            .footer p {
+              margin: 8px 0;
+            }
+            @media (max-width: 600px) {
+              body {
+                padding: 20px 16px;
+              }
+              .header {
+                padding: 32px 24px 24px;
+              }
+              .content {
+                padding: 24px;
+              }
+              .test-info {
+                padding: 20px;
+              }
+              .status-list {
+                padding: 20px;
+              }
+              .footer {
+                padding: 24px;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Test Message</h1>
             </div>
-            
-            <p style="color: #28a745; font-weight: bold; text-align: center; margin: 30px 0;">
-              🎉 System ready for production!
-            </p>
+            <div class="content">
+              <div class="test-info">
+                <h3>System Test</h3>
+                <p><strong>Test Time:</strong> ${new Date().toLocaleString("en-US")}</p>
+                <p><strong>Status:</strong> Email delivery system is working correctly</p>
+              </div>
+              
+              <p style="margin: 0 0 24px; color: #4a5568; font-size: 15px;">This test message was sent to verify that the Message to the Future system's email sending feature is working properly.</p>
+              
+              <div class="status-list">
+                <ul>
+                  <li>Gmail SMTP connection successful</li>
+                  <li>Environment variables configured correctly</li>
+                  <li>Firebase Functions running</li>
+                  <li>Email template rendering properly</li>
+                </ul>
+              </div>
+              
+              <p style="color: #4a5568; font-size: 15px; text-align: center; margin: 30px 0;">System ready for production</p>
+            </div>
+            <div class="footer">
+              <p>This message was sent by the <strong>Your Time Drawer</strong> test system</p>
+            </div>
           </div>
-          
-          <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 14px;">
-            <p>This message was sent by the Message to the Future test system.</p>
-          </div>
-        </div>
+        </body>
+        </html>
       `;
       
       const config = functions.config();
        const mailOptions = {
-          from: `"Message to the Future Test 🧪" <${config.gmail.user}>`,
+          from: `"${userName} Test" <${config.gmail.user}>`,
           to: config.gmail.user, // Send test message to ourselves
-        subject: `🧪 Test Message - System Check - ${new Date().toLocaleDateString("en-US")}`,
+        subject: `Test Message - System Check - ${new Date().toLocaleDateString("en-US")}`,
         html: testEmailHtml,
       };
       
@@ -299,12 +514,17 @@ export const cronMessageChecker = functions.pubsub
         }
 
         try {
+          // Gönderen kullanıcının bilgilerini al
+          const userDoc = await db.collection("users").doc(senderId).get();
+          const userData = userDoc.data();
+          const senderName = userData?.displayName || userData?.name || "Kullanıcı";
+
           // Mesajı gönder
            await sendScheduledMessage({
              messageId,
              userId: senderId,
              userEmail: messageData.recipientEmail || "",
-             userName: messageData.recipientName || "Kullanıcı",
+             userName: senderName,
              messageData: {
                content: messageData.content,
                subject: messageData.subject,
