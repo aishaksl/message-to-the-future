@@ -1,13 +1,8 @@
-import {onSchedule} from "firebase-functions/v2/scheduler";
+import * as functions from "firebase-functions";
 import {logger} from "firebase-functions";
 import {initializeApp, getApps} from "firebase-admin/app";
 import {getFirestore, Timestamp} from "firebase-admin/firestore";
-import {getStorage} from "firebase-admin/storage";
 import * as nodemailer from "nodemailer";
-import * as dotenv from "dotenv";
-
-// Load environment variables
-dotenv.config();
 
 // Firebase Admin'i başlat
 if (getApps().length === 0) {
@@ -15,7 +10,6 @@ if (getApps().length === 0) {
 }
 
 const db = getFirestore();
-const storage = getStorage();
 
 // Email transporter (Gmail SMTP)
 const createEmailTransporter = () => {
@@ -28,25 +22,18 @@ const createEmailTransporter = () => {
   });
 };
 
-// Scheduled message'ları kontrol et ve gönder
-export const checkScheduledMessages = onSchedule(
-  {
-    schedule: "every 1 hours", // Her saat kontrol et
-    timeZone: "Europe/Istanbul",
-    memory: "256MiB",
-    maxInstances: 5,
-  },
-  async (event) => {
-    logger.info("Scheduled message checker started", {timestamp: event.scheduleTime});
+// Message checker function - HTTP trigger for testing
+export const messageChecker = functions.https.onRequest(async (req, res) => {
+    logger.info("Scheduled message checker started manually");
 
     try {
       const now = new Date();
       
-      // Gönderilmesi gereken mesajları bul
+      // Gönderilmesi gereken mesajları bul - doğru field'ları kullan
       const messagesQuery = await db
-        .collectionGroup("messages")
+        .collection("messages")
         .where("status", "==", "scheduled")
-        .where("scheduledDate", "<=", now)
+        .where("deliveryDate", "<=", Timestamp.fromDate(now))
         .get();
 
       logger.info(`Found ${messagesQuery.size} messages to send`);
@@ -54,50 +41,42 @@ export const checkScheduledMessages = onSchedule(
       const promises = messagesQuery.docs.map(async (doc) => {
         const messageData = doc.data();
         const messageId = doc.id;
-        const userId = doc.ref.parent.parent?.id;
+        const senderId = messageData.senderId;
 
-        if (!userId) {
-          logger.error("User ID not found for message", {messageId});
+        if (!senderId) {
+          logger.error("Sender ID not found for message", {messageId});
           return;
         }
 
         try {
-          // Kullanıcı bilgilerini al
-          const userDoc = await db.collection("users").doc(userId).get();
-          const userData = userDoc.data();
-
-          if (!userData?.email) {
-            logger.error("User email not found", {userId, messageId});
-            return;
-          }
-
           // Email gönder
           await sendScheduledMessage({
             messageId,
-            userId,
-            userEmail: userData.email,
-            userName: userData.displayName || "Kullanıcı",
+            userId: senderId,
+            userEmail: messageData.recipientEmail || "",
+            userName: messageData.recipientName || "Kullanıcı",
             messageData: {
               content: messageData.content,
-              scheduledDate: messageData.scheduledDate,
+              subject: messageData.subject,
+              deliveryDate: messageData.deliveryDate,
               createdAt: messageData.createdAt,
-              mediaFiles: messageData.mediaFiles,
+              mediaUrls: messageData.mediaUrls,
               status: messageData.status,
             },
           });
 
           // Mesaj durumunu güncelle
           await doc.ref.update({
-            status: "sent",
+            status: "delivered",
             sentAt: new Date(),
             updatedAt: new Date(),
           });
 
-          logger.info("Message sent successfully", {messageId, userId});
+          logger.info("Message sent successfully", {messageId, senderId});
         } catch (error) {
           logger.error("Error sending message", {
             messageId,
-            userId,
+            senderId,
             error: error instanceof Error ? error.message : String(error),
           });
 
@@ -112,13 +91,14 @@ export const checkScheduledMessages = onSchedule(
 
       await Promise.all(promises);
       logger.info("Scheduled message check completed");
+      res.status(200).send("Scheduled messages checked successfully");
     } catch (error) {
       logger.error("Error in scheduled message checker", {
         error: error instanceof Error ? error.message : String(error),
       });
+      res.status(500).send("Error checking scheduled messages");
     }
-  }
-);
+  });
 
 // Email gönderme fonksiyonu
 async function sendScheduledMessage({
@@ -134,38 +114,20 @@ async function sendScheduledMessage({
   userName: string;
   messageData: {
     content?: string;
-    scheduledDate?: Timestamp;
+    subject?: string;
+    deliveryDate?: Timestamp;
     createdAt?: Timestamp;
-    mediaFiles?: Array<{
-      name: string;
-      path: string;
-      type: string;
-    }>;
+    mediaUrls?: string[];
     status: string;
   };
 }) {
   const transporter = createEmailTransporter();
 
   // Dosya URL'lerini al
-  const attachments = [];
-  if (messageData.mediaFiles && messageData.mediaFiles.length > 0) {
-    for (const file of messageData.mediaFiles) {
-      try {
-        const bucket = storage.bucket();
-        const fileRef = bucket.file(file.path);
-        const [url] = await fileRef.getSignedUrl({
-          action: "read",
-          expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 gün
-        });
-        
-        attachments.push({
-          filename: file.name,
-          path: url,
-        });
-      } catch (error) {
-        logger.warn("Could not get file URL", {filePath: file.path, error});
-      }
-    }
+  const attachments: Array<{filename: string; path: string}> = [];
+  if (messageData.mediaUrls && messageData.mediaUrls.length > 0) {
+    // Media URL'leri zaten hazır, doğrudan kullanabiliriz
+    logger.info("Media URLs found", {mediaUrls: messageData.mediaUrls});
   }
 
   // Email içeriği
@@ -195,8 +157,8 @@ async function sendScheduledMessage({
             <h3>📝 Mesajın:</h3>
             <p style="font-size: 16px; line-height: 1.8;">${messageData.content || "Mesaj içeriği bulunamadı"}</p>
             
-            ${messageData.scheduledDate ? `
-            <p><strong>📅 Planlandığı Tarih:</strong> ${new Date(messageData.scheduledDate.toDate()).toLocaleDateString("tr-TR", {
+            ${messageData.deliveryDate ? `
+            <p><strong>📅 Planlandığı Tarih:</strong> ${new Date(messageData.deliveryDate.toDate()).toLocaleDateString("tr-TR", {
               year: "numeric",
               month: "long",
               day: "numeric",
@@ -231,8 +193,9 @@ async function sendScheduledMessage({
     </html>
   `;
 
-  const mailOptions = {
-    from: `"Geleceğe Mesaj 🕰️" <${process.env.GMAIL_USER}>`,
+  const config = functions.config();
+    const mailOptions = {
+      from: `"Geleceğe Mesaj 🕰️" <${config.gmail.user}>`,
     to: userEmail,
     subject: `🕰️ Geleceğe Mesajın Geldi! - ${new Date().toLocaleDateString("tr-TR")}`,
     html: emailHtml,
@@ -243,16 +206,139 @@ async function sendScheduledMessage({
   logger.info("Email sent successfully", {messageId, userEmail});
 }
 
-// Manuel mesaj gönderme fonksiyonu (test için)
-export const sendMessageNow = onSchedule(
-  {
-    schedule: "0 0 1 1 *", // Yılda bir kez (kullanılmayacak, sadece manuel tetikleme için)
-    timeZone: "Europe/Istanbul",
-    memory: "256MiB",
-    maxInstances: 1,
-  },
-  async (event) => {
-    // Bu fonksiyon manuel olarak tetiklenecek
-    logger.info("Manual message sender triggered");
-  }
-);
+// Test mesajı gönderme fonksiyonu (manuel tetikleme için)
+export const testEmailSender = functions.https.onCall(async (data, context) => {
+    logger.info("Manual test message sender triggered");
+    
+    try {
+        logger.info("Test email sender triggered manually");
+        
+        // Test email gönder
+        const transporter = createEmailTransporter();
+       
+       const testEmailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white; margin-bottom: 20px;">
+            <h1 style="margin: 0; font-size: 28px;">🧪 Test Mesajı</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Sistem Test Edildi - ${new Date().toLocaleString("tr-TR")}</p>
+          </div>
+          
+          <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #333; margin-top: 0;">✅ Test Başarılı!</h2>
+            <p style="color: #666; line-height: 1.6; font-size: 16px;">
+              Bu test mesajı, Geleceğe Mesaj sisteminin email gönderme özelliğinin düzgün çalıştığını doğrulamak için gönderilmiştir.
+            </p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-top: 0;">📊 Test Detayları:</h3>
+              <ul style="color: #6c757d; line-height: 1.8;">
+                <li>✅ Gmail SMTP bağlantısı başarılı</li>
+                <li>✅ Environment variables doğru ayarlandı</li>
+                <li>✅ Firebase Functions çalışıyor</li>
+                <li>✅ Email template düzgün render ediliyor</li>
+              </ul>
+            </div>
+            
+            <p style="color: #28a745; font-weight: bold; text-align: center; margin: 30px 0;">
+              🎉 Sistem production için hazır!
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 14px;">
+            <p>Bu mesaj Geleceğe Mesaj test sistemi tarafından gönderilmiştir.</p>
+          </div>
+        </div>
+      `;
+      
+      const config = functions.config();
+       const mailOptions = {
+          from: `"Geleceğe Mesaj Test 🧪" <${config.gmail.user}>`,
+          to: config.gmail.user, // Kendimize test mesajı gönder
+        subject: `🧪 Test Mesajı - Sistem Kontrolü - ${new Date().toLocaleDateString("tr-TR")}`,
+        html: testEmailHtml,
+      };
+      
+      await transporter.sendMail(mailOptions);
+        logger.info("Test email sent successfully to:", process.env.GMAIL_USER);
+       
+        logger.info("Test email sent successfully");
+        return { success: true, message: "Test email sent successfully" };
+     } catch (error) {
+        logger.error("Error sending test email:", error);
+        return { success: false, message: error instanceof Error ? error.message : String(error) };
+     }
+   }
+ );
+
+// Cron job - her dakika çalışır (Cloud Scheduler ile)
+export const cronMessageChecker = functions.pubsub
+  .schedule("every 1 minutes")
+  .onRun(async (context) => {
+    logger.info("Scheduled message checker started");
+
+    try {
+      const now = new Date();
+      
+      // Gönderilmesi gereken mesajları bul
+      const messagesQuery = await db
+        .collection("messages")
+        .where("status", "==", "scheduled")
+        .where("deliveryDate", "<=", Timestamp.fromDate(now))
+        .get();
+
+      logger.info(`Found ${messagesQuery.size} messages to send`);
+
+      const promises = messagesQuery.docs.map(async (doc) => {
+        const messageData = doc.data();
+        const messageId = doc.id;
+        const senderId = messageData.senderId;
+
+        if (!senderId) {
+          logger.error("Sender ID not found for message", {messageId});
+          return;
+        }
+
+        try {
+          // Mesajı gönder
+           await sendScheduledMessage({
+             messageId,
+             userId: senderId,
+             userEmail: messageData.recipientEmail || "",
+             userName: messageData.recipientName || "Kullanıcı",
+             messageData: {
+               content: messageData.content,
+               subject: messageData.subject,
+               deliveryDate: messageData.deliveryDate,
+               createdAt: messageData.createdAt,
+               mediaUrls: messageData.mediaUrls,
+               status: messageData.status,
+             },
+           });
+
+          // Mesaj durumunu güncelle
+          await doc.ref.update({
+            status: "delivered",
+            sentAt: new Date(),
+            updatedAt: new Date(),
+          });
+
+          logger.info("Message sent successfully", {messageId, senderId});
+        } catch (error) {
+          logger.error("Error processing message", {messageId, senderId, error});
+          
+          // Hata durumunda mesajı failed olarak işaretle
+          await doc.ref.update({
+            status: "failed",
+            error: error instanceof Error ? error.message : String(error),
+            updatedAt: new Date(),
+          });
+        }
+      });
+
+      await Promise.all(promises);
+       logger.info("Scheduled message check completed");
+      } catch (error) {
+        logger.error("Error in scheduled message checker:", error);
+        throw error;
+      }
+    });
