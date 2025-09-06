@@ -42,7 +42,6 @@ interface Message {
   recipientType: "self" | "other";
   recipientName: string;
   recipientEmail: string;
-  recipientPhone: string;
   deliveryMethod: "email";
   status: string;
   createdAt: Date;
@@ -280,7 +279,6 @@ export const MessageCreator = ({ editingMessage }: MessageCreatorProps) => {
           : editingMessage.recipientName
       );
       setRecipientEmail(editingMessage.recipientEmail || "");
-      setRecipientPhone(editingMessage.recipientPhone || "");
       setDeliveryMethod(editingMessage.deliveryMethod);
       setIsSurpriseMode(editingMessage.isSurprise);
       // selectedTypes will be set after media files are loaded
