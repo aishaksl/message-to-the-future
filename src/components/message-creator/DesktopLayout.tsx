@@ -49,8 +49,7 @@ interface Message {
   recipientType: "self" | "other";
   recipientName: string;
   recipientEmail: string;
-  recipientPhone: string;
-  deliveryMethod: "email" | "whatsapp" | "both";
+  deliveryMethod: "email";
   status: string;
   createdAt: Date;
   isSurprise: boolean;
@@ -72,12 +71,10 @@ interface DesktopLayoutProps {
   setIsSurpriseMode: (surprise: boolean) => void;
 
   // Delivery method props
-  deliveryMethod: "email" | "whatsapp" | "both";
-  setDeliveryMethod: (method: "email" | "whatsapp" | "both") => void;
+  deliveryMethod: "email";
+  setDeliveryMethod: (method: "email") => void;
   recipientEmail: string;
   setRecipientEmail: (email: string) => void;
-  recipientPhone: string;
-  setRecipientPhone: (phone: string) => void;
 
   // Message type props
   selectedTypes: ("text" | "image" | "video" | "audio")[];
@@ -131,8 +128,6 @@ export const DesktopLayout = ({
   setDeliveryMethod,
   recipientEmail,
   setRecipientEmail,
-  recipientPhone,
-  setRecipientPhone,
   selectedTypes,
   setSelectedTypes,
   subject,
@@ -356,159 +351,53 @@ export const DesktopLayout = ({
         </CardContent>
       </Card>
 
-      {/* Step 2: Delivery Method */}
+      {/* Step 2: Email Address */}
       <Card className="border-slate-200/60 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl md:text-2xl lg:text-3xl font-extralight bg-clip-text text-transparent bg-gradient-to-br from-blue-300 to-purple-600 leading-tight tracking-tight flex items-center gap-3">
             <span className="w-10 h-10 text-slate-600 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-sm font-light border border-slate-200">
               2
             </span>
-            How should it be delivered?
+            Where should we send it?
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-2">
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button
-                onClick={() => setDeliveryMethod("email")}
-                className={cn(
-                  "p-4 rounded-2xl border transition-all duration-300 text-left hover:shadow-sm",
-                  deliveryMethod === "email"
-                    ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50 shadow-sm"
-                    : "border-slate-200/60 hover:border-blue-200/60 bg-white/50"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <Mail className={cn(
-                    "w-5 h-5",
-                    deliveryMethod === "email" ? "text-blue-500" : "text-slate-400"
-                  )} />
-                  <span className="text-sm font-light text-slate-700">Email Only</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setDeliveryMethod("whatsapp")}
-                className={cn(
-                  "p-4 rounded-2xl border transition-all duration-300 text-left hover:shadow-sm",
-                  deliveryMethod === "whatsapp"
-                    ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50 shadow-sm"
-                    : "border-slate-200/60 hover:border-blue-200/60 bg-white/50"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <MessageCircle className={cn(
-                    "w-5 h-5",
-                    deliveryMethod === "whatsapp" ? "text-blue-500" : "text-slate-400"
-                  )} />
-                  <span className="text-sm font-light text-slate-700">WhatsApp Only</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setDeliveryMethod("both")}
-                className={cn(
-                  "p-4 rounded-2xl border transition-all duration-300 text-left hover:shadow-sm",
-                  deliveryMethod === "both"
-                    ? "border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50 shadow-sm"
-                    : "border-slate-200/60 hover:border-blue-200/60 bg-white/50"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <Mail className={cn(
-                    "w-4 h-4",
-                    deliveryMethod === "both" ? "text-blue-500" : "text-slate-400"
-                  )} />
-                  <MessageCircle className={cn(
-                    "w-4 h-4",
-                    deliveryMethod === "both" ? "text-blue-500" : "text-slate-400"
-                  )} />
-                  <span className="text-sm font-light text-slate-700">Email + WhatsApp</span>
-                </div>
-              </button>
-            </div>
-
+          <div className="space-y-6">
             {recipientType === "other" && (
-              <div className="space-y-6 animate-fade-in">
-                {(deliveryMethod === "email" || deliveryMethod === "both") && (
-                  <div>
-                    <Label
-                      htmlFor="recipientEmailDesktop"
-                      className="text-base font-light text-slate-600"
-                    >
-                      Email Address
-                    </Label>
-                    <Input
-                      id="recipientEmailDesktop"
-                      type="email"
-                      placeholder="recipient@example.com"
-                      value={recipientEmail}
-                      onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
-                    />
-                  </div>
-                )}
-                {(deliveryMethod === "whatsapp" ||
-                  deliveryMethod === "both") && (
-                    <div>
-                      <Label
-                        htmlFor="recipientPhoneDesktop"
-                        className="text-base font-light text-slate-600"
-                      >
-                        Phone Number
-                      </Label>
-                      <Input
-                        id="recipientPhoneDesktop"
-                        type="tel"
-                        placeholder="+90 555 123 4567"
-                        value={recipientPhone}
-                        onChange={(e) => setRecipientPhone(e.target.value)}
-                        className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
-                      />
-                    </div>
-                  )}
+              <div>
+                <Label
+                  htmlFor="recipientEmailDesktop"
+                  className="text-base font-light text-slate-600"
+                >
+                  Email Address
+                </Label>
+                <Input
+                  id="recipientEmailDesktop"
+                  type="email"
+                  placeholder="recipient@example.com"
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
+                  className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
+                />
               </div>
             )}
 
             {recipientType === "self" && (
-              <div className="space-y-6 animate-fade-in">
-                {(deliveryMethod === "email" || deliveryMethod === "both") && (
-                  <div>
-                    <Label
-                      htmlFor="recipientEmailSelfDesktop"
-                      className="text-base font-light text-slate-600"
-                    >
-                      Your Email Address
-                    </Label>
-                    <Input
-                      id="recipientEmailSelfDesktop"
-                      type="email"
-                      placeholder="your@example.com"
-                      value={recipientEmail}
-                      onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
-                    />
-                  </div>
-                )}
-                {(deliveryMethod === "whatsapp" ||
-                  deliveryMethod === "both") && (
-                    <div>
-                      <Label
-                        htmlFor="recipientPhoneSelfDesktop"
-                        className="text-base font-light text-slate-600"
-                      >
-                        Your Phone Number
-                      </Label>
-                      <Input
-                        id="recipientPhoneSelfDesktop"
-                        type="tel"
-                        placeholder="+90 555 123 4567"
-                        value={recipientPhone}
-                        onChange={(e) => setRecipientPhone(e.target.value)}
-                        className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
-                      />
-                    </div>
-                  )}
+              <div>
+                <Label
+                  htmlFor="recipientEmailSelfDesktop"
+                  className="text-base font-light text-slate-600"
+                >
+                  Your Email Address
+                </Label>
+                <Input
+                  id="recipientEmailSelfDesktop"
+                  type="email"
+                  placeholder="your@example.com"
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
+                  className="mt-3 border-slate-200/60 bg-white/80 focus:ring-1 focus:ring-blue-200/30 focus-visible:ring-1 rounded-xl px-4 py-3 font-light placeholder:text-slate-400"
+                />
               </div>
             )}
           </div>
@@ -1006,7 +895,7 @@ export const DesktopLayout = ({
               isSurpriseMode={isSurpriseMode}
               deliveryMethod={deliveryMethod}
               recipientEmail={recipientEmail}
-              recipientPhone={recipientPhone}
+
               selectedTypes={selectedTypes}
               subject={subject}
               messageText={messageText}

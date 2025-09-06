@@ -25,8 +25,7 @@ interface Message {
   recipientType: "self" | "other";
   recipientName: string;
   recipientEmail: string;
-  recipientPhone: string;
-  deliveryMethod: "email" | "whatsapp" | "both";
+  deliveryMethod: "email";
   status: string;
   createdAt: Date;
   isSurprise: boolean;
@@ -45,9 +44,8 @@ interface MessagePreviewProps {
   isSurpriseMode: boolean;
 
   // Delivery method props
-  deliveryMethod: "email" | "whatsapp" | "both";
+  deliveryMethod: "email";
   recipientEmail: string;
-  recipientPhone: string;
 
   // Message type props
   selectedTypes: ("text" | "image" | "video" | "audio")[];
