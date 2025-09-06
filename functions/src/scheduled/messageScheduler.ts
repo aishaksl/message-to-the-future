@@ -149,16 +149,16 @@ async function sendScheduledMessage({
     <body>
       <div class="container">
         <div class="header">
-          <h1>🕰️ Geleceğe Mesajın Geldi!</h1>
-          <p>Merhaba ${userName}!</p>
+          <h1>🕰️ Your Message from the Future Has Arrived!</h1>
+          <p>Hello ${userName}!</p>
         </div>
         <div class="content">
           <div class="message-box">
-            <h3>📝 Mesajın:</h3>
-            <p style="font-size: 16px; line-height: 1.8;">${messageData.content || "Mesaj içeriği bulunamadı"}</p>
+            <h3>📝 Your Message:</h3>
+            <p style="font-size: 16px; line-height: 1.8;">${messageData.content || "Message content not found"}</p>
             
             ${messageData.deliveryDate ? `
-            <p><strong>📅 Planlandığı Tarih:</strong> ${new Date(messageData.deliveryDate.toDate()).toLocaleDateString("tr-TR", {
+            <p><strong>📅 Scheduled Date:</strong> ${new Date(messageData.deliveryDate.toDate()).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",
@@ -168,7 +168,7 @@ async function sendScheduledMessage({
             ` : ""}
             
             ${messageData.createdAt ? `
-            <p><strong>✍️ Yazıldığı Tarih:</strong> ${new Date(messageData.createdAt.toDate()).toLocaleDateString("tr-TR", {
+            <p><strong>✍️ Written Date:</strong> ${new Date(messageData.createdAt.toDate()).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",
@@ -178,14 +178,14 @@ async function sendScheduledMessage({
           
           ${attachments.length > 0 ? `
           <div class="message-box">
-            <h3>📎 Ekli Dosyalar:</h3>
-            <p>Bu mesajla birlikte ${attachments.length} dosya gönderildi. Dosyaları email eklerinde bulabilirsin.</p>
+            <h3>📎 Attached Files:</h3>
+            <p>${attachments.length} file(s) were sent with this message. You can find the files in the email attachments.</p>
           </div>
           ` : ""}
           
           <div class="footer">
-            <p>Bu mesaj <strong>Geleceğe Mesaj</strong> uygulaması tarafından otomatik olarak gönderilmiştir.</p>
-            <p>Geçmişten geleceğe köprü kuran anıların... 💫</p>
+            <p>This message was automatically sent by the <strong>Message to the Future</strong> application.</p>
+            <p>Your memories bridging past to future... 💫</p>
           </div>
         </div>
       </div>
@@ -195,9 +195,9 @@ async function sendScheduledMessage({
 
   const config = functions.config();
     const mailOptions = {
-      from: `"Geleceğe Mesaj 🕰️" <${config.gmail.user}>`,
+      from: `"Message to the Future 🕰️" <${config.gmail.user}>`,
     to: userEmail,
-    subject: `🕰️ Geleceğe Mesajın Geldi! - ${new Date().toLocaleDateString("tr-TR")}`,
+    subject: `🕰️ Your Message from the Future Has Arrived! - ${new Date().toLocaleDateString("en-US")}`,
     html: emailHtml,
     attachments: attachments,
   };
@@ -219,42 +219,42 @@ export const testEmailSender = functions.https.onCall(async (data, context) => {
        const testEmailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white; margin-bottom: 20px;">
-            <h1 style="margin: 0; font-size: 28px;">🧪 Test Mesajı</h1>
-            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Sistem Test Edildi - ${new Date().toLocaleString("tr-TR")}</p>
+            <h1 style="margin: 0; font-size: 28px;">🧪 Test Message</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">System Tested - ${new Date().toLocaleString("en-US")}</p>
           </div>
           
           <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <h2 style="color: #333; margin-top: 0;">✅ Test Başarılı!</h2>
+            <h2 style="color: #333; margin-top: 0;">✅ Test Successful!</h2>
             <p style="color: #666; line-height: 1.6; font-size: 16px;">
-              Bu test mesajı, Geleceğe Mesaj sisteminin email gönderme özelliğinin düzgün çalıştığını doğrulamak için gönderilmiştir.
+              This test message was sent to verify that the Message to the Future system's email sending feature is working properly.
             </p>
             
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-top: 0;">📊 Test Detayları:</h3>
+              <h3 style="color: #495057; margin-top: 0;">📊 Test Details:</h3>
               <ul style="color: #6c757d; line-height: 1.8;">
-                <li>✅ Gmail SMTP bağlantısı başarılı</li>
-                <li>✅ Environment variables doğru ayarlandı</li>
-                <li>✅ Firebase Functions çalışıyor</li>
-                <li>✅ Email template düzgün render ediliyor</li>
+                <li>✅ Gmail SMTP connection successful</li>
+                <li>✅ Environment variables configured correctly</li>
+                <li>✅ Firebase Functions running</li>
+                <li>✅ Email template rendering properly</li>
               </ul>
             </div>
             
             <p style="color: #28a745; font-weight: bold; text-align: center; margin: 30px 0;">
-              🎉 Sistem production için hazır!
+              🎉 System ready for production!
             </p>
           </div>
           
           <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 14px;">
-            <p>Bu mesaj Geleceğe Mesaj test sistemi tarafından gönderilmiştir.</p>
+            <p>This message was sent by the Message to the Future test system.</p>
           </div>
         </div>
       `;
       
       const config = functions.config();
        const mailOptions = {
-          from: `"Geleceğe Mesaj Test 🧪" <${config.gmail.user}>`,
-          to: config.gmail.user, // Kendimize test mesajı gönder
-        subject: `🧪 Test Mesajı - Sistem Kontrolü - ${new Date().toLocaleDateString("tr-TR")}`,
+          from: `"Message to the Future Test 🧪" <${config.gmail.user}>`,
+          to: config.gmail.user, // Send test message to ourselves
+        subject: `🧪 Test Message - System Check - ${new Date().toLocaleDateString("en-US")}`,
         html: testEmailHtml,
       };
       

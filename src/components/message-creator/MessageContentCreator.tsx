@@ -281,7 +281,7 @@ export const MessageContentCreator = ({
                     <button
                       onClick={onExpandText}
                       className="p-1 transition-transform duration-200 hover:scale-125"
-                      title="Büyüt"
+                      title="Expand"
                     >
                       <Expand className="w-4 h-4 text-blue-500" />
                     </button>
@@ -291,7 +291,7 @@ export const MessageContentCreator = ({
                         setIsWriting(false);
                       }}
                       className="p-1 transition-transform duration-200 hover:scale-125"
-                      title="Temizle"
+                      title="Clear"
                     >
                       <X className="w-4 h-4 text-red-500" />
                     </button>
@@ -307,14 +307,14 @@ export const MessageContentCreator = ({
                         )
                       }
                       className="p-1 transition-transform duration-200 hover:scale-125"
-                      title="Büyüt"
+                      title="Expand"
                     >
                       <Expand className="w-4 h-4 text-blue-500" />
                     </button>
                     <button
                       onClick={() => removeFile(0)}
                       className="p-1 transition-transform duration-200 hover:scale-125"
-                      title="Sil"
+                      title="Delete"
                     >
                       <X className="w-4 h-4 text-red-500" />
                     </button>

@@ -25,10 +25,10 @@ export const sendTestEmail = functions.runWith({
       subject: "🧪 Firebase Functions Test Email",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #4CAF50;">✅ Test Email Başarılı!</h2>
-          <p>Bu email Firebase Functions'dan gönderildi.</p>
-          <p><strong>Gönderim Zamanı:</strong> ${new Date().toLocaleString('tr-TR')}</p>
-          <p>Gmail SMTP ayarları çalışıyor! 🎉</p>
+          <h2 style="color: #4CAF50;">✅ Test Email Successful!</h2>
+          <p>This email was sent from Firebase Functions.</p>
+          <p><strong>Send Time:</strong> ${new Date().toLocaleString('en-US')}</p>
+          <p>Gmail SMTP settings are working! 🎉</p>
         </div>
       `,
     };
