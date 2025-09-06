@@ -49,7 +49,7 @@ const HowItWorksSection: React.FC = () => {
             <div className="relative z-10">
               <div className="inline-flex items-center justify-center w-6 h-6 bg-[#9475f3] text-white rounded-full text-sm font-bold mb-1 md:mb-2">1</div>
               <h3 className="text-lg  text-slate-800 mb-1 bg-gradient-to-br from-blue-300 to-purple-600  bg-clip-text text-transparent">Choose Recipient</h3>
-              <p className="hidden md:block text-sm text-slate-600 font-light">Select who will receive your message: yourself or someone special</p>
+              <p className="hidden md:block text-sm text-slate-600 font-light">Select who will receive your message: to yourself or someone special</p>
             </div>
           </div>
 
@@ -67,8 +67,10 @@ const HowItWorksSection: React.FC = () => {
 
             <div className="relative z-10">
               <div className="inline-flex items-center justify-center w-6 h-6 bg-[#9475f3]  text-white rounded-full text-sm font-bold mb-1 md:mb-2">2</div>
-              <h3 className="text-lg text-slate-800 mb-1 bg-gradient-to-br from-blue-300 to-purple-600 bg-clip-text text-transparent">Choose Platform</h3>
-              <p className="hidden md:block text-sm text-slate-600 font-light">Select your preferred delivery method: Email or WhatsApp</p>
+              <h3 className="text-lg text-slate-800 mb-1 bg-gradient-to-br from-blue-300 to-purple-600 bg-clip-text text-transparent">
+                Delivery Email
+              </h3>
+              <p className="hidden md:block text-sm text-slate-600 font-light">Enter the email address where you want this message to be delivered: to yourself or someone special</p>
             </div>
           </div>
 
